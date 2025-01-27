@@ -4,6 +4,21 @@ const jwt = require('jsonwebtoken');
 const app = express();
 app.use(express.json()); // for parsing application/json
 
+app.use((req, res, next) => {
+  var d = new Date();
+  console.log(
+    `${d.toLocaleString()} : ${req.method} accessing ${req.path} from ${req.ip}`
+  );
+  // Add "locale" and "rand-num" headers to the response
+  const locale = req.headers["accept-language"]
+    ? req.headers["accept-language"].split(",")[0].slice(0, 2).toLowerCase()
+    : "en"; // Default to 'en'
+  const randNum = Math.floor(Math.random() * 10001); // Random number between 0 and 10000
+  res.setHeader("locale", locale);
+  res.setHeader("rand-num", randNum);
+  next();
+});
+
 // Secret key for generating and verifying tokens
 const SECRET_KEY = 'YOUR-SECRET-KEY';
 
