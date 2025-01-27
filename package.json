@@ -5,8 +5,8 @@
     "jsonwebtoken": "^9.0.2"
   },
   "scripts": {
-    "start": "node server.js",          // For starting the application
-    "build": "echo 'Build process complete!'" // Placeholder build command
+    "start": "node server.js",          
+    "build": "echo 'Build process complete!'"
   },
   "author": "VikneshSTGM",
   "license": "ISC"
