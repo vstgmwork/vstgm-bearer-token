@@ -1,6 +1,13 @@
 {
+  "name": "vstgm-bearer-token",
   "dependencies": {
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2"
-  }
+  },
+  "scripts": {
+    "start": "node server.js",          // For starting the application
+    "build": "echo 'Build process complete!'" // Placeholder build command
+  },
+  "author": "VikneshSTGM",
+  "license": "ISC"
 }
