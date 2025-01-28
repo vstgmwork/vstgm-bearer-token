@@ -36,7 +36,7 @@ const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
 
-  if (token == null) return res.sendStatus(401); // If there isn't any token
+  if (null == token || undefined == token) return res.sendStatus(401); // If there isn't any token or showing as undefined
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
     if (err) return res.sendStatus(403); // If token is not valid
