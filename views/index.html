@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Node &amp; Express REST API</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <style>
+        body {
+            padding: 40px;
+        }
+
+        a>i {
+            font-size: 3rem !important;
+            margin-right: 10px !important;
+        }
+
+        .jumbotron {
+            padding-bottom: 20px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container-lg">
+        <header class="jumbotron">
+            <h1 class="display-2">REST API</h1>
+            <h2>A REST API page developed using Node &amp; Express</h2>
+        </header>
+        <section>
+            <!-- <h2 class="display-5">API Details:</h2> -->
+            <h3>Accepted Parameters are listed below</h3>
+            <ul>
+                <li>/generate   -   This will generate a bearer token. This bearer token can be seen in the response section as JSON. Also the token will expire in 4 minutes. 
+                    The time at which the token got generated will be shown in the headers section with the key utctime. This is just a API call and 
+                    when opened in the browser will just show "Invalid Route".
+                </li>
+                <li>/validate   -   This will accpect the bearer token as authorization field and will validate if the token is valid or not.</li>
+                <li>/delayload/second   -   This will load a html file after the mentioned time in seconds. http://localhost:3010/delayload/480 will load the page after 480 seconds</li>
+            </ul>
+        </section>
+    </main>
+</body>

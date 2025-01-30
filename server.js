@@ -19,6 +19,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/views/index.html");
+});
+
 // Secret key for generating and verifying tokens
 const SECRET_KEY = 'YOUR-SECRET-KEY';
 
@@ -50,6 +54,25 @@ app.post("/authenticate", authenticateToken, (req, res) => {
   const utcTime = new Date().toISOString();
   res.set("utctime", `${utcTime}`);
   res.json({ message: "Authenticated" });
+});
+
+const delayLoadHtmlPath = __dirname + "/views/delayload.html";
+const faviconPath = __dirname + "/views/favicon.ico";
+
+// Route to load the delayload.html file after a specified amount of time
+app.get("/delayload/:time", (req, res) => {
+  const time = parseInt(req.params.time);
+  if (!isNaN(time)) {
+    setTimeout(() => {
+      res.sendFile(delayLoadHtmlPath);
+    }, time * 1000); // Convert seconds to milliseconds
+  } else {
+    res.send("Invalid time parameter");
+  }
+});
+
+app.get("/favicon.ico", (req, res) => {
+  res.sendFile(faviconPath);
 });
 
 // Catch-all route (move this to the end)
