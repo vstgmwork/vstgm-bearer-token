@@ -1,0 +1,20 @@
+{
+    "links": {
+        "status": {
+            "href": "http://192.168.29.53:3005/",
+            "method": "GET"
+        },
+        "delete": {
+            "href": "http://192.168.29.53:3005/",
+            "method": "DELETE"
+        },
+        "uploadPart": {
+            "href": "http://192.168.29.53:3005/",
+            "method": "POST"
+        },
+        "complete": {
+            "href": "http://192.168.29.53:3005/",
+            "method": "PUT"
+        }
+    }
+}

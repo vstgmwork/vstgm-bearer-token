@@ -4,6 +4,20 @@ const jwt = require('jsonwebtoken');
 const app = express();
 app.use(express.json()); // for parsing application/json
 
+let attemptCount = 0;
+
+const rateLimitMiddleware = (req, res, next) => {
+  attemptCount++;
+  if (attemptCount % 3 === 0) {
+    res.status(200).send("Success");
+  } else {
+    setTimeout(() => {
+      // res.status(429).send('Too Many Requests');
+      res.status(600).send("Custom Failure");
+    }, 5000);
+  }
+};
+
 app.use((req, res, next) => {
   var d = new Date();
   console.log(
@@ -22,6 +36,50 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 });
+
+app.get("/loadajax", (req, res) => {
+  res.sendFile(__dirname + "/views/loadajax.html");
+});
+
+app.get("/narujpg", (req, res) => {
+  res.sendFile(__dirname + "/views/naru.jpg");
+});
+
+app.get("/txt", (req, res) => {
+  res.sendFile(__dirname + "/views/welcome.txt");
+});
+
+app.get("/mhtml", (req, res) => {
+  res.sendFile(__dirname + "/views/WelcometoPimcore.mhtml");
+});
+
+app.get("/gif", (req, res) => {
+  res.sendFile(__dirname + "/views/thankyou.gif");
+});
+
+app.get("/:word/echo", (req, res) => {
+  res.json({ echo: req.params.word });
+});
+
+app.get("/delayed429", rateLimitMiddleware);
+// app.use('/delayed429', (req, res, next) => {
+//     requestCount++; // Increment request count for each incoming request
+
+//     // Check if request count is even
+//     if (requestCount % 2 === 0) {
+//         // If request count is even, return 429 Too Many Requests
+//         setTimeout(() => {
+//             res.status(429).send('Too Many Requests');
+//         }, 5000); // 5 seconds delay before sending 429
+//     } else {
+//         // If request count is odd, serve an HTML file
+//         res.sendFile(__dirname + "/views/index.html");
+//     }
+
+//     // setTimeout(() => {
+//     //     res.status(429).send('Too Many Requests');
+//     // }, 5000); // 5 seconds delay
+// });
 
 // Secret key for generating and verifying tokens
 const SECRET_KEY = 'YOUR-SECRET-KEY';
@@ -66,6 +124,15 @@ app.get("/delayload/:time", (req, res) => {
     setTimeout(() => {
       res.sendFile(delayLoadHtmlPath);
     }, time * 1000); // Convert seconds to milliseconds
+  } else {
+    res.send("Invalid time parameter");
+  }
+});
+
+app.get("/response/:code", (req, res) => {
+  const code = parseInt(req.params.code);
+  if (!isNaN(code)) {
+    res.status(code).sendStatus(code);
   } else {
     res.send("Invalid time parameter");
   }
