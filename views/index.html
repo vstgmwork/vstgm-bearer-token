@@ -1,48 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Node &amp; Express REST API</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
     <style>
-        body {
-            padding: 40px;
-        }
-
-        a>i {
-            font-size: 3rem !important;
-            margin-right: 10px !important;
-        }
-
-        .jumbotron {
-            padding-bottom: 20px !important;
-        }
+      body {
+        padding: 40px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid white;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        background-color: #c7caca;
+        padding-top: 10px;
+        padding-bottom: 20px;
+        padding-left: 30px;
+        padding-right: 40px;
+      }
+      a > i {
+        font-size: 3rem !important;
+        margin-right: 10px !important;
+      }
+      .jumbotron {
+        padding-bottom: 20px !important;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <main class="container-lg">
-        <header class="jumbotron">
-            <h1 class="display-2">REST API</h1>
-            <h2>A REST API page developed using Node &amp; Express</h2>
-        </header>
-        <section>
-            <!-- <h2 class="display-5">API Details:</h2> -->
-            <h3>Accepted Parameters are listed below</h3>
-            <ul>
-                <li>/generate   -   This will generate a bearer token. This bearer token can be seen in the response section as JSON. Also the token will expire in 4 minutes. 
-                    The time at which the token got generated will be shown in the headers section with the key utctime. This is just a API call and 
-                    when opened in the browser will just show "Invalid Route".
-                </li>
-                <li>/validate   -   This will accpect the bearer token as authorization field and will validate if the token is valid or not.</li>
-                <li>/delayload/second   -   This will load a html file after the mentioned time in seconds. http://localhost:3010/delayload/480 will load the page after 480 seconds</li>
-            </ul>
-        </section>
+      <header class="jumbotron">
+        <h1 class="display-2">REST API</h1>
+        <h2>A REST API page developed using Node &amp; Express</h2>
+      </header>
+      <section>
+        <!-- <h2 class="display-5">API Details:</h2> -->
+        <h3>Accepted Parameters are listed below</h3>
+        <ul>
+          <table>
+            <tr>
+              <th>PATH</th>
+              <th>DESCRIPTION</th>
+            </tr>
+            <tr>
+              <td>/generate</td>
+              <td>
+                This will generate a bearer token. This bearer token can be seen
+                in the response section as JSON. Also the token will expire in 4
+                minutes. The time at which the token got generated will be shown
+                in the headers section with the key utctime. This is just a API
+                call and when opened in the browser will just show "Invalid
+                Route".
+              </td>
+            </tr>
+            <tr>
+              <td>/validate</td>
+              <td>
+                This will accpect the bearer token as authorization field and
+                will validate if the token is valid or not.
+              </td>
+            </tr>
+            <tr>
+              <td>/word/echo</td>
+              <td>
+                This will show a JSON of the word that is passed in the path.
+                For Example if we open http://localhost:3010/repro-app/echo it
+                will show {"echo":"repro-app"} in the page
+              </td>
+            </tr>
+            <tr>
+              <td>/delayload/second</td>
+              <td>
+                This will load a html file after the mentioned time in seconds.
+                http://localhost:3010/delayload/480 will load the page after 480
+                seconds
+              </td>
+            </tr>
+            <tr>
+              <td>/loadajax</td>
+              <td>
+                This will load a web page with three images and an AJAX field to
+                load data
+              </td>
+            </tr>
+            <tr>
+              <td>/narujpg</td>
+              <td>Loads a static JPG file</td>
+            </tr>
+            <tr>
+              <td>/txt</td>
+              <td>Loads a static Text file</td>
+            </tr>
+            <tr>
+              <td>/mhtml</td>
+              <td>Downloads a static MHTML file</td>
+            </tr>
+            <tr>
+              <td>/gif</td>
+              <td>Loads a static GIF file</td>
+            </tr>
+            <tr>
+              <td>/response/:code</td>
+              <td>
+                This will open the page with the Status code that is passed as
+                code. For Example if we open http://localhost:3010/response/200,
+                the page will show Ok as the Status code message
+              </td>
+            </tr>
+            <tr>
+              <td>Other Paths</td>
+              <td>Any other paths apart from the above will show Invalid Route</td>
+            </tr>
+          </table>
+        </ul>
+      </section>
     </main>
-</body>
+  </body>
+</html>
