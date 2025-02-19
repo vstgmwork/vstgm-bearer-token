@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script defer src='https://cpqa.catchpoint.com/jp/237218/v3.3.11/InitialLoadScript.js'></script>
+    <script
+      defer
+      src="https://cpqa.catchpoint.com/jp/237218/v3.3.11/InitialLoadScript.js"
+    ></script>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
     <meta charset="UTF-8" />
@@ -20,12 +23,14 @@
       body {
         padding: 40px;
       }
+
       table,
       th,
       td {
         border: 1px solid white;
         border-collapse: collapse;
       }
+
       th,
       td {
         background-color: #c7caca;
@@ -34,12 +39,14 @@
         padding-left: 30px;
         padding-right: 40px;
       }
+
       a > i {
         font-size: 3rem !important;
         margin-right: 10px !important;
       }
+
       .jumbotron {
-        padding-bottom: 20px !important;
+        padding-bottom: 14px !important;
       }
     </style>
   </head>
@@ -47,8 +54,8 @@
   <body>
     <main class="container-lg">
       <header class="jumbotron">
-        <h1 class="display-2">Viknesh TGM - Repro Environment</h1>
-        <h2>A page developed using Node &amp; Express</h2>
+        <h1>Viknesh STGM - Repro Environment</h1>
+        <h3>A page developed using Node &amp; Express</h3>
       </header>
       <section>
         <!-- <h2 class="display-5">API Details:</h2> -->
@@ -84,7 +91,11 @@
               <td>
                 This will open the page with the Status code that is passed as
                 code. For Example if we open http://localhost:3010/response/200,
-                the page will show Ok as the Status code message. <b>You can also use an API client to run this and fetch the response.</b>
+                the page will show Ok as the Status code message.
+                <b
+                  >You can also use an API client to run this and fetch the
+                  response.</b
+                >
               </td>
             </tr>
             <tr>
@@ -92,15 +103,28 @@
               <td>
                 This will show a JSON of the word that is passed in the path.
                 For Example if we open http://localhost:3010/repro-app/echo it
-                will show {"echo":"repro-app"} in the page. <b>You can also use an API client to run this and fetch the response.</b>
+                will show {"echo":"repro-app"} in the page.
+                <b
+                  >You can also use an API client to run this and fetch the
+                  response.</b
+                >
               </td>
             </tr>
             <tr>
-              <td>/delayload/second</td>
+              <td>/delayload/:second</td>
               <td>
-                This will load a html page with current date and time after the mentioned time in seconds.
-                http://localhost:3010/delayload/480 will load the page after 480
-                seconds. 
+                This will load a html page with current date and time after the
+                mentioned time in seconds. http://localhost:3010/delayload/480
+                will load the page after 480 seconds.
+              </td>
+            </tr>
+            <tr>
+              <td>/delayrespcode/:code/:time</td>
+              <td>
+                This will load a html page with response code after the
+                mentioned time in seconds.
+                http://localhost:3010/delayrespcode/200/5 will load the response
+                code after 5 seconds.
               </td>
             </tr>
             <tr>
@@ -111,7 +135,14 @@
               </td>
             </tr>
             <tr>
-              <td>/narujpg</td>
+              <td>/delayed600</td>
+              <td>
+                This will load a web page only after loading for the third time. Else
+                it will throw status code 600.
+              </td>
+            </tr>
+            <tr>
+              <td>/jpg</td>
               <td>Loads a static JPG file.</td>
             </tr>
             <tr>
@@ -127,8 +158,17 @@
               <td>Loads a static GIF file.</td>
             </tr>
             <tr>
+              <td>/spa</td>
+              <td>
+                This will load a SPA page with three tabs. Loading a JPG, GIF
+                and Text.
+              </td>
+            </tr>
+            <tr>
               <td>Any Other Paths</td>
-              <td>Any other paths apart from the above will show Invalid Route.</td>
+              <td>
+                Any other paths apart from the above will show Invalid Route.
+              </td>
             </tr>
           </table>
         </ul>

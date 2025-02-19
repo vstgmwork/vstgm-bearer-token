@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require("path");
 const jwt = require('jsonwebtoken');
 const app = express();
 app.use(express.json()); // for parsing application/json
@@ -8,7 +9,7 @@ let attemptCount = 0;
 const rateLimitMiddleware = (req, res, next) => {
   attemptCount++;
   if (attemptCount % 3 === 0) {
-    res.status(200).send("Success");
+    res.status(200).send("Load Success");
   } else {
     setTimeout(() => {
       // res.status(429).send('Too Many Requests');
@@ -16,6 +17,9 @@ const rateLimitMiddleware = (req, res, next) => {
     }, 5000);
   }
 };
+
+// Serve static files from the views folder
+app.use(express.static(path.join(__dirname, "views")));
 
 app.use((req, res, next) => {
   var d = new Date();
@@ -40,7 +44,7 @@ app.get("/loadajax", (req, res) => {
   res.sendFile(__dirname + "/views/loadajax.html");
 });
 
-app.get("/narujpg", (req, res) => {
+app.get("/jpg", (req, res) => {
   res.sendFile(__dirname + "/views/naru.jpg");
 });
 
@@ -60,25 +64,11 @@ app.get("/:word/echo", (req, res) => {
   res.json({ echo: req.params.word });
 });
 
-app.get("/delayed429", rateLimitMiddleware);
-// app.use('/delayed429', (req, res, next) => {
-//     requestCount++; // Increment request count for each incoming request
+app.get("/spa", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "spa.html"));
+});
 
-//     // Check if request count is even
-//     if (requestCount % 2 === 0) {
-//         // If request count is even, return 429 Too Many Requests
-//         setTimeout(() => {
-//             res.status(429).send('Too Many Requests');
-//         }, 5000); // 5 seconds delay before sending 429
-//     } else {
-//         // If request count is odd, serve an HTML file
-//         res.sendFile(__dirname + "/views/index.html");
-//     }
-
-//     // setTimeout(() => {
-//     //     res.status(429).send('Too Many Requests');
-//     // }, 5000); // 5 seconds delay
-// });
+app.get("/delayed600", rateLimitMiddleware);
 
 // Secret key for generating and verifying tokens
 const SECRET_KEY = 'YOUR-SECRET-KEY';
