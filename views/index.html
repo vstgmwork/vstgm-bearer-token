@@ -7,7 +7,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Node &amp; Express REST API</title>
+    <title>Node &amp; Express REST API Repro Environment</title>
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -47,8 +47,8 @@
   <body>
     <main class="container-lg">
       <header class="jumbotron">
-        <h1 class="display-2">REST API</h1>
-        <h2>A REST API page developed using Node &amp; Express</h2>
+        <h1 class="display-2">Viknesh TGM - Repro Environment</h1>
+        <h2>A page developed using Node &amp; Express</h2>
       </header>
       <section>
         <!-- <h2 class="display-5">API Details:</h2> -->
@@ -67,66 +67,68 @@
                 minutes. The time at which the token got generated will be shown
                 in the headers section with the key utctime. This is just a API
                 call and when opened in the browser will just show "Invalid
-                Route".
+                Route". <b>Use a API client to run and get details.</b>
               </td>
             </tr>
             <tr>
               <td>/validate</td>
               <td>
                 This will accpect the bearer token as authorization field and
-                will validate if the token is valid or not.
+                will validate if the token is valid or not. This is just a API
+                call and when opened in the browser will just show "Invalid
+                Route". <b>Use a API client to run and get details.</b>
               </td>
-            </tr>
-            <tr>
-              <td>/word/echo</td>
-              <td>
-                This will show a JSON of the word that is passed in the path.
-                For Example if we open http://localhost:3010/repro-app/echo it
-                will show {"echo":"repro-app"} in the page
-              </td>
-            </tr>
-            <tr>
-              <td>/delayload/second</td>
-              <td>
-                This will load a html file after the mentioned time in seconds.
-                http://localhost:3010/delayload/480 will load the page after 480
-                seconds
-              </td>
-            </tr>
-            <tr>
-              <td>/loadajax</td>
-              <td>
-                This will load a web page with three images and an AJAX field to
-                load data
-              </td>
-            </tr>
-            <tr>
-              <td>/narujpg</td>
-              <td>Loads a static JPG file</td>
-            </tr>
-            <tr>
-              <td>/txt</td>
-              <td>Loads a static Text file</td>
-            </tr>
-            <tr>
-              <td>/mhtml</td>
-              <td>Downloads a static MHTML file</td>
-            </tr>
-            <tr>
-              <td>/gif</td>
-              <td>Loads a static GIF file</td>
             </tr>
             <tr>
               <td>/response/:code</td>
               <td>
                 This will open the page with the Status code that is passed as
                 code. For Example if we open http://localhost:3010/response/200,
-                the page will show Ok as the Status code message
+                the page will show Ok as the Status code message. <b>You can also use an API client to run this and fetch the response.</b>
               </td>
             </tr>
             <tr>
-              <td>Other Paths</td>
-              <td>Any other paths apart from the above will show Invalid Route</td>
+              <td>/:word/echo</td>
+              <td>
+                This will show a JSON of the word that is passed in the path.
+                For Example if we open http://localhost:3010/repro-app/echo it
+                will show {"echo":"repro-app"} in the page. <b>You can also use an API client to run this and fetch the response.</b>
+              </td>
+            </tr>
+            <tr>
+              <td>/delayload/second</td>
+              <td>
+                This will load a html page with current date and time after the mentioned time in seconds.
+                http://localhost:3010/delayload/480 will load the page after 480
+                seconds. 
+              </td>
+            </tr>
+            <tr>
+              <td>/loadajax</td>
+              <td>
+                This will load a web page with three images and an AJAX field to
+                load data.
+              </td>
+            </tr>
+            <tr>
+              <td>/narujpg</td>
+              <td>Loads a static JPG file.</td>
+            </tr>
+            <tr>
+              <td>/txt</td>
+              <td>Loads a static Text file.</td>
+            </tr>
+            <tr>
+              <td>/mhtml</td>
+              <td>Downloads a static MHTML file.</td>
+            </tr>
+            <tr>
+              <td>/gif</td>
+              <td>Loads a static GIF file.</td>
+            </tr>
+            <tr>
+              <td>Any Other Paths</td>
+              <td>Any other paths apart from the above will show Invalid Route.</td>
             </tr>
           </table>
         </ul>

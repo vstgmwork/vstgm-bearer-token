@@ -116,7 +116,6 @@ app.post("/authenticate", authenticateToken, (req, res) => {
 const delayLoadHtmlPath = __dirname + "/views/delayload.html";
 const faviconPath = __dirname + "/views/favicon.ico";
 
-// Route to load the delayload.html file after a specified amount of time
 app.get("/delayload/:time", (req, res) => {
   const time = parseInt(req.params.time);
   if (!isNaN(time)) {
@@ -125,6 +124,18 @@ app.get("/delayload/:time", (req, res) => {
     }, time * 1000); // Convert seconds to milliseconds
   } else {
     res.send("Invalid time parameter");
+  }
+});
+
+app.get("/delayrespcode/:code/:time", (req, res) => {
+  const code = parseInt(req.params.code);
+  const time = parseInt(req.params.time);
+  if (!isNaN(code)) {
+    setTimeout(() => {
+      res.status(code).sendStatus(code);
+    }, time * 1000); // Convert seconds to milliseconds
+  } else {
+    res.send("Invalid or Missing code/time parameter");
   }
 });
 
