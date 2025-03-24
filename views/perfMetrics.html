@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Performance Metrics</title>
+    <title>Performance Metrics with Iframe</title>
     <style>
         /* Styles for overlay */
         #performanceOverlay {
@@ -17,7 +17,7 @@
             padding: 20px;
             font-family: Arial, sans-serif;
             z-index: 9999;
-            display: none; /* Initially hidden */
+            display: flex;
             flex-direction: row;
             justify-content: space-around;
         }
@@ -35,13 +35,34 @@
             padding: 10px;
             cursor: pointer;
         }
+        /* Style for iframe container */
+        #iframeContainer {
+            width: 100%;
+            height: 500px;
+            margin-bottom: 20px;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        #iframeError {
+            color: red;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <!-- Button to trigger the performance metrics -->
-    <button id="showMetrics">Show Performance Metrics</button>
 
-    <!-- Performance Metrics Overlay (Initially Hidden) -->
+    <!-- Iframe Container -->
+    <div id="iframeContainer">
+        <iframe src="https://www.google.com" id="embeddedPage"></iframe>
+    </div>
+
+    <!-- Error Message if iframe fails -->
+    <div id="iframeError"></div>
+
+    <!-- Performance Metrics Overlay -->
     <div id="performanceOverlay">
         <button id="closeBtn">Close</button>
         <div id="leftColumn" class="perf-column"></div>
@@ -49,7 +70,7 @@
     </div>
 
     <script>
-        document.getElementById('showMetrics').addEventListener('click', function () {
+        function loadPerformanceMetrics() {
             const timing = performance.timing;
 
             // Calculate values
@@ -72,15 +93,23 @@
             }
             content += '</ul>';
             document.getElementById('rightColumn').innerHTML = content;
+        }
 
-            // Show the overlay
-            document.getElementById('performanceOverlay').style.display = 'flex';
-        });
+        // Run when page loads
+        window.onload = function () {
+            loadPerformanceMetrics();
+        };
 
         // Close the overlay when the close button is clicked
         document.getElementById('closeBtn').addEventListener('click', function () {
             document.getElementById('performanceOverlay').style.display = 'none';
         });
+
+        // Handle iframe loading errors
+        document.getElementById("embeddedPage").onerror = function () {
+            document.getElementById("iframeError").innerText = "⚠️ Unable to load Google in an iframe due to security restrictions.";
+        };
     </script>
+
 </body>
 </html>

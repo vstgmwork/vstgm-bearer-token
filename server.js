@@ -44,7 +44,7 @@ app.get("/loadajax", (req, res) => {
   res.sendFile(__dirname + "/views/loadajax.html");
 });
 
-app.get("/perfMetrics", (req, res) => {
+app.get("/perfmetrics", (req, res) => {
   res.sendFile(__dirname + "/views/perfMetrics.html");
 });
 
