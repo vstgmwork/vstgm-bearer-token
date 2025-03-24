@@ -48,6 +48,36 @@
       .jumbotron {
         padding-bottom: 14px !important;
       }
+
+      #performanceOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        z-index: 9999;
+        display: none; /* Initially hidden */
+        flex-direction: row;
+        justify-content: space-around;
+      }
+      .perf-column {
+        flex: 1;
+        padding: 10px;
+      }
+      #closeBtn {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        background: red;
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+      }
     </style>
   </head>
 
@@ -87,7 +117,7 @@
               </td>
             </tr>
             <tr>
-              <td>/response/:code</td>
+              <td><a href="/response/200">/response/:code</a></td>
               <td>
                 This will open the page with the Status code that is passed as
                 code. For Example if we open http://localhost:3010/response/200,
@@ -99,7 +129,7 @@
               </td>
             </tr>
             <tr>
-              <td>/:word/echo</td>
+              <td><a href="/test/echo">/:word/echo</a></td>
               <td>
                 This will show a JSON of the word that is passed in the path.
                 For Example if we open http://localhost:3010/repro-app/echo it
@@ -111,7 +141,7 @@
               </td>
             </tr>
             <tr>
-              <td>/delayload/:second</td>
+              <td><a href="/delayload/10">/delayload/:second</a></td>
               <td>
                 This will load a html page with current date and time after the
                 mentioned time in seconds. http://localhost:3010/delayload/480
@@ -119,7 +149,7 @@
               </td>
             </tr>
             <tr>
-              <td>/delayrespcode/:code/:time</td>
+              <td><a href="/delayrespcode/200/5">/delayrespcode/:code/:time</a></td>
               <td>
                 This will load a html page with response code after the
                 mentioned time in seconds.
@@ -128,37 +158,37 @@
               </td>
             </tr>
             <tr>
-              <td>/loadajax</td>
+              <td><a href="/loadajax">/loadajax</a></td>
               <td>
                 This will load a web page with three images and an AJAX field to
                 load data.
               </td>
             </tr>
             <tr>
-              <td>/delayed600</td>
+              <td><a href="/delayed600">/delayed600</a></td>
               <td>
-                This will load a web page only after loading for the third time. Else
-                it will throw status code 600.
+                This will load a web page only after loading for the third time.
+                Else it will throw status code 600.
               </td>
             </tr>
             <tr>
-              <td>/jpg</td>
+              <td><a href="/jpg">/jpg</a></td>
               <td>Loads a static JPG file.</td>
             </tr>
             <tr>
-              <td>/txt</td>
+              <td><a href="/txt">txt</a></td>
               <td>Loads a static Text file.</td>
             </tr>
             <tr>
-              <td>/mhtml</td>
+              <td><a href="/mhtml">/mhtml</a></td>
               <td>Downloads a static MHTML file.</td>
             </tr>
             <tr>
-              <td>/gif</td>
+              <td><a href="/gif">/gif</a></td>
               <td>Loads a static GIF file.</td>
             </tr>
             <tr>
-              <td>/spa</td>
+              <td><a href="/spa">/spa</a></td>
               <td>
                 This will load a SPA page with three tabs. Loading a JPG, GIF
                 and Text.
@@ -174,5 +204,62 @@
         </ul>
       </section>
     </main>
+    <!-- Button to trigger the performance metrics -->
+    <button id="showMetrics" class="btn btn-primary mt-3">
+      Show Performance Metrics
+    </button>
+
+    <!-- Performance Metrics Overlay (Initially Hidden) -->
+    <div id="performanceOverlay">
+      <button id="closeBtn">Close</button>
+      <div id="leftColumn" class="perf-column"></div>
+      <div id="rightColumn" class="perf-column"></div>
+    </div>
+
+    <!-- JavaScript Overlay Script -->
+    <script>
+      document
+        .getElementById("showMetrics")
+        .addEventListener("click", function () {
+          const timing = performance.timing;
+
+          // Calculate values
+          const connectTime = timing.connectEnd - timing.connectStart;
+          const sslTime =
+            timing.secureConnectionStart > 0
+              ? timing.connectEnd - timing.secureConnectionStart
+              : "Not applicable (HTTP)";
+
+          // Populate left column with calculated values
+          document.getElementById(
+            "leftColumn"
+          ).innerHTML = `<h3>Calculated Times</h3>
+              <ul style="list-style:none; padding:0;">
+                  <li><strong>Connect Time:</strong> ${connectTime} ms</li>
+                  <li><strong>SSL Time:</strong> ${sslTime} ms</li>
+              </ul>`;
+
+          // Populate right column with performance timing data
+          let content =
+            '<h3>Performance Timing</h3><ul style="list-style:none; padding:0;">';
+          for (let key in timing) {
+            if (typeof timing[key] === "number" && timing[key] > 0) {
+              content += `<li><strong>${key}:</strong> ${timing[key]}</li>`;
+            }
+          }
+          content += "</ul>";
+          document.getElementById("rightColumn").innerHTML = content;
+
+          // Show the overlay
+          document.getElementById("performanceOverlay").style.display = "flex";
+        });
+
+      // Close the overlay when the close button is clicked
+      document
+        .getElementById("closeBtn")
+        .addEventListener("click", function () {
+          document.getElementById("performanceOverlay").style.display = "none";
+        });
+    </script>
   </body>
 </html>

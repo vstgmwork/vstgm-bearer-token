@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Metrics</title>
+    <style>
+        /* Styles for overlay */
+        #performanceOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            z-index: 9999;
+            display: none; /* Initially hidden */
+            flex-direction: row;
+            justify-content: space-around;
+        }
+        .perf-column {
+            flex: 1;
+            padding: 10px;
+        }
+        #closeBtn {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Button to trigger the performance metrics -->
+    <button id="showMetrics">Show Performance Metrics</button>
+
+    <!-- Performance Metrics Overlay (Initially Hidden) -->
+    <div id="performanceOverlay">
+        <button id="closeBtn">Close</button>
+        <div id="leftColumn" class="perf-column"></div>
+        <div id="rightColumn" class="perf-column"></div>
+    </div>
+
+    <script>
+        document.getElementById('showMetrics').addEventListener('click', function () {
+            const timing = performance.timing;
+
+            // Calculate values
+            const connectTime = timing.connectEnd - timing.connectStart;
+            const sslTime = timing.secureConnectionStart > 0 ? timing.connectEnd - timing.secureConnectionStart : 'Not applicable (HTTP)';
+
+            // Populate left column with calculated values
+            document.getElementById('leftColumn').innerHTML = `<h3>Calculated Times</h3>
+                <ul style="list-style:none; padding:0;">
+                    <li><strong>Connect Time:</strong> ${connectTime} ms</li>
+                    <li><strong>SSL Time:</strong> ${sslTime} ms</li>
+                </ul>`;
+
+            // Populate right column with performance timing data
+            let content = '<h3>Performance Timing</h3><ul style="list-style:none; padding:0;">';
+            for (let key in timing) {
+                if (typeof timing[key] === 'number' && timing[key] > 0) {
+                    content += `<li><strong>${key}:</strong> ${timing[key]}</li>`;
+                }
+            }
+            content += '</ul>';
+            document.getElementById('rightColumn').innerHTML = content;
+
+            // Show the overlay
+            document.getElementById('performanceOverlay').style.display = 'flex';
+        });
+
+        // Close the overlay when the close button is clicked
+        document.getElementById('closeBtn').addEventListener('click', function () {
+            document.getElementById('performanceOverlay').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

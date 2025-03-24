@@ -44,6 +44,10 @@ app.get("/loadajax", (req, res) => {
   res.sendFile(__dirname + "/views/loadajax.html");
 });
 
+app.get("/perfMetrics", (req, res) => {
+  res.sendFile(__dirname + "/views/perfMetrics.html");
+});
+
 app.get("/jpg", (req, res) => {
   res.sendFile(__dirname + "/views/naru.jpg");
 });
