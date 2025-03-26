@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 const path = require("path");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 const app = express();
 app.use(express.json()); // for parsing application/json
 
@@ -75,7 +75,25 @@ app.get("/spa", (req, res) => {
 app.get("/delayed600", rateLimitMiddleware);
 
 // Secret key for generating and verifying tokens
-const SECRET_KEY = 'YOUR-SECRET-KEY';
+const SECRET_KEY = "YOUR-SECRET-KEY";
+
+// Redirect the page N number of times
+app.get('/redirect/:count', (req, res) => {
+  let count = parseInt(req.params.count, 10);
+  
+  if (isNaN(count) || count < 0) {
+      return res.send('Invalid redirection count. Please provide a non-negative number.');
+  }
+
+  if (count === 0) {
+      return res.send(`<html><body><h1>Redirection completed ${req.query.originalCount} times</h1></body></html>`);
+  }
+
+  const originalCount = req.query.originalCount || count;
+  setTimeout(() => {
+      res.redirect(`/redirect/${count - 1}?originalCount=${originalCount}`);
+  }, 1000); // 1-second delay before redirecting
+});
 
 // Route to generate a token
 app.post("/generate", (req, res) => {
@@ -88,8 +106,8 @@ app.post("/generate", (req, res) => {
 
 // Middleware for authentication
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (null == token || undefined == token) return res.sendStatus(401); // If there isn't any token or showing as undefined
 
@@ -98,7 +116,7 @@ const authenticateToken = (req, res, next) => {
     req.user = user;
     next();
   });
-}
+};
 
 // Route to verify a token
 app.post("/authenticate", authenticateToken, (req, res) => {
@@ -151,4 +169,4 @@ app.all("*", (req, res) => {
   res.send("Invalid route");
 });
 
-app.listen(3010, () => console.log('App is listening on port 3010'));
+app.listen(3010, () => console.log("App is listening on port 3010"));
