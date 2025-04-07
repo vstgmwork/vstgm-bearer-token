@@ -72,6 +72,15 @@ app.get("/spa", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "spa.html"));
 });
 
+app.get("/proxy.pac", (req, res) => {
+  res.type("application/x-ns-proxy-autoconfig");
+  res.send(`
+function FindProxyForURL(url, host) {
+    return "PROXY 192.168.128.113:3128";
+}
+  `);
+});
+
 app.get("/delayed600", rateLimitMiddleware);
 
 // Secret key for generating and verifying tokens
