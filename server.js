@@ -105,12 +105,30 @@ app.get('/redirect/:count', (req, res) => {
 });
 
 // Route to generate a token
+// app.post("/generate", (req, res) => {
+//   const token = jwt.sign({}, SECRET_KEY, { expiresIn: "60m" }); // Set the validity of the token here
+//   const utcTime = new Date().toISOString();
+//   res.set("Authorization", `Bearer ${token}`);
+//   res.set("utctime", `${utcTime}`);
+//   res.json({ token });
+// });
+
+// Route to generate a token
 app.post("/generate", (req, res) => {
-  const token = jwt.sign({}, SECRET_KEY, { expiresIn: "60m" }); // Set the validity of the token here
-  const utcTime = new Date().toISOString();
+  const expiresIn = "60m"; // Token validity
+  const token = jwt.sign({}, SECRET_KEY, { expiresIn });
+  const issuedAt = new Date();
+  const utcTime = issuedAt.toISOString();
+
   res.set("Authorization", `Bearer ${token}`);
-  res.set("utctime", `${utcTime}`);
-  res.json({ token });
+  res.set("utctime", utcTime);
+
+  res.json({
+    token,
+    issuedAt: utcTime,
+    expiresIn, // Displaying validity as a string (e.g., "60m")
+    expiresAt: new Date(issuedAt.getTime() + 60 * 60 * 1000).toISOString(), // Optional: exact expiry time
+  });
 });
 
 // Middleware for authentication
