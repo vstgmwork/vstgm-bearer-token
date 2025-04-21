@@ -105,15 +105,6 @@ app.get('/redirect/:count', (req, res) => {
 });
 
 // Route to generate a token
-// app.post("/generate", (req, res) => {
-//   const token = jwt.sign({}, SECRET_KEY, { expiresIn: "60m" }); // Set the validity of the token here
-//   const utcTime = new Date().toISOString();
-//   res.set("Authorization", `Bearer ${token}`);
-//   res.set("utctime", `${utcTime}`);
-//   res.json({ token });
-// });
-
-// Route to generate a token
 app.post("/generate", (req, res) => {
   const expiresIn = "60m"; // Token validity
   const token = jwt.sign({}, SECRET_KEY, { expiresIn });
@@ -130,6 +121,31 @@ app.post("/generate", (req, res) => {
     expiresAt: new Date(issuedAt.getTime() + 60 * 60 * 1000).toISOString(), // Optional: exact expiry time
   });
 });
+
+app.get("/generate", (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Token Generator</title>
+    </head>
+    <body>
+      <h1>Generate Token</h1>
+      <button onclick="generateToken()">Generate</button>
+      <pre id="result"></pre>
+
+      <script>
+        async function generateToken() {
+          const res = await fetch("/generate", { method: "POST" });
+          const data = await res.json();
+          document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+        }
+      </script>
+    </body>
+    </html>
+  `);
+});
+
 
 // Middleware for authentication
 const authenticateToken = (req, res, next) => {
@@ -150,6 +166,41 @@ app.post("/authenticate", authenticateToken, (req, res) => {
   const utcTime = new Date().toISOString();
   res.set("utctime", `${utcTime}`);
   res.json({ message: "Authenticated" });
+});
+
+app.get("/authenticate", (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Token Authenticator</title>
+    </head>
+    <body>
+      <h1>Authenticate Token</h1>
+      <input type="text" id="token" placeholder="Enter JWT token here" style="width: 400px;" />
+      <button onclick="authenticate()">Authenticate</button>
+      <pre id="result"></pre>
+
+      <script>
+        async function authenticate() {
+          const token = document.getElementById("token").value.trim();
+          const res = await fetch("/authenticate", {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + token
+            }
+          });
+
+          const resultText = res.status === 200
+            ? await res.json()
+            : { error: res.status + " " + res.statusText };
+
+          document.getElementById("result").textContent = JSON.stringify(resultText, null, 2);
+        }
+      </script>
+    </body>
+    </html>
+  `);
 });
 
 const delayLoadHtmlPath = __dirname + "/views/delayload.html";

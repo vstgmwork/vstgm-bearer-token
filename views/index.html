@@ -1,544 +1,540 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <script
-      defer
-      src="https://cpqa.catchpoint.com/jp/237218/v3.3.11/InitialLoadScript.js"
-    ></script>
-    <script language="javascript" type="text/javascript">
-      function init() {
-        var locales = [
-          "af",
-          "ax",
-          "al",
-          "dz",
-          "as",
-          "ad",
-          "ao",
-          "ai",
-          "aq",
-          "ag",
-          "ar",
-          "am",
-          "aw",
-          "au",
-          "at",
-          "az",
-          "bs",
-          "bh",
-          "bd",
-          "bb",
-          "by",
-          "be",
-          "bz",
-          "bj",
-          "bm",
-          "bt",
-          "bo",
-          "bq",
-          "ba",
-          "bw",
-          "bv",
-          "br",
-          "io",
-          "bn",
-          "bg",
-          "bf",
-          "bi",
-          "kh",
-          "cm",
-          "ca",
-          "cv",
-          "ky",
-          "cf",
-          "td",
-          "cl",
-          "cn",
-          "cx",
-          "cc",
-          "co",
-          "km",
-          "cg",
-          "cd",
-          "ck",
-          "cr",
-          "ci",
-          "hr",
-          "cu",
-          "cw",
-          "cy",
-          "cz",
-          "dk",
-          "dj",
-          "dm",
-          "do",
-          "ec",
-          "eg",
-          "sv",
-          "gq",
-          "er",
-          "ee",
-          "et",
-          "fk",
-          "fo",
-          "fj",
-          "fi",
-          "fr",
-          "gf",
-          "pf",
-          "tf",
-          "ga",
-          "gm",
-          "ge",
-          "de",
-          "gh",
-          "gi",
-          "gr",
-          "gl",
-          "gd",
-          "gp",
-          "gu",
-          "gt",
-          "gg",
-          "gn",
-          "gw",
-          "gy",
-          "ht",
-          "hm",
-          "va",
-          "hn",
-          "hk",
-          "hu",
-          "is",
-          "in",
-          "id",
-          "ir",
-          "iq",
-          "ie",
-          "im",
-          "il",
-          "it",
-          "jm",
-          "jp",
-          "je",
-          "jo",
-          "kz",
-          "ke",
-          "ki",
-          "kp",
-          "kr",
-          "kw",
-          "kg",
-          "la",
-          "lv",
-          "lb",
-          "ls",
-          "lr",
-          "ly",
-          "li",
-          "lt",
-          "lu",
-          "mo",
-          "mk",
-          "mg",
-          "mw",
-          "my",
-          "mv",
-          "ml",
-          "mt",
-          "mh",
-          "mq",
-          "mr",
-          "mu",
-          "yt",
-          "mx",
-          "fm",
-          "md",
-          "mc",
-          "mn",
-          "me",
-          "ms",
-          "ma",
-          "mz",
-          "mm",
-          "na",
-          "nr",
-          "np",
-          "nl",
-          "nc",
-          "nz",
-          "ni",
-          "ne",
-          "ng",
-          "nu",
-          "nf",
-          "mp",
-          "no",
-          "om",
-          "pk",
-          "pw",
-          "ps",
-          "pa",
-          "pg",
-          "py",
-          "pe",
-          "ph",
-          "pn",
-          "pl",
-          "pt",
-          "pr",
-          "qa",
-          "re",
-          "ro",
-          "ru",
-          "rw",
-          "bl",
-          "sh",
-          "kn",
-          "lc",
-          "mf",
-          "pm",
-          "vc",
-          "ws",
-          "sm",
-          "st",
-          "sa",
-          "sn",
-          "rs",
-          "sc",
-          "sl",
-          "sg",
-          "sx",
-          "sk",
-          "si",
-          "sb",
-          "so",
-          "za",
-          "gs",
-          "ss",
-          "es",
-          "lk",
-          "sd",
-          "sr",
-          "sj",
-          "sz",
-          "se",
-          "ch",
-          "sy",
-          "tw",
-          "tj",
-          "tz",
-          "th",
-          "tl",
-          "tg",
-          "tk",
-          "to",
-          "tt",
-          "tn",
-          "tr",
-          "tm",
-          "tc",
-          "tv",
-          "ug",
-          "ua",
-          "ae",
-          "gb",
-          "us",
-          "um",
-          "uy",
-          "uz",
-          "vu",
-          "ve",
-          "vn",
-          "vg",
-          "vi",
-          "wf",
-          "eh",
-          "ye",
-          "zm",
-          "zw",
-        ];
-        var locale = locales[Math.floor(Math.random() * locales.length)];
-        var randNum = Math.floor(Math.random() * 22 - 1) * 10;
-        window.RProfiler.addInfo("tracepoint", "locale", locale);
-        window.RProfiler.addInfo("indicator", "randnum", randNum);
-      }
-      window.RProfiler
-        ? init()
-        : window.addEventListener("GlimpseLoaded", init);
-    </script>
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Node &amp; Express REST API Repro Environment</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    />
-    <style>
-      body {
-        padding: 40px;
-      }
 
-      table,
-      th,
-      td {
-        border: 1px solid white;
-        border-collapse: collapse;
-      }
+<head>
+  <script defer src="https://cpqa.catchpoint.com/jp/237218/v3.3.11/InitialLoadScript.js"></script>
+  <script language="javascript" type="text/javascript">
+    function init() {
+      var locales = [
+        "af",
+        "ax",
+        "al",
+        "dz",
+        "as",
+        "ad",
+        "ao",
+        "ai",
+        "aq",
+        "ag",
+        "ar",
+        "am",
+        "aw",
+        "au",
+        "at",
+        "az",
+        "bs",
+        "bh",
+        "bd",
+        "bb",
+        "by",
+        "be",
+        "bz",
+        "bj",
+        "bm",
+        "bt",
+        "bo",
+        "bq",
+        "ba",
+        "bw",
+        "bv",
+        "br",
+        "io",
+        "bn",
+        "bg",
+        "bf",
+        "bi",
+        "kh",
+        "cm",
+        "ca",
+        "cv",
+        "ky",
+        "cf",
+        "td",
+        "cl",
+        "cn",
+        "cx",
+        "cc",
+        "co",
+        "km",
+        "cg",
+        "cd",
+        "ck",
+        "cr",
+        "ci",
+        "hr",
+        "cu",
+        "cw",
+        "cy",
+        "cz",
+        "dk",
+        "dj",
+        "dm",
+        "do",
+        "ec",
+        "eg",
+        "sv",
+        "gq",
+        "er",
+        "ee",
+        "et",
+        "fk",
+        "fo",
+        "fj",
+        "fi",
+        "fr",
+        "gf",
+        "pf",
+        "tf",
+        "ga",
+        "gm",
+        "ge",
+        "de",
+        "gh",
+        "gi",
+        "gr",
+        "gl",
+        "gd",
+        "gp",
+        "gu",
+        "gt",
+        "gg",
+        "gn",
+        "gw",
+        "gy",
+        "ht",
+        "hm",
+        "va",
+        "hn",
+        "hk",
+        "hu",
+        "is",
+        "in",
+        "id",
+        "ir",
+        "iq",
+        "ie",
+        "im",
+        "il",
+        "it",
+        "jm",
+        "jp",
+        "je",
+        "jo",
+        "kz",
+        "ke",
+        "ki",
+        "kp",
+        "kr",
+        "kw",
+        "kg",
+        "la",
+        "lv",
+        "lb",
+        "ls",
+        "lr",
+        "ly",
+        "li",
+        "lt",
+        "lu",
+        "mo",
+        "mk",
+        "mg",
+        "mw",
+        "my",
+        "mv",
+        "ml",
+        "mt",
+        "mh",
+        "mq",
+        "mr",
+        "mu",
+        "yt",
+        "mx",
+        "fm",
+        "md",
+        "mc",
+        "mn",
+        "me",
+        "ms",
+        "ma",
+        "mz",
+        "mm",
+        "na",
+        "nr",
+        "np",
+        "nl",
+        "nc",
+        "nz",
+        "ni",
+        "ne",
+        "ng",
+        "nu",
+        "nf",
+        "mp",
+        "no",
+        "om",
+        "pk",
+        "pw",
+        "ps",
+        "pa",
+        "pg",
+        "py",
+        "pe",
+        "ph",
+        "pn",
+        "pl",
+        "pt",
+        "pr",
+        "qa",
+        "re",
+        "ro",
+        "ru",
+        "rw",
+        "bl",
+        "sh",
+        "kn",
+        "lc",
+        "mf",
+        "pm",
+        "vc",
+        "ws",
+        "sm",
+        "st",
+        "sa",
+        "sn",
+        "rs",
+        "sc",
+        "sl",
+        "sg",
+        "sx",
+        "sk",
+        "si",
+        "sb",
+        "so",
+        "za",
+        "gs",
+        "ss",
+        "es",
+        "lk",
+        "sd",
+        "sr",
+        "sj",
+        "sz",
+        "se",
+        "ch",
+        "sy",
+        "tw",
+        "tj",
+        "tz",
+        "th",
+        "tl",
+        "tg",
+        "tk",
+        "to",
+        "tt",
+        "tn",
+        "tr",
+        "tm",
+        "tc",
+        "tv",
+        "ug",
+        "ua",
+        "ae",
+        "gb",
+        "us",
+        "um",
+        "uy",
+        "uz",
+        "vu",
+        "ve",
+        "vn",
+        "vg",
+        "vi",
+        "wf",
+        "eh",
+        "ye",
+        "zm",
+        "zw",
+      ];
+      var locale = locales[Math.floor(Math.random() * locales.length)];
+      var randNum = Math.floor(Math.random() * 22 - 1) * 10;
+      window.RProfiler.addInfo("tracepoint", "locale", locale);
+      window.RProfiler.addInfo("indicator", "randnum", randNum);
+    }
+    window.RProfiler
+      ? init()
+      : window.addEventListener("GlimpseLoaded", init);
+  </script>
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Node &amp; Express REST API Repro Environment</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <style>
+    body {
+      padding: 40px;
+    }
 
-      th,
-      td {
-        background-color: #c7caca;
-        padding-top: 10px;
-        padding-bottom: 20px;
-        padding-left: 30px;
-        padding-right: 40px;
-      }
+    table,
+    th,
+    td {
+      border: 1px solid white;
+      border-collapse: collapse;
+    }
 
-      a > i {
-        font-size: 3rem !important;
-        margin-right: 10px !important;
-      }
+    th,
+    td {
+      background-color: #c7caca;
+      padding-top: 10px;
+      padding-bottom: 20px;
+      padding-left: 30px;
+      padding-right: 40px;
+    }
 
-      .jumbotron {
-        padding-bottom: 14px !important;
-      }
+    a>i {
+      font-size: 3rem !important;
+      margin-right: 10px !important;
+    }
 
-      #performanceOverlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 20px;
-        font-family: Arial, sans-serif;
-        z-index: 9999;
-        display: none; /* Initially hidden */
-        flex-direction: row;
-        justify-content: space-around;
-      }
-      .perf-column {
-        flex: 1;
-        padding: 10px;
-      }
-      #closeBtn {
-        position: absolute;
-        top: 10px;
-        right: 20px;
-        background: red;
-        color: white;
-        border: none;
-        padding: 10px;
-        cursor: pointer;
-      }
-    </style>
-  </head>
+    .jumbotron {
+      padding-bottom: 14px !important;
+    }
 
-  <body>
-    <main class="container-lg">
-      <header class="jumbotron">
-        <h1>Viknesh STGM - Repro Environment</h1>
-        <h3>A page developed using Node &amp; Express</h3>
-      </header>
-      <section>
-        <!-- <h2 class="display-5">API Details:</h2> -->
-        <h3>Accepted Parameters are listed below</h3>
-        <ul>
-          <table>
-            <tr>
-              <th>PATH</th>
-              <th>DESCRIPTION</th>
-            </tr>
-            <tr>
-              <td>/generate</td>
-              <td>
-                This will generate a bearer token. This bearer token can be seen
-                in the response section as JSON. Also the token will expire in 4
-                minutes. The time at which the token got generated will be shown
-                in the headers section with the key utctime. This is just a API
-                call and when opened in the browser will just show "Invalid
-                Route". <b>Use a API client to run and get details.</b>
-              </td>
-            </tr>
-            <tr>
-              <td>/validate</td>
-              <td>
-                This will accpect the bearer token as authorization field and
-                will validate if the token is valid or not. This is just a API
-                call and when opened in the browser will just show "Invalid
-                Route". <b>Use a API client to run and get details.</b>
-              </td>
-            </tr>
-            <tr>
-              <td><a href="/response/200">/response/:code</a></td>
-              <td>
-                This will open the page with the Status code that is passed as
-                code. For Example if we open http://localhost:3010/response/200,
-                the page will show Ok as the Status code message.
-                <b
-                  >You can also use an API client to run this and fetch the
-                  response.</b
-                >
-              </td>
-            </tr>
-            <tr>
-              <td><a href="/test/echo">/:word/echo</a></td>
-              <td>
-                This will show a JSON of the word that is passed in the path.
-                For Example if we open http://localhost:3010/repro-app/echo it
-                will show {"echo":"repro-app"} in the page.
-                <b
-                  >You can also use an API client to run this and fetch the
-                  response.</b
-                >
-              </td>
-            </tr>
-            <tr>
-              <td><a href="/delayload/10">/delayload/:second</a></td>
-              <td>
-                This will load a html page with current date and time after the
-                mentioned time in seconds. http://localhost:3010/delayload/480
-                will load the page after 480 seconds.
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="/delayrespcode/200/5">/delayrespcode/:code/:time</a>
-              </td>
-              <td>
-                This will load a html page with response code after the
-                mentioned time in seconds.
-                http://localhost:3010/delayrespcode/200/5 will load the response
-                code after 5 seconds.
-              </td>
-            </tr>
-            <tr>
-              <td><a href="/loadajax">/loadajax</a></td>
-              <td>
-                This will load a web page with three images and an AJAX field to
-                load data.
-              </td>
-            </tr>
-            <tr>
-              <td><a href="/perfmetrics">/perfmetrics</a></td>
-              <td>
-                This will load a web page with show the SSL and Connect time of
-                the page load along with a few performance timings.
-              </td>
-            </tr>
-            <tr>
-              <td><a href="/redirect/5">/redirect/:count</a></td>
-              <td>
-                This will redirect the page with 302 based on the count value
-                provided and finally will show you the output as redirect
-                successful.
-              </td>
-            </tr>
-            <tr>
-              <td><a href="/delayed600">/delayed600</a></td>
-              <td>
-                This will load a web page only after loading for the third time.
-                Else it will throw status code 600.
-              </td>
-            </tr>
-            <tr>
-              <td><a href="/jpg">/jpg</a></td>
-              <td>Loads a static JPG file.</td>
-            </tr>
-            <tr>
-              <td><a href="/txt">/txt</a></td>
-              <td>Loads a static Text file.</td>
-            </tr>
-            <tr>
-              <td><a href="/mhtml">/mhtml</a></td>
-              <td>Downloads a static MHTML file.</td>
-            </tr>
-            <tr>
-              <td><a href="/gif">/gif</a></td>
-              <td>Loads a static GIF file.</td>
-            </tr>
-            <tr>
-              <td><a href="/spa">/spa</a></td>
-              <td>
-                This will load a SPA page with three tabs. Loading a JPG, GIF
-                and Text.
-              </td>
-            </tr>
-            <tr>
-              <td>Any Other Paths</td>
-              <td>
-                Any other paths apart from the above will show Invalid Route.
-              </td>
-            </tr>
-          </table>
-        </ul>
-      </section>
-    </main>
-    <!-- Button to trigger the performance metrics -->
-    <button id="showMetrics" class="btn btn-primary mt-3">
-      Show Performance Metrics
-    </button>
+    #performanceOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      z-index: 9999;
+      display: none;
+      /* Initially hidden */
+      flex-direction: row;
+      justify-content: space-around;
+    }
 
-    <!-- Performance Metrics Overlay (Initially Hidden) -->
-    <div id="performanceOverlay">
-      <button id="closeBtn">Close</button>
-      <div id="leftColumn" class="perf-column"></div>
-      <div id="rightColumn" class="perf-column"></div>
-    </div>
+    .perf-column {
+      flex: 1;
+      padding: 10px;
+    }
 
-    <!-- JavaScript Overlay Script -->
-    <script>
-      document
-        .getElementById("showMetrics")
-        .addEventListener("click", function () {
-          const timing = performance.timing;
+    #closeBtn {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      background: red;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
 
-          // Calculate values
-          const connectTime = timing.connectEnd - timing.connectStart;
-          const sslTime =
-            timing.secureConnectionStart > 0
-              ? timing.connectEnd - timing.secureConnectionStart
-              : "Not applicable (HTTP)";
+<body>
+  <main class="container-lg">
+    <header class="jumbotron">
+      <h1>Viknesh STGM - Repro Environment</h1>
+      <h3>A page developed using Node &amp; Express</h3>
+    </header>
+    <section>
+      <!-- <h2 class="display-5">API Details:</h2> -->
+      <h3>Accepted Parameters are listed below</h3>
+      <ul>
+        <table>
+          <tr>
+            <th>PATH</th>
+            <th>DESCRIPTION</th>
+          </tr>
+          <tr>
+            <td><a href="/generate">/generate</a></td>
+            <td>
+              This will generate a bearer token. This bearer token can be seen
+              in the response section as JSON. Also the token will expire in 4
+              minutes. The time at which the token got generated will be shown
+              in the headers section with the key utctime. This is just a API
+              call and when opened in the browser will just show "Invalid
+              Route".
+              <b>You can also use an API client to run this and fetch the
+                response.</b>
+            </td>
+          </tr>
+          <tr>
+            <td><a href="/authenticate">/authenticate</a></td>
+            <td>
+              This will accpect the bearer token as authorization field and
+              will validate if the token is valid or not. This is just a API
+              call and when opened in the browser will just show "Invalid
+              Route".
+              <b>You can also use an API client to run this and fetch the
+                response.</b>
+            </td>
+          </tr>
+          <tr>
+            <td><a href="/response/200">/response/:code</a></td>
+            <td>
+              This will open the page with the Status code that is passed as
+              code. For Example if we open http://localhost:3010/response/200,
+              the page will show Ok as the Status code message.
+              <b>You can also use an API client to run this and fetch the
+                response.</b>
+            </td>
+          </tr>
+          <tr>
+            <td><a href="/test/echo">/:word/echo</a></td>
+            <td>
+              This will show a JSON of the word that is passed in the path.
+              For Example if we open http://localhost:3010/repro-app/echo it
+              will show {"echo":"repro-app"} in the page.
+              <b>You can also use an API client to run this and fetch the
+                response.</b>
+            </td>
+          </tr>
+          <tr>
+            <td><a href="/delayload/10">/delayload/:second</a></td>
+            <td>
+              This will load a html page with current date and time after the
+              mentioned time in seconds. http://localhost:3010/delayload/480
+              will load the page after 480 seconds.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <a href="/delayrespcode/200/5">/delayrespcode/:code/:time</a>
+            </td>
+            <td>
+              This will load a html page with response code after the
+              mentioned time in seconds.
+              http://localhost:3010/delayrespcode/200/5 will load the response
+              code after 5 seconds.
+            </td>
+          </tr>
+          <tr>
+            <td><a href="/loadajax">/loadajax</a></td>
+            <td>
+              This will load a web page with three images and an AJAX field to
+              load data.
+            </td>
+          </tr>
+          <tr>
+            <td><a href="/perfmetrics">/perfmetrics</a></td>
+            <td>
+              This will load a web page with show the SSL and Connect time of
+              the page load along with a few performance timings.
+            </td>
+          </tr>
+          <tr>
+            <td><a href="/redirect/5">/redirect/:count</a></td>
+            <td>
+              This will redirect the page with 302 based on the count value
+              provided and finally will show you the output as redirect
+              successful.
+            </td>
+          </tr>
+          <tr>
+            <td><a href="/delayed600">/delayed600</a></td>
+            <td>
+              This will load a web page only after loading for the third time.
+              Else it will throw status code 600.
+            </td>
+          </tr>
+          <tr>
+            <td><a href="/jpg">/jpg</a></td>
+            <td>Loads a static JPG file.</td>
+          </tr>
+          <tr>
+            <td><a href="/txt">/txt</a></td>
+            <td>Loads a static Text file.</td>
+          </tr>
+          <tr>
+            <td><a href="/mhtml">/mhtml</a></td>
+            <td>Downloads a static MHTML file.</td>
+          </tr>
+          <tr>
+            <td><a href="/gif">/gif</a></td>
+            <td>Loads a static GIF file.</td>
+          </tr>
+          <tr>
+            <td><a href="/spa">/spa</a></td>
+            <td>
+              This will load a SPA page with three tabs. Loading a JPG, GIF
+              and Text.
+            </td>
+          </tr>
+          <tr>
+            <td>Any Other Paths</td>
+            <td>
+              Any other paths apart from the above will show Invalid Route.
+            </td>
+          </tr>
+        </table>
+      </ul>
+    </section>
+  </main>
+  <!-- Button to trigger the performance metrics -->
+  <button id="showMetrics" class="btn btn-primary mt-3">
+    Show Performance Metrics
+  </button>
 
-          // Populate left column with calculated values
-          document.getElementById(
-            "leftColumn"
-          ).innerHTML = `<h3>Calculated Times</h3>
+  <!-- Performance Metrics Overlay (Initially Hidden) -->
+  <div id="performanceOverlay">
+    <button id="closeBtn">Close</button>
+    <div id="leftColumn" class="perf-column"></div>
+    <div id="rightColumn" class="perf-column"></div>
+  </div>
+
+  <!-- JavaScript Overlay Script -->
+  <script>
+    document
+      .getElementById("showMetrics")
+      .addEventListener("click", function () {
+        const timing = performance.timing;
+
+        // Calculate values
+        const connectTime = timing.connectEnd - timing.connectStart;
+        const sslTime =
+          timing.secureConnectionStart > 0
+            ? timing.connectEnd - timing.secureConnectionStart
+            : "Not applicable (HTTP)";
+
+        // Populate left column with calculated values
+        document.getElementById(
+          "leftColumn"
+        ).innerHTML = `<h3>Calculated Times</h3>
               <ul style="list-style:none; padding:0;">
                   <li><strong>Connect Time:</strong> ${connectTime} ms</li>
                   <li><strong>SSL Time:</strong> ${sslTime} ms</li>
               </ul>`;
 
-          // Populate right column with performance timing data
-          let content =
-            '<h3>Performance Timing</h3><ul style="list-style:none; padding:0;">';
-          for (let key in timing) {
-            if (typeof timing[key] === "number" && timing[key] > 0) {
-              content += `<li><strong>${key}:</strong> ${timing[key]}</li>`;
-            }
+        // Populate right column with performance timing data
+        let content =
+          '<h3>Performance Timing</h3><ul style="list-style:none; padding:0;">';
+        for (let key in timing) {
+          if (typeof timing[key] === "number" && timing[key] > 0) {
+            content += `<li><strong>${key}:</strong> ${timing[key]}</li>`;
           }
-          content += "</ul>";
-          document.getElementById("rightColumn").innerHTML = content;
+        }
+        content += "</ul>";
+        document.getElementById("rightColumn").innerHTML = content;
 
-          // Show the overlay
-          document.getElementById("performanceOverlay").style.display = "flex";
-        });
+        // Show the overlay
+        document.getElementById("performanceOverlay").style.display = "flex";
+      });
 
-      // Close the overlay when the close button is clicked
-      document
-        .getElementById("closeBtn")
-        .addEventListener("click", function () {
-          document.getElementById("performanceOverlay").style.display = "none";
-        });
-    </script>
-  </body>
+    // Close the overlay when the close button is clicked
+    document
+      .getElementById("closeBtn")
+      .addEventListener("click", function () {
+        document.getElementById("performanceOverlay").style.display = "none";
+      });
+  </script>
+</body>
+
 </html>
