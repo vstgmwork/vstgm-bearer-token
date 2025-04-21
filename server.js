@@ -106,7 +106,7 @@ app.get('/redirect/:count', (req, res) => {
 
 // Route to generate a token
 app.post("/generate", (req, res) => {
-  const token = jwt.sign({}, SECRET_KEY, { expiresIn: "4m" });
+  const token = jwt.sign({}, SECRET_KEY, { expiresIn: "60m" }); // Set the validity of the token here
   const utcTime = new Date().toISOString();
   res.set("Authorization", `Bearer ${token}`);
   res.set("utctime", `${utcTime}`);
