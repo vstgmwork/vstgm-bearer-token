@@ -44,6 +44,10 @@ app.get("/loadajax", (req, res) => {
   res.sendFile(__dirname + "/views/loadajax.html");
 });
 
+app.get("/simulatedl", (req, res) => {
+  res.sendFile(__dirname + "/views/simulateDL.html");
+});
+
 app.get("/perfmetrics", (req, res) => {
   res.sendFile(__dirname + "/views/perfMetrics.html");
 });
@@ -89,18 +93,18 @@ const SECRET_KEY = "YOUR-SECRET-KEY";
 // Redirect the page N number of times
 app.get('/redirect/:count', (req, res) => {
   let count = parseInt(req.params.count, 10);
-  
+
   if (isNaN(count) || count < 0) {
-      return res.send('Invalid redirection count. Please provide a non-negative number.');
+    return res.send('Invalid redirection count. Please provide a non-negative number.');
   }
 
   if (count === 0) {
-      return res.send(`<html><body><h1>Redirection completed ${req.query.originalCount} times</h1></body></html>`);
+    return res.send(`<html><body><h1>Redirection completed ${req.query.originalCount} times</h1></body></html>`);
   }
 
   const originalCount = req.query.originalCount || count;
   setTimeout(() => {
-      res.redirect(`/redirect/${count - 1}?originalCount=${originalCount}`);
+    res.redirect(`/redirect/${count - 1}?originalCount=${originalCount}`);
   }, 1000); // 1-second delay before redirecting
 });
 
@@ -240,6 +244,37 @@ app.get("/response/:code", (req, res) => {
 
 app.get("/favicon.ico", (req, res) => {
   res.sendFile(faviconPath);
+});
+
+app.get("/bigdata", (req, res) => {
+  const FILE_SIZE = 35_000_000; // 35 MB
+  res.setHeader("Content-Type", "application/octet-stream");
+  res.setHeader("Content-Length", FILE_SIZE);
+
+  const CHUNK_SIZE = 64 * 1024;
+  let bytesSent = 0;
+
+  function sendChunk() {
+    if (bytesSent >= FILE_SIZE) {
+      res.end();
+      return;
+    }
+
+    const remaining = FILE_SIZE - bytesSent;
+    const size = Math.min(CHUNK_SIZE, remaining);
+    const chunk = Buffer.alloc(size, 65); // Fill with ASCII 'A'
+
+    const ok = res.write(chunk);
+    bytesSent += size;
+
+    if (!ok) {
+      res.once("drain", sendChunk);
+    } else {
+      setImmediate(sendChunk);
+    }
+  }
+
+  sendChunk();
 });
 
 // Catch-all route (move this to the end)
