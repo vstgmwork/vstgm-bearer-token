@@ -247,7 +247,7 @@ app.get("/favicon.ico", (req, res) => {
 });
 
 app.get("/bigdata", (req, res) => {
-  const FILE_SIZE = 35_000_000; // 35 MB
+  const FILE_SIZE = 350_000_000; // 350 MB
   res.setHeader("Content-Type", "application/octet-stream");
   res.setHeader("Content-Length", FILE_SIZE);
 
