@@ -44,6 +44,10 @@ app.get("/loadajax", (req, res) => {
   res.sendFile(__dirname + "/views/loadajax.html");
 });
 
+app.get("/idcard", (req, res) => {
+  res.sendFile(__dirname + "/views/id_card.html");
+});
+
 app.get("/simulatedl", (req, res) => {
   res.sendFile(__dirname + "/views/simulateDL.html");
 });
