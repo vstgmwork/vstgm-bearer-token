@@ -4,29 +4,29 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login Page</title>
+    <title>Step-by-Step Login</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to right, #4facfe, #00f2fe);
+            background: linear-gradient(to right, #8360c3, #2ebf91);
             height: 100vh;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0;
         }
 
         .login-box {
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background-color: #fff;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             width: 320px;
             text-align: center;
         }
 
         .login-box h2 {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             color: #333;
         }
 
@@ -34,8 +34,8 @@
         .login-box input[type="password"] {
             width: 100%;
             padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
+            margin: 12px 0;
+            border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 16px;
         }
@@ -43,18 +43,18 @@
         .login-box button {
             width: 100%;
             padding: 12px;
-            background-color: #4facfe;
             border: none;
             border-radius: 8px;
+            background-color: #2ebf91;
             color: white;
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
-            transition: background 0.3s ease;
+            transition: background-color 0.3s ease;
         }
 
         .login-box button:hover {
-            background-color: #00c6ff;
+            background-color: #27ae80;
         }
 
         .message {
@@ -69,19 +69,39 @@
         .failure {
             color: red;
         }
+
+        #password,
+        #login-btn {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
     <div class="login-box">
         <h2>User Login</h2>
-        <input type="text" id="username" placeholder="Username" />
-        <input type="password" id="password" placeholder="Password" />
-        <button onclick="authenticate()">Login</button>
+        <input type="text" id="username" placeholder="Enter username" />
+        <button id="continue-btn" onclick="showPassword()">Continue</button>
+
+        <input type="password" id="password" placeholder="Enter password" />
+        <button id="login-btn" onclick="authenticate()">Login</button>
+
         <div class="message" id="message"></div>
     </div>
 
     <script>
+        function showPassword() {
+            const username = document.getElementById("username").value.trim();
+            if (username === "") {
+                alert("Please enter username");
+                return;
+            }
+
+            document.getElementById("continue-btn").style.display = "none";
+            document.getElementById("password").style.display = "block";
+            document.getElementById("login-btn").style.display = "block";
+        }
+
         function authenticate() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
