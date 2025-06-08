@@ -59,6 +59,7 @@ app.get("/simulatedl", (req, res) => {
 
 app.get("/mealplanner", (req, res) => {
   res.sendFile(__dirname + "/views/meal_planner.html");
+});
 
 app.get("/perfmetrics", (req, res) => {
   res.sendFile(__dirname + "/views/perfMetrics.html");
