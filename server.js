@@ -48,6 +48,10 @@ app.get("/idcard", (req, res) => {
   res.sendFile(__dirname + "/views/id_card.html");
 });
 
+app.get("/mealplanner", (req, res) => {
+  res.sendFile(__dirname + "/views/meal_planner.html");
+});
+
 app.get("/simulatedl", (req, res) => {
   res.sendFile(__dirname + "/views/simulateDL.html");
 });
