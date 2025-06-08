@@ -48,13 +48,17 @@ app.get("/idcard", (req, res) => {
   res.sendFile(__dirname + "/views/id_card.html");
 });
 
-app.get("/mealplanner", (req, res) => {
-  res.sendFile(__dirname + "/views/meal_planner.html");
+
+app.get("/authpage", (req, res) => {
+  res.sendFile(__dirname + "/views/auth_form.html");
 });
 
 app.get("/simulatedl", (req, res) => {
   res.sendFile(__dirname + "/views/simulateDL.html");
 });
+
+app.get("/mealplanner", (req, res) => {
+  res.sendFile(__dirname + "/views/meal_planner.html");
 
 app.get("/perfmetrics", (req, res) => {
   res.sendFile(__dirname + "/views/perfMetrics.html");

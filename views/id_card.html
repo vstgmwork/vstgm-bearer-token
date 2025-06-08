@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+  <script defer src='https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js'></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student ID Generator</title>
@@ -148,72 +149,72 @@
   <!-- html2canvas for export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-  const inputs = {
-    school: document.getElementById('schoolName'),
-    name: document.getElementById('studentName'),
-    grade: document.getElementById('grade'),
-    section: document.getElementById('section'),
-    address: document.getElementById('address'),
-    contact: document.getElementById('contact'),
-    bus: document.getElementById('busRoute'),
-    blood: document.getElementById('bloodGroup'),
-  };
-
-  const addressInput = document.getElementById('address');
-  const counter = document.getElementById('addressCounter');
-  addressInput.addEventListener('input', function () {
-    counter.textContent = `${addressInput.value.length} / 70`;
-  });
-
-  // Set default logo
-  const logo = document.getElementById('logo');
-  const logoPreview = document.getElementById('logoPreview');
-  const logoUpload = document.getElementById('logoUpload');
-  const defaultLogo = 'Ryan_International_Group_logo.png';
-  logo.src = defaultLogo;
-  logoPreview.src = defaultLogo;
-
-  logoUpload.addEventListener('change', function (e) {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      logoPreview.src = url;
-      logo.src = url;
-    }
-  });
-
-  document.getElementById('photoUpload').addEventListener('change', function (e) {
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      document.getElementById('photo').src = event.target.result;
+    const inputs = {
+      school: document.getElementById('schoolName'),
+      name: document.getElementById('studentName'),
+      grade: document.getElementById('grade'),
+      section: document.getElementById('section'),
+      address: document.getElementById('address'),
+      contact: document.getElementById('contact'),
+      bus: document.getElementById('busRoute'),
+      blood: document.getElementById('bloodGroup'),
     };
-    reader.readAsDataURL(e.target.files[0]);
-  });
 
-  function updateIDCard() {
-    document.getElementById('school').textContent = inputs.school.value;
-    document.getElementById('name').textContent = inputs.name.value;
-    document.getElementById('gradeVal').textContent = inputs.grade.value;
-    document.getElementById('secVal').textContent = inputs.section.value;
-    document.getElementById('addr').textContent = inputs.address.value;
-    document.getElementById('phone').textContent = inputs.contact.value;
-    document.getElementById('bus').textContent = inputs.bus.value;
-    document.getElementById('blood').textContent = inputs.blood.value;
-  }
-
-  for (let key in inputs) {
-    inputs[key].addEventListener('input', updateIDCard);
-  }
-
-  function downloadID() {
-    html2canvas(document.getElementById('idCard')).then(canvas => {
-      const link = document.createElement('a');
-      link.download = 'student_id_card.jpeg';
-      link.href = canvas.toDataURL('image/jpeg');
-      link.click();
+    const addressInput = document.getElementById('address');
+    const counter = document.getElementById('addressCounter');
+    addressInput.addEventListener('input', function () {
+      counter.textContent = `${addressInput.value.length} / 70`;
     });
-  }
-</script>
+
+    // Set default logo
+    const logo = document.getElementById('logo');
+    const logoPreview = document.getElementById('logoPreview');
+    const logoUpload = document.getElementById('logoUpload');
+    const defaultLogo = 'Ryan_International_Group_logo.png';
+    logo.src = defaultLogo;
+    logoPreview.src = defaultLogo;
+
+    logoUpload.addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        logoPreview.src = url;
+        logo.src = url;
+      }
+    });
+
+    document.getElementById('photoUpload').addEventListener('change', function (e) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        document.getElementById('photo').src = event.target.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    function updateIDCard() {
+      document.getElementById('school').textContent = inputs.school.value;
+      document.getElementById('name').textContent = inputs.name.value;
+      document.getElementById('gradeVal').textContent = inputs.grade.value;
+      document.getElementById('secVal').textContent = inputs.section.value;
+      document.getElementById('addr').textContent = inputs.address.value;
+      document.getElementById('phone').textContent = inputs.contact.value;
+      document.getElementById('bus').textContent = inputs.bus.value;
+      document.getElementById('blood').textContent = inputs.blood.value;
+    }
+
+    for (let key in inputs) {
+      inputs[key].addEventListener('input', updateIDCard);
+    }
+
+    function downloadID() {
+      html2canvas(document.getElementById('idCard')).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'student_id_card.jpeg';
+        link.href = canvas.toDataURL('image/jpeg');
+        link.click();
+      });
+    }
+  </script>
 
 </body>
 
