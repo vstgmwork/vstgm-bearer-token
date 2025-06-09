@@ -1,136 +1,448 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Weekly Meal Planner</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
       margin: 0;
-      padding: 20px;
-      background: #f5f5f5;
     }
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+
     h1 {
       text-align: center;
-      font-size: 2.5em;
-      margin-bottom: 30px;
-      color: #333;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
     }
-    table {
-      width: 100%;
+
+    .container {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: 2rem;
+    }
+
+    .meal-planner {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
       border-collapse: collapse;
+      max-width: 100%;
     }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 12px;
+
+    .meal-planner div {
+      border: 1px solid #999;
+      padding: 1rem;
+      box-sizing: border-box;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .day-header {
+      background: #333;
+      color: #fff;
+      font-weight: bold;
       text-align: center;
     }
-    th {
-      background-color: #f0f0f0;
+
+    .day-label {
       font-weight: bold;
-    }
-    .day-column {
-      font-weight: bold;
-      background-color: #f8f8f8;
-      color: #444;
-    }
-    .colored-days td:first-child {
       color: white;
-      font-weight: bold;
+      text-align: center;
     }
-    .monday    td:first-child { background-color: #e91e63; }
-    .tuesday   td:first-child { background-color: #ff5722; }
-    .wednesday td:first-child { background-color: #ffc107; }
-    .thursday  td:first-child { background-color: #8bc34a; }
-    .friday    td:first-child { background-color: #00bcd4; }
-    .saturday  td:first-child { background-color: #3f51b5; }
-    .sunday    td:first-child { background-color: #9c27b0; }
-    input[type="text"] {
+
+    .monday {
+      background: #f06292;
+    }
+
+    .tuesday {
+      background: #ba68c8;
+    }
+
+    .wednesday {
+      background: #64b5f6;
+    }
+
+    .thursday {
+      background: #4db6ac;
+    }
+
+    .friday {
+      background: #ffd54f;
+    }
+
+    .saturday {
+      background: #aed581;
+    }
+
+    .sunday {
+      background: #90caf9;
+    }
+
+    .input-cell textarea {
       width: 100%;
-      padding: 6px;
+      height: 100%;
+      resize: none;
       border: none;
-      background: #fafafa;
+      font-size: 1rem;
+      font-family: inherit;
+      box-sizing: border-box;
+      padding: 0.5rem;
+      overflow: hidden;
+      background: transparent;
     }
-    input[type="text"]:focus {
+
+    .input-cell textarea:focus {
       outline: none;
+    }
+
+    .shopping-list {
       background: #fff;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      max-height: 100%;
+    }
+
+    .shopping-list h2 {
+      text-align: center;
+    }
+
+    .shopping-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .shopping-item input[type="text"] {
+      flex-grow: 1;
+      padding: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .meal-planner {
+        grid-template-columns: repeat(5, 1fr);
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
+
 <body>
+  <h1>Weekly Meal Planner</h1>
   <div class="container">
-    <h1>Weekly Meal Planner</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>Day</th>
-          <th>Breakfast</th>
-          <th>Lunch</th>
-          <th>Dinner</th>
-          <th>Snacks</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="colored-days monday">
-          <td>Monday</td>
-          <td><input type="text" placeholder="e.g. Oatmeal"></td>
-          <td><input type="text" placeholder="e.g. Salad"></td>
-          <td><input type="text" placeholder="e.g. Pasta"></td>
-          <td><input type="text" placeholder="e.g. Fruit"></td>
-        </tr>
-        <tr class="colored-days tuesday">
-          <td>Tuesday</td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-        </tr>
-        <tr class="colored-days wednesday">
-          <td>Wednesday</td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-        </tr>
-        <tr class="colored-days thursday">
-          <td>Thursday</td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-        </tr>
-        <tr class="colored-days friday">
-          <td>Friday</td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-        </tr>
-        <tr class="colored-days saturday">
-          <td>Saturday</td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-        </tr>
-        <tr class="colored-days sunday">
-          <td>Sunday</td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-        </tr>
-      </tbody>
-    </table>
+    <div>
+      <div class="meal-planner">
+        <div class="day-header"></div>
+        <div class="day-header">Breakfast</div>
+        <div class="day-header">Lunch</div>
+        <div class="day-header">Dinner</div>
+        <div class="day-header">Snacks</div>
+
+        <div class="day-label monday">Monday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+
+        <div class="day-label tuesday">Tuesday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+
+        <div class="day-label wednesday">Wednesday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+
+        <div class="day-label thursday">Thursday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+
+        <div class="day-label friday">Friday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+
+        <div class="day-label saturday">Saturday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+      </div>
+    </div>
+    <div class="shopping-list">
+      <h2>Shopping List</h2>
+      <div id="list"></div>
+      <div class="shopping-item">
+        <input type="text" id="itemInput" placeholder="Enter item...">
+        <button onclick="addItem()">Add Item</button>
+      </div>
+    </div>
   </div>
+
+  <script>
+    function autoGrow(textarea) {
+      textarea.style.height = "5px";
+      textarea.style.height = (textarea.scrollHeight) + "px";
+    }
+
+    function addItem() {
+      const input = document.getElementById("itemInput");
+      const list = document.getElementById("list");
+      if (input.value.trim() === "") return;
+      const div = document.createElement("div");
+      div.className = "shopping-item";
+      div.innerHTML = `<input type="text" value="${input.value}" />`;
+      list.appendChild(div);
+      input.value = "";
+    }
+  </script>
 </body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Meal Planner</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: 2rem;
+    }
+
+    .meal-planner {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+      border-collapse: collapse;
+      max-width: 100%;
+    }
+
+    .meal-planner div {
+      border: 1px solid #999;
+      padding: 1rem;
+      box-sizing: border-box;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .day-header {
+      background: #333;
+      color: #fff;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .day-label {
+      font-weight: bold;
+      color: white;
+      text-align: center;
+    }
+
+    .monday {
+      background: #f06292;
+    }
+
+    .tuesday {
+      background: #ba68c8;
+    }
+
+    .wednesday {
+      background: #64b5f6;
+    }
+
+    .thursday {
+      background: #4db6ac;
+    }
+
+    .friday {
+      background: #ffd54f;
+    }
+
+    .saturday {
+      background: #aed581;
+    }
+
+    .sunday {
+      background: #90caf9;
+    }
+
+    .input-cell textarea {
+      width: 100%;
+      height: 100%;
+      resize: none;
+      border: none;
+      font-size: 1rem;
+      font-family: inherit;
+      box-sizing: border-box;
+      padding: 0.5rem;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    .input-cell textarea:focus {
+      outline: none;
+    }
+
+    .shopping-list {
+      background: #fff;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      max-height: 100%;
+    }
+
+    .shopping-list h2 {
+      text-align: center;
+    }
+
+    .shopping-item {
+      display: flex;
+      margin-bottom: 0.5rem;
+    }
+
+    .shopping-item input[type="text"] {
+      flex-grow: 1;
+      padding: 0.5rem;
+    }
+
+    .screenshot-button {
+      display: block;
+      margin: 1rem auto;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .meal-planner {
+        grid-template-columns: repeat(5, 1fr);
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Weekly Meal Planner</h1>
+  <button class="screenshot-button" onclick="downloadScreenshot()">Download Screenshot</button>
+  <div class="container" id="planner">
+    <div>
+      <div class="meal-planner">
+        <div class="day-header"></div>
+        <div class="day-header">Breakfast</div>
+        <div class="day-header">Lunch</div>
+        <div class="day-header">Dinner</div>
+        <div class="day-header">Snacks</div>
+
+        <div class="day-label monday">Monday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+
+        <div class="day-label tuesday">Tuesday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+
+        <div class="day-label wednesday">Wednesday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+
+        <div class="day-label thursday">Thursday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+
+        <div class="day-label friday">Friday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+
+        <div class="day-label saturday">Saturday</div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+        <div class="input-cell"><textarea oninput="autoGrow(this)"></textarea></div>
+      </div>
+    </div>
+    <div class="shopping-list">
+      <h2>Shopping List</h2>
+      <div id="shoppingItems"></div>
+      <div class="shopping-item">
+        <input type="text" id="shoppingInput" placeholder="Add item...">
+        <button onclick="addItem()">Add Item</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function autoGrow(textarea) {
+      textarea.style.height = "5px";
+      textarea.style.height = (textarea.scrollHeight) + "px";
+    }
+
+    function addItem() {
+      const input = document.getElementById("shoppingInput");
+      if (input.value.trim() !== "") {
+        const item = document.createElement("div");
+        item.textContent = input.value;
+        document.getElementById("shoppingItems").appendChild(item);
+        input.value = "";
+      }
+    }
+
+    function downloadScreenshot() {
+      const planner = document.getElementById("planner");
+      html2canvas(planner).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'meal_planner.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+  </script>
+</body>
+
 </html>
