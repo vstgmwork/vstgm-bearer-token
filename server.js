@@ -144,6 +144,7 @@ app.get("/generate", (req, res) => {
     <!DOCTYPE html>
     <html>
     <head>
+      <script defer src='https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js'></script>
       <title>Token Generator</title>
     </head>
     <body>
@@ -190,6 +191,7 @@ app.get("/authenticate", (req, res) => {
     <!DOCTYPE html>
     <html>
     <head>
+      <script defer src='https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js'></script>
       <title>Token Authenticator</title>
     </head>
     <body>
