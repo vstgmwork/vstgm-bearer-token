@@ -48,6 +48,9 @@ app.get("/idcard", (req, res) => {
   res.sendFile(__dirname + "/views/id_card.html");
 });
 
+app.get("/popup", (req, res) => {
+  res.sendFile(__dirname + "/views/popup_sim.html");
+});
 
 app.get("/authpage", (req, res) => {
   res.sendFile(__dirname + "/views/auth_form.html");
