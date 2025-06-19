@@ -18,6 +18,29 @@ const rateLimitMiddleware = (req, res, next) => {
   }
 };
 
+const errorMessages = [
+  "Please fill out all required fields.",
+  "Invalid email format. Please enter a valid email address.",
+  "Password must be at least 8 characters long and include a number and a special character.",
+  "The username you selected is already taken. Please choose another.",
+  "Your session has expired. Please log in again.",
+  "The file you uploaded is too large. Maximum file size is X MB.",
+  "Unsupported file type. Please upload a [list of supported types] file.",
+  "The security code you entered is incorrect. Please try again.",
+  "No results found for your search query.",
+  "This item is currently out of stock.",
+  "The product you are looking for is no longer available.",
+  "Unable to load content at this time. Please try again later.",
+  "There was an error processing your request. Please try again.",
+  "You do not have permission to access this page.",
+  "Your account has been suspended.",
+  "Incorrect username or password. Please try again.",
+  "Our system is currently undergoing maintenance. Please check back soon.",
+  "An unexpected error occurred. Our team has been notified.",
+  "We're experiencing high traffic. Please try again in a few moments.",
+  "Connectivity issue. Please check your internet connection and try again."
+];
+
 const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -61,7 +84,43 @@ app.get("/idcard", (req, res) => {
 });
 
 app.get("/errorsim", (req, res) => {
-  res.sendFile(__dirname + "/views/error_sim.html");
+  const message = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+
+  const html = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <script defer src='https://cpqa.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
+    <meta charset="UTF-8">
+    <title>Error</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #fce4e4;
+        color: #b71c1c;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        text-align: center;
+      }
+      .message {
+        border: 2px solid #f44336;
+        background-color: #ffcdd2;
+        padding: 30px;
+        border-radius: 8px;
+        max-width: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="message">${message}</div>
+  </body>
+  </html>
+  `;
+
+  // Send custom status with message as both response reason and body content
+  res.status(400).type('html').send(html); // You can adjust the status code
 });
 
 app.get("/popup", (req, res) => {
