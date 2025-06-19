@@ -18,6 +18,18 @@ const rateLimitMiddleware = (req, res, next) => {
   }
 };
 
+const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <script defer src='https://cpqa.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
+  <title>VSTGM Repro App</title>
+</head>
+<body>
+</body>
+</html>
+`;
+
 // Serve static files from the views folder
 app.use(express.static(path.join(__dirname, "views")));
 
@@ -46,6 +58,10 @@ app.get("/loadajax", (req, res) => {
 
 app.get("/idcard", (req, res) => {
   res.sendFile(__dirname + "/views/id_card.html");
+});
+
+app.get("/errorsim", (req, res) => {
+  res.sendFile(__dirname + "/views/error_sim.html");
 });
 
 app.get("/popup", (req, res) => {
@@ -115,7 +131,7 @@ app.get('/redirect/:count', (req, res) => {
   }
 
   if (count === 0) {
-    return res.send(`<html><body><h1>Redirection completed ${req.query.originalCount} times</h1></body></html>`);
+    return res.send(`<html><head><script defer src='https://cpqa.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script></head><body><h1>Redirection completed ${req.query.originalCount} times</h1></body></html>`);
   }
 
   const originalCount = req.query.originalCount || count;
@@ -147,7 +163,7 @@ app.get("/generate", (req, res) => {
     <!DOCTYPE html>
     <html>
     <head>
-      <script defer src='https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js'></script>
+      <script defer src='https://cpqa.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
       <title>Token Generator</title>
     </head>
     <body>
@@ -194,7 +210,7 @@ app.get("/authenticate", (req, res) => {
     <!DOCTYPE html>
     <html>
     <head>
-      <script defer src='https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js'></script>
+      <script defer src='https://cpqa.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
       <title>Token Authenticator</title>
     </head>
     <body>
@@ -242,9 +258,9 @@ app.get("/delayload/:time", (req, res) => {
 app.get("/delayrespcode/:code/:time", (req, res) => {
   const code = parseInt(req.params.code);
   const time = parseInt(req.params.time);
-  if (!isNaN(code)) {
+  if (!isNaN(code) && !isNaN(time)) {
     setTimeout(() => {
-      res.status(code).sendStatus(code);
+      res.status(code).send(htmlContent);
     }, time * 1000); // Convert seconds to milliseconds
   } else {
     res.send("Invalid or Missing code/time parameter");
@@ -254,9 +270,9 @@ app.get("/delayrespcode/:code/:time", (req, res) => {
 app.get("/response/:code", (req, res) => {
   const code = parseInt(req.params.code);
   if (!isNaN(code)) {
-    res.status(code).sendStatus(code);
+    res.status(code).send(htmlContent);
   } else {
-    res.send("Invalid time parameter");
+    res.send("Invalid code parameter");
   }
 });
 
