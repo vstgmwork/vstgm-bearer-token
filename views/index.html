@@ -34,7 +34,6 @@
     table,
     th,
     td {
-      width: 100%;
       border: 1px solid white;
       border-collapse: collapse;
     }
@@ -46,9 +45,6 @@
       padding-bottom: 20px;
       padding-left: 30px;
       padding-right: 40px;
-      padding: 8px 12px;
-      text-align: left;
-      border: 1px solid #ddd;
     }
 
     a>i {
@@ -58,9 +54,6 @@
 
     .jumbotron {
       padding-bottom: 14px !important;
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
     }
 
     #performanceOverlay {
@@ -96,6 +89,27 @@
       cursor: pointer;
     }
 
+    /* Responsive table container */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Make table fill container and collapse borders */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    /* Optional styling */
+    th,
+    td {
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+
     @media (max-width: 600px) {
       table {
         font-size: 0.9rem;
@@ -106,178 +120,182 @@
 
 <body>
   <main class="container-lg">
-    <header class="jumbotron">
-      <h1>Viknesh STGM - Repro Environment</h1>
-      <h3>A page developed using Node &amp; Express</h3>
-    </header>
-    <section>
-      <h3>Accepted Parameters are listed below</h3>
-      <ul>
-        <table>
-          <tr>
-            <th>PATH</th>
-            <th>DESCRIPTION</th>
-          </tr>
-          <tr>
-            <td><a href="/generate">/generate</a></td>
-            <td>
-              This will generate a bearer token. This bearer token can be seen
-              in the response section as JSON. Also the token will expire in 4
-              minutes. The time at which the token got generated will be shown
-              in the headers section with the key utctime. This is just a API
-              call and when opened in the browser will just show "Invalid
-              Route".
-              <b>You can also use an API client to run this and fetch the
-                response.</b>
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/authenticate">/authenticate</a></td>
-            <td>
-              This will accpect the bearer token as authorization field and
-              will validate if the token is valid or not. This is just a API
-              call and when opened in the browser will just show "Invalid
-              Route".
-              <b>You can also use an API client to run this and fetch the
-                response.</b>
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/response/200">/response/:code</a></td>
-            <td>
-              This will open the page with the Status code that is passed as
-              code. For Example if we open http://localhost:3010/response/200,
-              the page will show Ok as the Status code message.
-              <b>You can also use an API client to run this and fetch the
-                response.</b>
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/test/echo">/:word/echo</a></td>
-            <td>
-              This will show a JSON of the word that is passed in the path.
-              For Example if we open http://localhost:3010/repro-app/echo it
-              will show {"echo":"repro-app"} in the page.
-              <b>You can also use an API client to run this and fetch the
-                response.</b>
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/delayload/10">/delayload/:second</a></td>
-            <td>
-              This will load a html page with current date and time after the
-              mentioned time in seconds. http://localhost:3010/delayload/480
-              will load the page after 480 seconds.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <a href="/delayrespcode/200/5">/delayrespcode/:code/:time</a>
-            </td>
-            <td>
-              This will load a html page with response code after the
-              mentioned time in seconds.
-              http://localhost:3010/delayrespcode/200/5 will load the response
-              code after 5 seconds.
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/loadajax">/loadajax</a></td>
-            <td>
-              This will load a web page with three images and an AJAX field to
-              load data.
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/authpage">/authpage</a></td>
-            <td>
-              This will load an authentication page which will only accept the username "test" and the password
-              "test@123"
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/idcard">/idcard</a></td>
-            <td>
-              This will load a web page that will help generating a student ID card as JPEG image after entering the
-              basic details
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/mealplanner">/mealplanner</a></td>
-            <td>
-              This will load a web page that will planning your meals for a week.
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/popup">/popup</a></td>
-            <td>
-              This will load a web page that will open a popup with a hyperlink to open another popup
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/perfmetrics">/perfmetrics</a></td>
-            <td>
-              This will load a web page with show the SSL and Connect time of
-              the page load along with a few performance timings.
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/redirect/5">/redirect/:count</a></td>
-            <td>
-              This will redirect the page with 302 based on the count value
-              provided and finally will show you the output as redirect
-              successful.
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/delayed600">/delayed600</a></td>
-            <td>
-              This will load a web page only after loading for the third time.
-              Else it will throw status code 600.
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/simulatedl">/simulatedl</a></td>
-            <td>
-              This will simulate a file size of 35MB load on the page.
-            </td>
-          </tr>
-          <tr>
-            <td><a href="/jpg">/jpg</a></td>
-            <td>Loads a static JPG file.</td>
-          </tr>
-          <tr>
-            <td><a href="/txt">/txt</a></td>
-            <td>Loads a static Text file.</td>
-          </tr>
-          <tr>
-            <td><a href="/mhtml">/mhtml</a></td>
-            <td>Downloads a static MHTML file.</td>
-          </tr>
-          <tr>
-            <td><a href="/errorsim">/errorsim</a></td>
-            <td>Loads a web page with random error with status 400.</td>
-          </tr>
-          <tr>
-            <td><a href="/gif">/gif</a></td>
-            <td>Loads a static GIF file.</td>
-          </tr>
-          <tr>
-            <td><a href="/spa">/spa</a></td>
-            <td>
-              This will load a SPA page with three tabs. Loading a JPG, GIF
-              and Text.
-            </td>
-          </tr>
-          <tr>
-            <td>Any Other Paths</td>
-            <td>
-              Any other paths apart from the above will show Invalid Route.
-            </td>
-          </tr>
-        </table>
-      </ul>
-    </section>
+    <div class="table-responsive">
+      <table>
+        <header class="jumbotron">
+          <h1>Viknesh STGM - Repro Environment</h1>
+          <h3>A page developed using Node &amp; Express</h3>
+        </header>
+        <section>
+          <h3>Accepted Parameters are listed below</h3>
+          <ul>
+            <table>
+              <tr>
+                <th>PATH</th>
+                <th>DESCRIPTION</th>
+              </tr>
+              <tr>
+                <td><a href="/generate">/generate</a></td>
+                <td>
+                  This will generate a bearer token. This bearer token can be seen
+                  in the response section as JSON. Also the token will expire in 4
+                  minutes. The time at which the token got generated will be shown
+                  in the headers section with the key 'utctime'. This is just a API
+                  call and when opened in the browser will just show "Invalid
+                  Route".
+                  <b>You can also use an API client to run this and fetch the
+                    response.</b>
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/authenticate">/authenticate</a></td>
+                <td>
+                  This will accept the bearer token as authorization field and
+                  will validate if the token is valid or not. This is just a API
+                  call and when opened in the browser will just show "Invalid
+                  Route".
+                  <b>You can also use an API client to run this and fetch the
+                    response.</b>
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/response/200">/response/:code</a></td>
+                <td>
+                  This will open the page with the Status code that is passed as
+                  code. For Example if we open http://localhost:3010/response/200,
+                  the page will show Ok as the Status code message.
+                  <b>You can also use an API client to run this and fetch the
+                    response.</b>
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/test/echo">/:word/echo</a></td>
+                <td>
+                  This will show a JSON of the word that is passed in the path.
+                  For Example if we open http://localhost:3010/repro-app/echo it
+                  will show {"echo":"repro-app"} in the page.
+                  <b>You can also use an API client to run this and fetch the
+                    response.</b>
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/delayload/10">/delayload/:second</a></td>
+                <td>
+                  This will load a html page with current date and time after the
+                  mentioned time in seconds. http://localhost:3010/delayload/480
+                  will load the page after 480 seconds.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <a href="/delayrespcode/200/5">/delayrespcode/:code/:time</a>
+                </td>
+                <td>
+                  This will load a html page with response code after the
+                  mentioned time in seconds.
+                  http://localhost:3010/delayrespcode/200/5 will load the response
+                  code after 5 seconds.
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/loadajax">/loadajax</a></td>
+                <td>
+                  This will load a web page with three images and an AJAX field to
+                  load data.
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/authpage">/authpage</a></td>
+                <td>
+                  This will load an authentication page which will only accept the username "test" and the password
+                  "test@123"
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/idcard">/idcard</a></td>
+                <td>
+                  This will load a web page that will help generating a student ID card as JPEG image after entering the
+                  basic details
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/mealplanner">/mealplanner</a></td>
+                <td>
+                  This will load a web page that will planning your meals for a week.
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/popup">/popup</a></td>
+                <td>
+                  This will load a web page that will open a popup with a hyperlink to open another popup
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/perfmetrics">/perfmetrics</a></td>
+                <td>
+                  This will load a web page with show the SSL and Connect time of
+                  the page load along with a few performance timings.
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/redirect/5">/redirect/:count</a></td>
+                <td>
+                  This will redirect the page with 302 based on the count value
+                  provided and finally will show you the output as redirect
+                  successful.
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/delayed600">/delayed600</a></td>
+                <td>
+                  This will load a web page only after loading for the third time.
+                  Else it will throw status code 600.
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/simulatedl">/simulatedl</a></td>
+                <td>
+                  This will simulate a file size of 35MB load on the page.
+                </td>
+              </tr>
+              <tr>
+                <td><a href="/jpg">/jpg</a></td>
+                <td>Loads a static JPG file.</td>
+              </tr>
+              <tr>
+                <td><a href="/txt">/txt</a></td>
+                <td>Loads a static Text file.</td>
+              </tr>
+              <tr>
+                <td><a href="/mhtml">/mhtml</a></td>
+                <td>Downloads a static MHTML file.</td>
+              </tr>
+              <tr>
+                <td><a href="/errorsim">/errorsim</a></td>
+                <td>Loads a web page with random error with status 400.</td>
+              </tr>
+              <tr>
+                <td><a href="/gif">/gif</a></td>
+                <td>Loads a static GIF file.</td>
+              </tr>
+              <tr>
+                <td><a href="/spa">/spa</a></td>
+                <td>
+                  This will load a SPA page with three tabs. Loading a JPG, GIF
+                  and Text.
+                </td>
+              </tr>
+              <tr>
+                <td>Any Other Paths</td>
+                <td>
+                  Any other paths apart from the above will show Invalid Route.
+                </td>
+              </tr>
+            </table>
+          </ul>
+        </section>
+      </table>
+    </div>
   </main>
   <!-- Button to trigger the performance metrics -->
   <button id="showMetrics" class="btn btn-primary mt-3">
