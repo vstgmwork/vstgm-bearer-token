@@ -34,6 +34,7 @@
     table,
     th,
     td {
+      width: 100%;
       border: 1px solid white;
       border-collapse: collapse;
     }
@@ -45,6 +46,9 @@
       padding-bottom: 20px;
       padding-left: 30px;
       padding-right: 40px;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid #ddd;
     }
 
     a>i {
@@ -54,6 +58,9 @@
 
     .jumbotron {
       padding-bottom: 14px !important;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     #performanceOverlay {
@@ -87,6 +94,12 @@
       border: none;
       padding: 10px;
       cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      table {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
