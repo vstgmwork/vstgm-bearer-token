@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Developer API Testbed - Consent Required</title>
+    <meta name="description"
+        content="A live collection of REST API endpoints for developers and QA. Test how your application handles various HTTP responses, delays, errors, redirects, and token authentication." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+
+    <style>
+        body {
+            padding: 40px;
+            margin-bottom: 200px;
+            /* Add margin to prevent content from being hidden by the banner */
+        }
+
+        .jumbotron {
+            padding-bottom: 14px !important;
+        }
+
+        /* Consent Banner Styles */
+        #consent-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #222;
+            color: white;
+            padding: 20px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #consent-banner.hidden {
+            display: none;
+        }
+
+        #consent-banner p {
+            margin: 0;
+            margin-right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container-lg">
+        <header class="jumbotron">
+            <h1>Viknesh STGM - Repro Environment</h1>
+            <h3>A page developed using Node &amp; Express</h3>
+        </header>
+        <section>
+            <h3>Accepted Parameters are listed below</h3>
+            <p>This site uses scripts for analytics. Please provide your consent to enable them.</p>
+            <button id="manage-consent-btn" class="btn btn-secondary mt-3">Manage Consent</button>
+
+        </section>
+    </main>
+
+    <div id="consent-banner">
+        <p>We use cookies and scripts to improve your experience. Do you accept? 🍪</p>
+        <div>
+            <button id="accept-btn" class="btn btn-success">Accept</button>
+            <button id="decline-btn" class="btn btn-danger">Decline</button>
+        </div>
+    </div>
+
+    <script>
+        // This function loads the external script and then runs your init() function
+        function loadAndInitScripts() {
+            console.log("Consent given. Loading scripts...");
+
+            // 1. Create the external script element
+            const externalScript = document.createElement('script');
+            externalScript.src = 'https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js';
+            externalScript.defer = true;
+
+            // 2. Define your init function
+            function init() {
+                var locales = ["af", "ax", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "bq", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cu", "cw", "cy", "cz", "dk", "dj", "dm", "do", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gg", "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in", "id", "ir", "iq", "ie", "im", "il", "it", "jm", "jp", "je", "jo", "kz", "ke", "ki", "kp", "kr", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "me", "ms", "ma", "mz", "mm", "na", "nr", "np", "nl", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "bl", "sh", "kn", "lc", "mf", "pm", "vc", "ws", "sm", "st", "sa", "sn", "rs", "sc", "sl", "sg", "sx", "sk", "si", "sb", "so", "za", "gs", "ss", "es", "lk", "sd", "sr", "sj", "sz", "se", "ch", "sy", "tw", "tj", "tz", "th", "tl", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"];
+                var locale = locales[Math.floor(Math.random() * locales.length)];
+                var randNum = Math.floor(Math.random() * 22 - 1) * 10;
+
+                console.log("Running init() function.");
+                window.RProfiler.addInfo("tracepoint", "locale", locale);
+                window.RProfiler.addInfo("indicator", "randnum", randNum);
+            }
+
+            // 3. This logic runs your init() function AFTER the external script has loaded
+            const runInitLogic = () => {
+                if (window.RProfiler) {
+                    init();
+                } else {
+                    window.addEventListener("GlimpseLoaded", init);
+                }
+            };
+
+            externalScript.onload = runInitLogic;
+
+            // 4. Add the script to the page to trigger the download
+            document.head.appendChild(externalScript);
+        }
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const consentBanner = document.getElementById('consent-banner');
+            const acceptBtn = document.getElementById('accept-btn');
+            const declineBtn = document.getElementById('decline-btn');
+            const manageConsentBtn = document.getElementById('manage-consent-btn');
+
+            const consentGiven = localStorage.getItem('userConsent');
+
+            // Check stored consent on page load
+            if (consentGiven === 'true') {
+                loadAndInitScripts();
+                consentBanner.classList.add('hidden');
+            } else if (consentGiven === 'false') {
+                console.log("Consent was previously declined. Scripts are blocked.");
+                consentBanner.classList.add('hidden');
+            } else {
+                // If no choice was made, show the banner
+                consentBanner.classList.remove('hidden');
+            }
+
+            // --- Event Listeners ---
+            acceptBtn.addEventListener('click', () => {
+                localStorage.setItem('userConsent', 'true');
+                consentBanner.classList.add('hidden');
+                loadAndInitScripts();
+            });
+
+            declineBtn.addEventListener('click', () => {
+                localStorage.setItem('userConsent', 'false');
+                consentBanner.classList.add('hidden');
+                console.log("Consent declined. Scripts will not be loaded.");
+            });
+
+            manageConsentBtn.addEventListener('click', () => {
+                // Remove the stored choice and show the banner again
+                localStorage.removeItem('userConsent');
+                consentBanner.classList.remove('hidden');
+                console.log("Consent preference reset. Please make a new choice.");
+            });
+        });
+    </script>
+</body>
+
+</html>

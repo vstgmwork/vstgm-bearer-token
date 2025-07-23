@@ -143,6 +143,10 @@ app.get("/perfmetrics", (req, res) => {
   res.sendFile(__dirname + "/views/perfMetrics.html");
 });
 
+app.get("/consent", (req, res) => {
+  res.sendFile(__dirname + "/views/consent_page.html");
+});
+
 app.get("/jpg", (req, res) => {
   res.sendFile(__dirname + "/views/naru.jpg");
 });
