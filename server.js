@@ -72,7 +72,7 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/views/index.html");
+  res.sendFile(__dirname + "/public/index.html");
 });
 
 app.get("/loadajax", (req, res) => {
@@ -157,6 +157,10 @@ app.get("/mhtml", (req, res) => {
 
 app.get("/gif", (req, res) => {
   res.sendFile(__dirname + "/views/thankyou.gif");
+});
+
+app.get("/sitemap.xml", (req, res) => {
+  res.sendFile(__dirname + "/public/sitemap.xml");
 });
 
 app.get("/:word/echo", (req, res) => {
