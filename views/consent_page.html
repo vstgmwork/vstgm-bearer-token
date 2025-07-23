@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Developer API Testbed - Consent Required</title>
-    <meta name="description"
-        content="A live collection of REST API endpoints for developers and QA. Test how your application handles various HTTP responses, delays, errors, redirects, and token authentication." />
+    <meta name="description" content="A concent page to load cookies and scripts." />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
 
@@ -34,10 +33,12 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.5s ease;
         }
 
         #consent-banner.hidden {
-            display: none;
+            opacity: 0;
+            pointer-events: none;
         }
 
         #consent-banner p {
@@ -55,12 +56,16 @@
         </header>
         <section>
             <h3>Accepted Parameters are listed below</h3>
-            <p>This site uses scripts for analytics. Please provide your consent to enable them.</p>
+            <p>This site uses scripts for analytics and sets cookies upon consent. Please provide your consent to enable
+                them.</p>
+            <!-- This button allows the user to change their consent preference -->
             <button id="manage-consent-btn" class="btn btn-secondary mt-3">Manage Consent</button>
 
+            <!-- Your table of API endpoints would go here -->
         </section>
     </main>
 
+    <!-- Consent Banner HTML -->
     <div id="consent-banner">
         <p>We use cookies and scripts to improve your experience. Do you accept? 🍪</p>
         <div>
@@ -69,7 +74,12 @@
         </div>
     </div>
 
+    <!-- Main Consent Logic Script -->
     <script>
+        // --- SCRIPT AND COOKIE LOADING LOGIC ---
+
+        let scriptsInitialized = false; // Flag to prevent the init function from running multiple times
+
         // This function loads the external script and then runs your init() function
         function loadAndInitScripts() {
             console.log("Consent given. Loading scripts...");
@@ -79,47 +89,82 @@
             externalScript.src = 'https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js';
             externalScript.defer = true;
 
-            // 2. Define your init function
-            function init() {
-                var locales = ["af", "ax", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "bq", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cu", "cw", "cy", "cz", "dk", "dj", "dm", "do", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gg", "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in", "id", "ir", "iq", "ie", "im", "il", "it", "jm", "jp", "je", "jo", "kz", "ke", "ki", "kp", "kr", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "me", "ms", "ma", "mz", "mm", "na", "nr", "np", "nl", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "bl", "sh", "kn", "lc", "mf", "pm", "vc", "ws", "sm", "st", "sa", "sn", "rs", "sc", "sl", "sg", "sx", "sk", "si", "sb", "so", "za", "gs", "ss", "es", "lk", "sd", "sr", "sj", "sz", "se", "ch", "sy", "tw", "tj", "tz", "th", "tl", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"];
-                var locale = locales[Math.floor(Math.random() * locales.length)];
-                var randNum = Math.floor(Math.random() * 22 - 1) * 10;
-
-                console.log("Running init() function.");
-                window.RProfiler.addInfo("tracepoint", "locale", locale);
-                window.RProfiler.addInfo("indicator", "randnum", randNum);
-            }
-
-            // 3. This logic runs your init() function AFTER the external script has loaded
+            // This logic runs your init() function AFTER the external script has loaded
             const runInitLogic = () => {
-                if (window.RProfiler) {
-                    init();
-                } else {
-                    window.addEventListener("GlimpseLoaded", init);
-                }
+                // Attempt to initialize immediately on script load
+                init();
+                // Also listen for the custom event, in case the script isn't ready right away
+                window.addEventListener("GlimpseLoaded", init);
             };
 
             externalScript.onload = runInitLogic;
 
-            // 4. Add the script to the page to trigger the download
+            // Add the script to the page to trigger the download
             document.head.appendChild(externalScript);
         }
 
+        // Define your init function
+        function init() {
+            // Check the flag to ensure this logic runs only once
+            if (scriptsInitialized) {
+                return;
+            }
 
+            // Check if the RProfiler object and its method exist before using them.
+            // This is a defensive check to prevent "Script error." if the external script fails or is not ready.
+            if (window.RProfiler && typeof window.RProfiler.addInfo === 'function') {
+                scriptsInitialized = true; // Set the flag to true so this block won't run again
+                console.log("RProfiler is ready. Running init() function.");
+
+                var locales = ["af", "ax", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "bq", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cu", "cw", "cy", "cz", "dk", "dj", "dm", "do", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gg", "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in", "id", "ir", "iq", "ie", "im", "il", "it", "jm", "jp", "je", "jo", "kz", "ke", "ki", "kp", "kr", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "me", "ms", "ma", "mz", "mm", "na", "nr", "np", "nl", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "bl", "sh", "kn", "lc", "mf", "pm", "vc", "ws", "sm", "st", "sa", "sn", "rs", "sc", "sl", "sg", "sx", "sk", "si", "sb", "so", "za", "gs", "ss", "es", "lk", "sd", "sr", "sj", "sz", "se", "ch", "sy", "tw", "tj", "tz", "th", "tl", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"];
+                var locale = locales[Math.floor(Math.random() * locales.length)];
+                var randNum = Math.floor(Math.random() * 22 - 1) * 10;
+
+                window.RProfiler.addInfo("tracepoint", "locale", locale);
+                window.RProfiler.addInfo("indicator", "randnum", randNum);
+            } else {
+                console.log("init() called, but RProfiler or its addInfo method is not ready yet.");
+            }
+        }
+
+        /**
+         * FUNCTION TO SET COOKIES
+         * This function is called when the user accepts the consent.
+         */
+        function setCookies() {
+            console.log("Setting cookies...");
+
+            // Cookie 1: Session cookie (deleted when browser closes)
+            document.cookie = "session_info=user_accepted_consent; path=/; SameSite=Lax";
+
+            // Cookie 2: Persistent cookie (expires in 30 days)
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 30); // Set expiry for 30 days from now
+            const acceptedDate = new Date().toISOString().split('T')[0]; // Get date in YYYY-MM-DD format
+
+            document.cookie = `consent_preference=accepted_on_${acceptedDate}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
+
+            console.log("Cookies have been set. Check your browser's developer tools.");
+        }
+
+
+        // --- CONSENT MANAGEMENT LOGIC ---
         document.addEventListener("DOMContentLoaded", () => {
             const consentBanner = document.getElementById('consent-banner');
             const acceptBtn = document.getElementById('accept-btn');
             const declineBtn = document.getElementById('decline-btn');
             const manageConsentBtn = document.getElementById('manage-consent-btn');
 
+            // Check for a previously stored consent choice
             const consentGiven = localStorage.getItem('userConsent');
 
-            // Check stored consent on page load
             if (consentGiven === 'true') {
+                // If consent was already given, load everything and hide the banner
                 loadAndInitScripts();
                 consentBanner.classList.add('hidden');
             } else if (consentGiven === 'false') {
-                console.log("Consent was previously declined. Scripts are blocked.");
+                // If consent was declined, do nothing and hide the banner
+                console.log("Consent was previously declined. Scripts and cookies are blocked.");
                 consentBanner.classList.add('hidden');
             } else {
                 // If no choice was made, show the banner
@@ -128,19 +173,27 @@
 
             // --- Event Listeners ---
             acceptBtn.addEventListener('click', () => {
+                // 1. Save the choice in localStorage
                 localStorage.setItem('userConsent', 'true');
+
+                // 2. Hide the banner
                 consentBanner.classList.add('hidden');
+
+                // 3. Load the required scripts
                 loadAndInitScripts();
+
+                // 4. SET THE COOKIES
+                setCookies();
             });
 
             declineBtn.addEventListener('click', () => {
                 localStorage.setItem('userConsent', 'false');
                 consentBanner.classList.add('hidden');
-                console.log("Consent declined. Scripts will not be loaded.");
+                console.log("Consent declined. Scripts and cookies will not be loaded.");
             });
 
             manageConsentBtn.addEventListener('click', () => {
-                // Remove the stored choice and show the banner again
+                // Remove the stored choice and show the banner again for a new choice
                 localStorage.removeItem('userConsent');
                 consentBanner.classList.remove('hidden');
                 console.log("Consent preference reset. Please make a new choice.");
