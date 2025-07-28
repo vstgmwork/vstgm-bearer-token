@@ -41,17 +41,26 @@ const errorMessages = [
   "Connectivity issue. Please check your internet connection and try again."
 ];
 
-const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <script defer src='https://cpqa.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
-  <title>VSTGM Repro App</title>
-</head>
-<body>
-</body>
-</html>
-`;
+const generateHtmlForCode = (code) => {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <script defer src='https://cpqa.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
+      <title>VSTGM Repro App - Status ${code}</title>
+      <style>
+        body { font-family: sans-serif; text-align: center; padding: 40px; }
+        h1 { color: #333; }
+      </style>
+    </head>
+    <body>
+      <h1>Response Triggered with Status Code: ${code}</h1>
+    </body>
+    </html>
+  `;
+};
 
 // Serve static files from the views folder
 app.use(express.static(path.join(__dirname, "views")));
@@ -322,24 +331,33 @@ app.get("/delayload/:time", (req, res) => {
   }
 });
 
+// Route that responds with a given status code after a specified delay.
 app.get("/delayrespcode/:code/:time", (req, res) => {
   const code = parseInt(req.params.code);
   const time = parseInt(req.params.time);
+
   if (!isNaN(code) && !isNaN(time)) {
+    // Call the reusable function to get the HTML
+    const htmlContent = generateHtmlForCode(code);
+
     setTimeout(() => {
       res.status(code).send(htmlContent);
     }, time * 1000); // Convert seconds to milliseconds
   } else {
-    res.send("Invalid or Missing code/time parameter");
+    res.status(400).send("Invalid or Missing code/time parameter.");
   }
 });
 
+// Route that responds immediately with a given status code.
 app.get("/response/:code", (req, res) => {
   const code = parseInt(req.params.code);
+
   if (!isNaN(code)) {
+    // Call the reusable function to get the HTML
+    const htmlContent = generateHtmlForCode(code);
     res.status(code).send(htmlContent);
   } else {
-    res.send("Invalid code parameter");
+    res.status(400).send("Invalid code parameter. Please provide a number.");
   }
 });
 
@@ -377,6 +395,10 @@ app.get("/bigdata", (req, res) => {
 
   sendChunk();
 });
+
+app.all("/400resp", (req, res) => {
+  res.status(400).send();
+})
 
 // Catch-all route (move this to the end)
 app.all("*", (req, res) => {
