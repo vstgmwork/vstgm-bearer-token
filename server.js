@@ -65,23 +65,27 @@ const generateHtmlForCode = (code) => {
 // Serve static files from the views folder
 app.use(express.static(path.join(__dirname, "views")));
 
+// Middleware to log request and response details
 app.use((req, res, next) => {
-  var d = new Date();
-  console.log(
-    `${d.toLocaleString()} : ${req.method} accessing ${req.path} from ${req.ip}`
-  );
-  // Add "locale" and "rand-num" headers to the response
-  const locale = req.headers["accept-language"]
-    ? req.headers["accept-language"].split(",")[0].slice(0, 2).toLowerCase()
-    : "en"; // Default to 'en'
-  const randNum = Math.floor(Math.random() * 10001); // Random number between 0 and 10000
-  res.setHeader("locale", locale);
-  res.setHeader("rand-num", randNum);
+  // The 'finish' event is emitted when the response has been sent.
+  // This is the correct place to log the status code, as it's not available
+  // until after the route handler has processed the request.
+  res.on('finish', () => {
+    const d = new Date();
+    console.log(
+      `${d.toLocaleString()} : ${req.method} - ${res.statusCode} - ${req.path} from ${req.ip}`
+    );
+  });
+
   next();
 });
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/public/index.html");
+});
+
+app.get("/oldindex", (req, res) => {
+  res.sendFile(__dirname + "/views/index_old.html");
 });
 
 app.get("/loadajax", (req, res) => {
@@ -396,13 +400,26 @@ app.get("/bigdata", (req, res) => {
   sendChunk();
 });
 
-app.all("/400resp", (req, res) => {
-  res.status(400).send();
-})
+// Route that responds with a random 4xx or 5xx error code.
+app.all("/randresp", (req, res) => {
+  let randomCode;
+  const isClientError = Math.random() > 0.5; // 50% chance for 4xx vs 5xx
+
+  if (isClientError) {
+    // Generate a random code from 400 to 499
+    randomCode = Math.floor(Math.random() * 100) + 400;
+  } else {
+    // Generate a random code from 500 to 511 (common server errors)
+    randomCode = Math.floor(Math.random() * 12) + 500;
+  }
+
+  const htmlContent = generateHtmlForCode(randomCode);
+  res.status(randomCode).send();
+});
 
 // Catch-all route (move this to the end)
 app.all("*", (req, res) => {
-  res.send("Invalid route");
+  res.status(400).send("Invalid route");
 });
 
 app.listen(3010, () => console.log("App is listening on port 3010"));

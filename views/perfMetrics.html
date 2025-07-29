@@ -2,135 +2,176 @@
 <html lang="en">
 
 <head>
-    <script defer src='https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js'></script>
-    <!-- <script defer src='https://portalstage.catchpoint.com/jp/85108/latest/InitialLoadScript.js'></script> -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script language="javascript" type="text/javascript">
-        function init() {
-            var locales = ["af", "ax", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "bq", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cu", "cw", "cy", "cz", "dk", "dj", "dm", "do", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gg", "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in", "id", "ir", "iq", "ie", "im", "il", "it", "jm", "jp", "je", "jo", "kz", "ke", "ki", "kp", "kr", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "me", "ms", "ma", "mz", "mm", "na", "nr", "np", "nl", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "bl", "sh", "kn", "lc", "mf", "pm", "vc", "ws", "sm", "st", "sa", "sn", "rs", "sc", "sl", "sg", "sx", "sk", "si", "sb", "so", "za", "gs", "ss", "es", "lk", "sd", "sr", "sj", "sz", "se", "ch", "sy", "tw", "tj", "tz", "th", "tl", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"
-            ];
-            var locale = locales[Math.floor(Math.random() * locales.length)];
-            var randNum = Math.floor(Math.random() * 22 - 1) * 10;
-            window.RProfiler.addInfo("tracepoint", "locale", locale);
-            window.RProfiler.addInfo("indicator", "randnum", randNum);
-        }
-        window.RProfiler
-            ? init()
-            : window.addEventListener("GlimpseLoaded", init);
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Performance Metrics with Iframe</title>
+    <title>Performance Metrics Analyzer</title>
+
+    <!-- Favicon Links -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+
+    <!-- Modern Styling with Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
     <style>
-        /* Styles for overlay */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            /* Tailwind's slate-50 */
+        }
+
         #performanceOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            z-index: 9999;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-around;
-        }
-
-        .perf-column {
-            flex: 1;
-            padding: 10px;
-        }
-
-        #closeBtn {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            background: red;
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        /* Style for iframe container */
-        #iframeContainer {
-            width: 100%;
-            height: 500px;
-            margin-bottom: 20px;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        #iframeError {
-            color: red;
-            font-weight: bold;
+            display: none;
+            /* Hidden by default */
         }
     </style>
+
+    <!-- Initial Load Script -->
+    <script defer src='https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js'></script>
+    <script>
+        // Your RProfiler script remains unchanged
+        function init() {
+            var locales = ["af", "ax", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "bq", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cu", "cw", "cy", "cz", "dk", "dj", "dm", "do", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gg", "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in", "id", "ir", "iq", "ie", "im", "il", "it", "jm", "jp", "je", "jo", "kz", "ke", "ki", "kp", "kr", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "me", "ms", "ma", "mz", "mm", "na", "nr", "np", "nl", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "bl", "sh", "kn", "lc", "mf", "pm", "vc", "ws", "sm", "st", "sa", "sn", "rs", "sc", "sl", "sg", "sx", "sk", "si", "sb", "so", "za", "gs", "ss", "es", "lk", "sd", "sr", "sj", "sz", "se", "ch", "sy", "tw", "tj", "tz", "th", "tl", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"];
+            var locale = locales[Math.floor(Math.random() * locales.length)];
+            var randNum = Math.floor(Math.random() * 22 - 1) * 10;
+            if (window.RProfiler) {
+                window.RProfiler.addInfo("tracepoint", "locale", locale);
+                window.RProfiler.addInfo("indicator", "randnum", randNum);
+            }
+        }
+        window.RProfiler ? init() : window.addEventListener("GlimpseLoaded", init);
+    </script>
 </head>
 
-<body>
+<body class="text-slate-800">
 
-    <!-- Iframe Container -->
-    <div id="iframeContainer">
-        <iframe src="https://www.google.com" id="embeddedPage"></iframe>
+    <div class="container mx-auto p-6 md:p-10">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Performance Metrics Analyzer</h1>
+            <p class="mt-2 text-lg text-slate-600">Analyze page load metrics for this page or load a URL in the iframe
+                below.</p>
+        </header>
+
+        <!-- Iframe Loader Section -->
+        <section class="mb-10 max-w-4xl mx-auto">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <input type="url" id="urlInput" placeholder="https://example.com"
+                        class="flex-grow p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                    <button id="loadIframeBtn"
+                        class="bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition transform hover:scale-105">Load
+                        in Iframe</button>
+                </div>
+                <div id="iframeError" class="text-red-600 text-center p-3 mb-4 bg-red-100 rounded-lg hidden"></div>
+                <div id="iframeContainer" class="w-full h-96 bg-slate-200 rounded-lg overflow-hidden">
+                    <iframe id="embeddedPage" class="w-full h-full border-0"></iframe>
+                </div>
+                <p class="text-xs text-slate-500 mt-2 text-center">Note: Many websites (like google.com) block being
+                    loaded in an iframe for security reasons.</p>
+            </div>
+        </section>
+
+        <!-- Action Button -->
+        <div class="text-center">
+            <button id="showMetricsBtn"
+                class="bg-green-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition transform hover:scale-105">Show
+                This Page's Metrics</button>
+        </div>
     </div>
 
-    <!-- Error Message if iframe fails -->
-    <div id="iframeError"></div>
-
     <!-- Performance Metrics Overlay -->
-    <div id="performanceOverlay">
-        <button id="closeBtn">Close</button>
-        <div id="leftColumn" class="perf-column"></div>
-        <div id="rightColumn" class="perf-column"></div>
+    <div id="performanceOverlay" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-full overflow-y-auto relative">
+            <button id="closeBtn" class="absolute top-3 right-3 text-slate-500 hover:text-slate-800">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+            <div class="p-6">
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">Performance Metrics</h2>
+                <div class="grid md:grid-cols-2 gap-6 text-sm">
+                    <div id="leftColumn" class="bg-slate-50 p-4 rounded-md"></div>
+                    <div id="rightColumn" class="bg-slate-50 p-4 rounded-md"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        function loadPerformanceMetrics() {
-            const timing = performance.timing;
+        const showMetricsBtn = document.getElementById('showMetricsBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const performanceOverlay = document.getElementById('performanceOverlay');
+        const loadIframeBtn = document.getElementById('loadIframeBtn');
+        const urlInput = document.getElementById('urlInput');
+        const embeddedPage = document.getElementById('embeddedPage');
+        const iframeError = document.getElementById('iframeError');
 
-            // Calculate values
+        function loadPerformanceMetrics() {
+            const timing = window.performance.timing;
+            if (!timing) {
+                alert("Performance Timing API is not supported in this browser.");
+                return;
+            }
+
+            // Calculate key metrics
             const connectTime = timing.connectEnd - timing.connectStart;
-            const sslTime = timing.secureConnectionStart > 0 ? timing.connectEnd - timing.secureConnectionStart : 'Not applicable (HTTP)';
+            const sslTime = timing.secureConnectionStart > 0 ? (timing.connectEnd - timing.secureConnectionStart) : "N/A (HTTP)";
+            const loadTime = timing.loadEventEnd - timing.navigationStart;
+            const ttfb = timing.responseStart - timing.navigationStart; // Time to First Byte
 
             // Populate left column with calculated values
-            document.getElementById('leftColumn').innerHTML = `<h3>Calculated Times</h3>
-                <ul style="list-style:none; padding:0;">
-                    <li><strong>Connect Time:</strong> ${connectTime} ms</li>
-                    <li><strong>SSL Time:</strong> ${sslTime} ms</li>
+            document.getElementById('leftColumn').innerHTML = `
+                <h3 class="font-bold text-lg text-slate-700 mb-2">Key Metrics</h3>
+                <ul class="space-y-2">
+                    <li><strong>Page Load Time:</strong> <span class="font-mono text-blue-600">${loadTime} ms</span></li>
+                    <li><strong>Time to First Byte:</strong> <span class="font-mono text-blue-600">${ttfb} ms</span></li>
+                    <li><strong>Connect Time:</strong> <span class="font-mono text-blue-600">${connectTime} ms</span></li>
+                    <li><strong>SSL Time:</strong> <span class="font-mono text-blue-600">${sslTime}${sslTime === 'N/A (HTTP)' ? '' : ' ms'}</span></li>
                 </ul>`;
 
-            // Populate right column with performance timing data
-            let content = '<h3>Performance Timing</h3><ul style="list-style:none; padding:0;">';
+            // Populate right column with raw performance timing data
+            let content = '<h3 class="font-bold text-lg text-slate-700 mb-2">All Timing Events</h3><ul class="space-y-2">';
             for (let key in timing) {
-                if (typeof timing[key] === 'number' && timing[key] > 0) {
-                    content += `<li><strong>${key}:</strong> ${timing[key]}</li>`;
+                const value = timing[key];
+                if (typeof value === 'number' && value > 0) {
+                    content += `<li><strong>${key}:</strong> <span class="font-mono text-slate-500">${value}</span></li>`;
                 }
             }
             content += '</ul>';
             document.getElementById('rightColumn').innerHTML = content;
+
+            performanceOverlay.style.display = 'flex';
         }
 
-        // Run when page loads
-        window.onload = function () {
-            loadPerformanceMetrics();
-        };
-
-        // Close the overlay when the close button is clicked
-        document.getElementById('closeBtn').addEventListener('click', function () {
-            document.getElementById('performanceOverlay').style.display = 'none';
+        // Event Listeners
+        showMetricsBtn.addEventListener('click', loadPerformanceMetrics);
+        closeBtn.addEventListener('click', () => {
+            performanceOverlay.style.display = 'none';
         });
 
-        // Handle iframe loading errors
-        document.getElementById("embeddedPage").onerror = function () {
-            document.getElementById("iframeError").innerText = "⚠️ Unable to load Google in an iframe due to security restrictions.";
+        loadIframeBtn.addEventListener('click', () => {
+            const url = urlInput.value;
+            if (url) {
+                iframeError.classList.add('hidden');
+                embeddedPage.src = url;
+            } else {
+                iframeError.textContent = 'Please enter a valid URL.';
+                iframeError.classList.remove('hidden');
+            }
+        });
+
+        embeddedPage.onerror = function () {
+            iframeError.textContent = `⚠️ Unable to load the requested URL. The site may be blocking requests from iframes.`;
+            iframeError.classList.remove('hidden');
         };
     </script>
 

@@ -2,124 +2,181 @@
 <html lang="en">
 
 <head>
-    <script defer src='https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js'></script>
-    <!-- <script defer src='https://portalstage.catchpoint.com/jp/85108/latest/InitialLoadScript.js'></script> -->
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script language="javascript" type="text/javascript">
-        function init() {
-            var locales = ["af", "ax", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "bq", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cu", "cw", "cy", "cz", "dk", "dj", "dm", "do", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gg", "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in", "id", "ir", "iq", "ie", "im", "il", "it", "jm", "jp", "je", "jo", "kz", "ke", "ki", "kp", "kr", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "me", "ms", "ma", "mz", "mm", "na", "nr", "np", "nl", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "bl", "sh", "kn", "lc", "mf", "pm", "vc", "ws", "sm", "st", "sa", "sn", "rs", "sc", "sl", "sg", "sx", "sk", "si", "sb", "so", "za", "gs", "ss", "es", "lk", "sd", "sr", "sj", "sz", "se", "ch", "sy", "tw", "tj", "tz", "th", "tl", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"
-            ];
-            var locale = locales[Math.floor(Math.random() * locales.length)];
-            var randNum = Math.floor(Math.random() * 22 - 1) * 10;
-            window.RProfiler.addInfo("tracepoint", "locale", locale);
-            window.RProfiler.addInfo("indicator", "randnum", randNum);
-        }
-        window.RProfiler
-            ? init()
-            : window.addEventListener("GlimpseLoaded", init);
-    </script>
+    <title>AJAX & Waterfall Demo</title>
+
+    <!-- Favicon Links -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-    <meta charset="UTF-8">
-    <link rel="shortcut icon" type="image/x-icon" href="https://www.google.com/favicon.ico">
-    <title>VIT STGM - Some Random Page</title>
-    <style>
-        .waterfall-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
 
-        .waterfall-item span {
-            margin-right: 10px;
-        }
+    <!-- Modern Styling with Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-        .waterfall-item img {
-            width: 200px;
-            height: 200px;
-        }
-    </style>
-    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            /* Tailwind's slate-50 */
+        }
+    </style>
+
+    <!-- Initial Load Script -->
+    <script defer src='https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js'></script>
+    <script>
+        // Your RProfiler script remains unchanged
+        function init() {
+            var locales = ["af", "ax", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "bq", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cu", "cw", "cy", "cz", "dk", "dj", "dm", "do", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gg", "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in", "id", "ir", "iq", "ie", "im", "il", "it", "jm", "jp", "je", "jo", "kz", "ke", "ki", "kp", "kr", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "me", "ms", "ma", "mz", "mm", "na", "nr", "np", "nl", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "bl", "sh", "kn", "lc", "mf", "pm", "vc", "ws", "sm", "st", "sa", "sn", "rs", "sc", "sl", "sg", "sx", "sk", "si", "sb", "so", "za", "gs", "ss", "es", "lk", "sd", "sr", "sj", "sz", "se", "ch", "sy", "tw", "tj", "tz", "th", "tl", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"];
+            var locale = locales[Math.floor(Math.random() * locales.length)];
+            var randNum = Math.floor(Math.random() * 22 - 1) * 10;
+            if (window.RProfiler) {
+                window.RProfiler.addInfo("tracepoint", "locale", locale);
+                window.RProfiler.addInfo("indicator", "randnum", randNum);
+            }
+        }
+        window.RProfiler ? init() : window.addEventListener("GlimpseLoaded", init);
+    </script>
 </head>
 
-<body>
-    <h1>Waterfall Tracking</h1>
-    <div class="waterfall">
-        <div class="waterfall-item">
-            <span>1</span>
-            <img src="https://i.imgur.com/07eS3c2.jpeg">
-        </div>
-        <!-- <div class="waterfall-item">
-            <span>2</span>
-            <img src="https://i.imgur.com/dKEIAPM.jpeg">
-        </div> -->
-        <div class="waterfall-item">
-            <span>2</span>
-            <img src="https://i.imgur.com/ruoEJbw.jpeg">
-        </div>
-        <div class="waterfall-item">
-            <span>3</span>
-            <img src="https://i.imgur.com/sfjs9YL.jpeg">
-        </div>
+<body class="text-slate-800">
+
+    <div class="container mx-auto p-6 md:p-10">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">AJAX & Waterfall Demo</h1>
+            <p class="mt-2 text-lg text-slate-600">Demonstrating image loading and dynamic data fetching via AJAX.</p>
+        </header>
+
+        <!-- Image Gallery Section -->
+        <section class="mb-10">
+            <h2 class="text-2xl font-semibold text-slate-800 mb-4 text-center">Image Gallery</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 waterfall">
+                <!-- Image 1 -->
+                <div
+                    class="waterfall-item bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                    <img src="https://i.imgur.com/07eS3c2.jpeg" class="w-full h-64 object-cover" alt="Abstract art 1"
+                        onerror="this.onerror=null;this.src='https://placehold.co/600x400/f87171/ffffff?text=Image+Failed';">
+                </div>
+                <!-- Image 2 -->
+                <div
+                    class="waterfall-item bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                    <img src="https://i.imgur.com/ruoEJbw.jpeg" class="w-full h-64 object-cover" alt="Abstract art 2"
+                        onerror="this.onerror=null;this.src='https://placehold.co/600x400/f87171/ffffff?text=Image+Failed';">
+                </div>
+                <!-- Image 3 -->
+                <div
+                    class="waterfall-item bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                    <img src="https://i.imgur.com/sfjs9YL.jpeg" class="w-full h-64 object-cover" alt="Abstract art 3"
+                        onerror="this.onerror=null;this.src='https://placehold.co/600x400/f87171/ffffff?text=Image+Failed';">
+                </div>
+            </div>
+        </section>
+
+        <!-- AJAX Content Section -->
+        <section class="text-center">
+            <h2 class="text-2xl font-semibold text-slate-800 mb-4">Dynamic Content</h2>
+            <button onclick="loadData()"
+                class="bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all transform hover:scale-105 mb-4">
+                Fetch New Post Title
+            </button>
+            <div
+                class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg min-h-[120px] flex items-center justify-center">
+                <!-- Loading Spinner -->
+                <div id="loading-spinner" class="hidden">
+                    <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                </div>
+                <!-- Output Content -->
+                <p id="output" class="text-slate-700 text-lg"></p>
+            </div>
+        </section>
     </div>
 
     <script>
+        // Log image load/error status
         window.onload = function () {
             var waterfallItems = document.querySelectorAll('.waterfall-item img');
-            for (var i = 0; i < waterfallItems.length; i++) {
-                waterfallItems[i].addEventListener('load', function () {
+            waterfallItems.forEach(item => {
+                item.addEventListener('load', function () {
                     console.log('Child request loaded:', this.src);
                 });
-                waterfallItems[i].addEventListener('error', function () {
+                item.addEventListener('error', function () {
                     console.log('Child request failed:', this.src);
                 });
-            }
+            });
         };
-    </script>
-    <p id="output"></p>
-    <button onclick="loadData()">Load Data</button>
-    <script>
+
         function loadData() {
             var loadTime = 500; // initial load time is 0.5 seconds
-            var randomNum = Math.floor(Math.random() * 100) + 1; // generate random number between 1 and 100
-            var url = "https://jsonplaceholder.typicode.com/posts/" + randomNum; // construct URL with random number
-            $("#output").html("Loading data...");
+            var randomNum = Math.floor(Math.random() * 100) + 1;
+            var url = "https://jsonplaceholder.typicode.com/posts/" + randomNum;
+
+            // Show spinner and hide old text
+            $("#output").hide();
+            $("#loading-spinner").show();
+
             setTimeout(function () {
                 $.ajax({
                     url: url,
                     method: "GET",
                     success: function (response) {
-                        // Use Google Translate API to translate the title to English
                         var title = response.title;
                         var sourceLang = 'auto';
                         var targetLang = 'en';
                         var translateUrl = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + sourceLang + '&tl=' + targetLang + '&dt=t&q=' + encodeURI(title);
+
                         $.ajax({
                             url: translateUrl,
                             method: "GET",
                             dataType: 'json',
                             success: function (data) {
                                 var englishTitle = data[0][0][0];
-                                $("#output").html(englishTitle);
+                                $("#loading-spinner").hide();
+                                $("#output").html(englishTitle).show();
                             },
                             error: function () {
-                                $("#output").html("Error loading the Google Translate data");
+                                $("#loading-spinner").hide();
+                                $("#output").html("Error: Could not translate the post title.").show();
                             }
                         });
                     },
                     error: function () {
-                        $("#output").html("Error loading the data from https://jsonplaceholder.typicode.com/ site");
+                        $("#loading-spinner").hide();
+                        $("#output").html("Error: Could not fetch data from the API.").show();
                     }
                 });
             }, loadTime);
         }
-        setInterval(loadData, 2500); // call loadData every  seconds
+
+        // Initial load on page start
+        loadData();
+
+        // Automatically fetch new data every 2.5 seconds
+        setInterval(loadData, 2500);
+
+        // Automatically reload the page every 25 seconds
+        // This can be aggressive for user experience, but is kept from the original file.
         setInterval(function () {
             location.reload();
-        }, 25000); // reload page every 25 seconds
+        }, 25000);
     </script>
+
 </body>
 
 </html>
