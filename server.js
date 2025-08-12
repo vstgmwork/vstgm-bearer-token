@@ -140,6 +140,10 @@ app.get("/popup", (req, res) => {
   res.sendFile(__dirname + "/views/popup_sim.html");
 });
 
+app.get("/xhr-flood", (req, res) => {
+  res.sendFile(__dirname + "/views/xhr_flood.html");
+});
+
 app.get("/authpage", (req, res) => {
   res.sendFile(__dirname + "/views/auth_form.html");
 });
