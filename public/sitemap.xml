@@ -4,13 +4,9 @@
   <!-- Main Homepage -->
   <url>
     <loc>https://www.vstgm.co.in/</loc>
-<<<<<<< HEAD
     <lastmod>2025-08-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
-=======
-    <lastmod>2025-08-17</lastmod> 
->>>>>>> 7b41cdae5eaaf280854045524d17b8e67637bc2b
   </url>
 
   <!-- API and Dynamic Routes -->
