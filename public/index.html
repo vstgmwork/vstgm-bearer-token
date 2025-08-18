@@ -80,166 +80,167 @@
             <tbody class="divide-y divide-slate-200">
               <!-- Dynamic & API Routes -->
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top w-1/3 whitespace-nowrap"><a href="/generate" target="_blank"
+                <td class="p-4 align-top w-1/3 whitespace-nowrap"><a href="/generate"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/generate</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Generates a Bearer token valid for 60 minutes.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/authenticate" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/authenticate"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/authenticate</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Validates a Bearer token provided in the Authorization header.
                 </td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/response/200" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/response/200"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/response/:code</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Returns a response with the specified HTTP status code.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/test/echo" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/test/echo"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/:word/echo</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Returns a JSON object echoing the word provided in the path.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/delayload/10" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/delayload/10"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/delayload/:time</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Loads an HTML page after a specified delay in seconds.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/delayrespcode/200/5" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/delayrespcode/200/5"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/delayrespcode/:code/:time</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Returns a response with a status code after a specified delay.
                 </td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/redirect/5" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/redirect/5"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/redirect/:count</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Performs a 302 redirect the specified number of times.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/xhr-flood" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/xhr-flood"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/xhr-flood</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Once you click on Start, multiple XHR requests gets flooded.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/errorsim" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/errorsim"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/errorsim</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Loads a page with a random error message and a 400 status.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/randresp" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/randresp"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/randresp</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Returns a random 4xx or 5xx client/server error response.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/delayed600" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/delayed600"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/delayed600</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Succeeds on the 3rd attempt; fails with status 600 otherwise.
                 </td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/bigdata" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/bigdata"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/bigdata</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Streams a large (350MB) response body.</td>
               </tr>
               <!-- Static Page Routes -->
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/loadajax" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/loadajax"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/loadajax</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Loads a page with images and an AJAX-powered data field.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/idcard" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/idcard"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/idcard</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Loads a student ID card generator page.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/popup" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/popup"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/popup</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Loads a page that demonstrates popup windows.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/authpage" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/authpage"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/authpage</a>
                 </td>
-                <td class="p-4 text-slate-600 text-sm">Loads a sample authentication form.</td>
+                <td class="p-4 text-slate-600 text-sm">Loads a sample authentication form which accepts username as
+                  "test" and password as "test@123" for a successful authentication.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/simulatedl" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/simulatedl"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/simulatedl</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Loads a page that simulates a file download.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/mealplanner" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/mealplanner"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/mealplanner</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Loads a weekly meal planner application page.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/perfmetrics" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/perfmetrics"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/perfmetrics</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Loads a page demonstrating performance timing metrics.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/consent" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/consent"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/consent</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Loads a sample consent form page.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/spa" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/spa"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/spa</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Loads a Single Page Application with tabbed content.</td>
               </tr>
               <!-- Static Asset Routes -->
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/jpg" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/jpg"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/jpg</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Serves a static JPG image.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/gif" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/gif"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/gif</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Serves a static GIF file.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/txt" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/txt"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/txt</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Serves a static text file.</td>
               </tr>
               <tr class="hover:bg-slate-50">
-                <td class="p-4 align-top whitespace-nowrap"><a href="/mhtml" target="_blank"
+                <td class="p-4 align-top whitespace-nowrap"><a href="/mhtml"
                     class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/mhtml</a>
                 </td>
                 <td class="p-4 text-slate-600 text-sm">Serves a static MHTML file.</td>
               </tr>
               <!-- <tr class="hover:bg-slate-50">
-                                <td class="p-4 align-top whitespace-nowrap"><a href="/sitemap.xml" target="_blank" class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/sitemap.xml</a></td>
+                                <td class="p-4 align-top whitespace-nowrap"><a href="/sitemap.xml" class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/sitemap.xml</a></td>
                                 <td class="p-4 text-slate-600 text-sm">Serves the sitemap.xml file.</td>
                             </tr>
                              <tr class="hover:bg-slate-50">
-                                <td class="p-4 align-top whitespace-nowrap"><a href="/proxy.pac" target="_blank" class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/proxy.pac</a></td>
+                                <td class="p-4 align-top whitespace-nowrap"><a href="/proxy.pac" class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/proxy.pac</a></td>
                                 <td class="p-4 text-slate-600 text-sm">Serves a proxy auto-config (PAC) file.</td>
                             </tr> -->
               <!-- Catch-all Route -->
