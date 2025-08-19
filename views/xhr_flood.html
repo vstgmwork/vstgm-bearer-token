@@ -4,120 +4,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XHR Background Request Runner</title>
+    <title>POST Request Simulator</title>
 </head>
 
 <body>
 
     <div>
-        <!-- Header -->
         <header>
-            <h1>XHR Request Runner</h1>
-            <p>Continuously send AJAX requests to a local backend endpoint to test server load.</p>
+            <h1>POST Request Simulator</h1>
+            <p>This page continuously sends POST requests to a specific endpoint.</p>
         </header>
 
-        <!-- Control and Status Panel -->
         <section>
-            <div>
-                <!-- Controls -->
-                <div>
-                    <button id="startBtn">Start</button>
-                    <button id="stopBtn" disabled>Stop</button>
-                </div>
-                <!-- Status -->
-                <div>
-                    <h3>STATUS</h3>
-                    <p id="status">Stopped</p>
-                </div>
-                <!-- Counters -->
-                <div>
-                    <h3>REQUESTS SENT / SUCCEEDED</h3>
-                    <p>
-                        <span id="sent-count">0</span> / <span id="success-count">0</span>
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Live Log -->
-        <section>
-            <h2>Live Response Log</h2>
-            <div id="log-container"
-                style="font-family: monospace; background-color: #333; color: white; padding: 10px; height: 300px; overflow-y: auto;">
-                <!-- Log entries will be added here -->
-            </div>
+            <h2>Request Log</h2>
+            <ul id="log-container">
+                <!-- Request status will be logged here -->
+            </ul>
         </section>
     </div>
 
     <script>
-        // Using plain JavaScript to avoid jQuery dependency
         document.addEventListener('DOMContentLoaded', function () {
-            const startBtn = document.getElementById('startBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            const statusEl = document.getElementById('status');
-            const sentCountEl = document.getElementById('sent-count');
-            const successCountEl = document.getElementById('success-count');
             const logContainer = document.getElementById('log-container');
+            const TARGET_URL = 'https://chatbot-exp.vzwcorp.com/cbcs/search/viki';
 
-            let requestInterval;
-            let sentCount = 0;
-            let successCount = 0;
-            const XHR_ENDPOINT = '/api/no-content'; // Corrected local endpoint
-
-            function sendRequest() {
-                sentCount++;
-                sentCountEl.textContent = sentCount;
-
+            function sendPostRequest() {
                 const xhr = new XMLHttpRequest();
-                xhr.open('GET', XHR_ENDPOINT, true);
+                xhr.open('POST', TARGET_URL, true);
+                // Set a common content type for POST requests
+                xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+                const logItem = document.createElement('li');
+                logContainer.prepend(logItem);
 
                 xhr.onload = function () {
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        successCount++;
-                        successCountEl.textContent = successCount;
-                        logResponse(xhr.status);
-                    } else {
-                        logError(`Request failed with status: ${xhr.status}`);
-                    }
+                    logItem.textContent = `Request to ${TARGET_URL} completed with status: ${xhr.status}`;
+                    logItem.style.color = (xhr.status >= 200 && xhr.status < 300) ? 'green' : 'orange';
                 };
 
                 xhr.onerror = function () {
-                    logError('Network Error');
+                    logItem.textContent = `Request to ${TARGET_URL} resulted in a network error.`;
+                    logItem.style.color = 'red';
                 };
 
-                xhr.send();
+                // Send a sample JSON payload, as is common for POST requests
+                xhr.send(JSON.stringify({ query: 'test' }));
             }
 
-            function logResponse(status) {
-                const logEntry = document.createElement('div');
-                logEntry.innerHTML = `<span style="color: #22c55e;">[${status}]</span> <span style="color: #94a3b8;">${new Date().toISOString()}</span>: Request successful, no content returned.`;
-                logContainer.prepend(logEntry);
-                if (logContainer.children.length > 100) {
-                    logContainer.removeChild(logContainer.lastChild);
-                }
-            }
-
-            function logError(message) {
-                const logEntry = document.createElement('div');
-                logEntry.innerHTML = `<span style="color: #ef4444;">[ERROR]</span> ${new Date().toLocaleTimeString()}: ${message}`;
-                logContainer.prepend(logEntry);
-            }
-
-            startBtn.addEventListener('click', function () {
-                requestInterval = setInterval(sendRequest, 100);
-                statusEl.textContent = 'Running';
-                statusEl.style.color = 'green';
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-            });
-
-            stopBtn.addEventListener('click', function () {
-                clearInterval(requestInterval);
-                statusEl.textContent = 'Stopped';
-                statusEl.style.color = 'black';
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-            });
+            // Start sending requests every 2 seconds
+            setInterval(sendPostRequest, 2000);
         });
     </script>
 </body>
