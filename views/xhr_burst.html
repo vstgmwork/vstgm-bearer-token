@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XHR Burst Test (10 Requests)</title>
+</head>
+
+<body>
+
+    <div>
+        <!-- Header -->
+        <header>
+            <h1>XHR Burst Test</h1>
+            <p>This page automatically sends 10 XMLHttpRequest requests on load.</p>
+        </header>
+
+        <!-- Live Log -->
+        <section>
+            <h2>Request Status</h2>
+            <ul id="log-container">
+                <!-- Request status will be logged here -->
+            </ul>
+        </section>
+    </div>
+
+    <script>
+        window.onload = function () {
+            const logContainer = document.getElementById('log-container');
+            const totalRequests = 10;
+
+            // Function to send a single request and update the UI
+            function sendRequest(requestNumber) {
+                const randomPostId = Math.floor(Math.random() * 100) + 1;
+                const url = `https://jsonplaceholder.typicode.com/posts/${randomPostId}`;
+
+                // Create and append the list item for this request's log
+                const listItem = document.createElement('li');
+                listItem.id = `request-${requestNumber}`;
+                listItem.innerHTML = `Request #${requestNumber}: <span class="status">Sending...</span>`;
+                logContainer.appendChild(listItem);
+
+                const statusSpan = listItem.querySelector('.status');
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        statusSpan.textContent = `Success (Status: ${xhr.status})`;
+                        statusSpan.style.color = 'green';
+                    } else {
+                        statusSpan.textContent = `Failed (Status: ${xhr.status})`;
+                        statusSpan.style.color = 'red';
+                    }
+                };
+
+                xhr.onerror = function () {
+                    statusSpan.textContent = 'Network Error';
+                    statusSpan.style.color = 'red';
+                };
+
+                xhr.send();
+            }
+
+            // Loop to initiate all 10 requests
+            for (let i = 1; i <= totalRequests; i++) {
+                sendRequest(i);
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -65,9 +65,6 @@ const generateHtmlForCode = (code) => {
   `;
 };
 
-// --- THIS LINE IS NOW REMOVED ---
-// app.use(express.static(path.join(__dirname, "views")));
-
 // Middleware to log request and response details
 app.use((req, res, next) => {
     // The 'finish' event is emitted when the response has been sent.
@@ -81,9 +78,15 @@ app.use((req, res, next) => {
     next();
 });
 
-// Route for the new XHR test page
+// Route for the XHR flood test page
 app.get("/xhrflood", (req, res) => {
-    res.sendFile(__dirname + "/views/xhr_flood.html");
+    res.sendFile(path.join(__dirname, "views", "xhr_flood.html"));
+});
+
+// --- NEW ROUTE ADDED HERE ---
+// Route for the new XHR burst test page
+app.get("/xhrburst", (req, res) => {
+    res.sendFile(path.join(__dirname, "views", "xhr_burst.html"));
 });
 
 // Endpoint for the XHR requests to hit
@@ -102,11 +105,11 @@ app.get("/xhr-endpoint", (req, res) => {
 
 
 app.get("/loadajax", (req, res) => {
-    res.sendFile(__dirname + "/views/loadajax.html");
+    res.sendFile(path.join(__dirname, "views", "loadajax.html"));
 });
 
 app.get("/idcard", (req, res) => {
-    res.sendFile(__dirname + "/views/id_card.html");
+    res.sendFile(path.join(__dirname, "views", "id_card.html"));
 });
 
 app.get("/errorsim", (req, res) => {
@@ -150,47 +153,47 @@ app.get("/errorsim", (req, res) => {
 });
 
 app.get("/popup", (req, res) => {
-    res.sendFile(__dirname + "/views/popup_sim.html");
+    res.sendFile(path.join(__dirname, "views", "popup_sim.html"));
 });
 
 app.get("/authpage", (req, res) => {
-    res.sendFile(__dirname + "/views/auth_form.html");
+    res.sendFile(path.join(__dirname, "views", "auth_form.html"));
 });
 
 app.get("/simulatedl", (req, res) => {
-    res.sendFile(__dirname + "/views/simulateDL.html");
+    res.sendFile(path.join(__dirname, "views", "simulateDL.html"));
 });
 
 app.get("/mealplanner", (req, res) => {
-    res.sendFile(__dirname + "/views/meal_planner.html");
+    res.sendFile(path.join(__dirname, "views", "meal_planner.html"));
 });
 
 app.get("/perfmetrics", (req, res) => {
-    res.sendFile(__dirname + "/views/perfMetrics.html");
+    res.sendFile(path.join(__dirname, "views", "perfMetrics.html"));
 });
 
 app.get("/consent", (req, res) => {
-    res.sendFile(__dirname + "/views/consent_page.html");
+    res.sendFile(path.join(__dirname, "views", "consent_page.html"));
 });
 
 app.get("/jpg", (req, res) => {
-    res.sendFile(__dirname + "/views/naru.jpg");
+    res.sendFile(path.join(__dirname, "views", "naru.jpg"));
 });
 
 app.get("/txt", (req, res) => {
-    res.sendFile(__dirname + "/views/welcome.txt");
+    res.sendFile(path.join(__dirname, "views", "welcome.txt"));
 });
 
 app.get("/mhtml", (req, res) => {
-    res.sendFile(__dirname + "/views/WelcometoPimcore.mhtml");
+    res.sendFile(path.join(__dirname, "views", "WelcometoPimcore.mhtml"));
 });
 
 app.get("/gif", (req, res) => {
-    res.sendFile(__dirname + "/views/thankyou.gif");
+    res.sendFile(path.join(__dirname, "views", "thankyou.gif"));
 });
 
 app.get("/sitemap.xml", (req, res) => {
-    res.sendFile(__dirname + "/public/sitemap.xml");
+    res.sendFile(path.join(__dirname, "public", "sitemap.xml"));
 });
 
 app.get("/:word/echo", (req, res) => {
@@ -377,7 +380,6 @@ app.get("/response/:code", (req, res) => {
     }
 });
 
-// --- THIS ROUTE IS NOW UPDATED ---
 app.get("/favicon.ico", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'logo.ico'));
 });
