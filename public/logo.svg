@@ -1,0 +1,43 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"
+    aria-label="API Testbed Networking Logo">
+    <defs>
+        <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#38bdf8;" />
+            <stop offset="100%" style="stop-color:#3b82f6;" />
+        </linearGradient>
+        <filter id="iconShadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.1" />
+        </filter>
+    </defs>
+    <rect x="2" y="2" width="96" height="96" rx="20" fill="#f8fafc" stroke="#e2e8f0"
+        stroke-width="3" />
+    <g transform="translate(15, 35)" filter="url(#iconShadow)">
+        <rect x="0" y="0" width="30" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"
+            stroke-width="2" />
+        <rect x="0" y="0" width="30" height="7" fill="#cbd5e1" rx="5" ry="5"
+            style="border-bottom-left-radius: 0; border-bottom-right-radius: 0;" />
+        <circle cx="6" cy="3.5" r="1.5" fill="#f8fafc" />
+        <circle cx="11" cy="3.5" r="1.5" fill="#f8fafc" />
+    </g>
+    <g transform="translate(55, 35)" filter="url(#iconShadow)">
+        <rect x="0" y="0" width="30" height="30" rx="5" fill="#475569" />
+        <rect x="4" y="5" width="22" height="4" rx="2" fill="#94a3b8" />
+        <rect x="4" y="13" width="22" height="4" rx="2" fill="#94a3b8" />
+        <rect x="4" y="21" width="15" height="4" rx="2" fill="#94a3b8" />
+        <circle cx="23" cy="23" r="2" fill="#22c55e" />
+    </g>
+    <g>
+        <path d="M 40 43 C 45 38, 55 38, 60 43" fill="none" stroke="url(#flowGradient)"
+            stroke-width="3" stroke-linecap="round" />
+        <path d="M 57 40 L 61 43 L 57 46 Z" fill="url(#flowGradient)" />
+        <circle cx="46" cy="40.5" r="1.5" fill="#3b82f6" />
+        <circle cx="50" cy="39.5" r="1.5" fill="#ef4444" />
+        <circle cx="54" cy="40.5" r="1.5" fill="#3b82f6" />
+        <path d="M 60 57 C 55 62, 45 62, 40 57" fill="none" stroke="url(#flowGradient)"
+            stroke-width="3" stroke-linecap="round" />
+        <path d="M 43 60 L 39 57 L 43 54 Z" fill="url(#flowGradient)" />
+        <circle cx="54" cy="59.5" r="1.5" fill="#3b82f6" />
+        <circle cx="50" cy="60.5" r="1.5" fill="#22c55e" />
+        <circle cx="46" cy="59.5" r="1.5" fill="#3b82f6" />
+    </g>
+</svg>

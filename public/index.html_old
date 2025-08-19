@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Developer API Testbed - Simulate HTTP Responses, Delays & Errors</title>
+  <meta name="description"
+    content="A live collection of REST API endpoints for developers and QA. Test how your application handles various HTTP responses, delays, errors, redirects, and token authentication." />
+  <meta name="google-site-verification" content="DPjaLuk4sPmmbh5TRyIT2IJLZM00ImCn9T2Rkgf5ZUM" />
+
+  <!-- Favicon Links -->
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+
+  <!-- Modern Styling with Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Custom Styles & Scripts -->
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      /* Tailwind's slate-50 */
+    }
+
+    /* Custom styles for the performance overlay */
+    #performanceOverlay {
+      display: none;
+      /* Initially hidden */
+    }
+  </style>
+
+  <!-- Initial Load Script -->
+  <script defer src='https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js'></script>
+  <script>
+    // Your RProfiler script remains unchanged
+    function init() {
+      var locales = ["af", "ax", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "bq", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cu", "cw", "cy", "cz", "dk", "dj", "dm", "do", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gg", "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in", "id", "ir", "iq", "ie", "im", "il", "it", "jm", "jp", "je", "jo", "kz", "ke", "ki", "kp", "kr", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "me", "ms", "ma", "mz", "mm", "na", "nr", "np", "nl", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "bl", "sh", "kn", "lc", "mf", "pm", "vc", "ws", "sm", "st", "sa", "sn", "rs", "sc", "sl", "sg", "sx", "sk", "si", "sb", "so", "za", "gs", "ss", "es", "lk", "sd", "sr", "sj", "sz", "se", "ch", "sy", "tw", "tj", "tz", "th", "tl", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"];
+      var locale = locales[Math.floor(Math.random() * locales.length)];
+      var randNum = Math.floor(Math.random() * 22 - 1) * 10;
+      if (window.RProfiler) {
+        window.RProfiler.addInfo("tracepoint", "locale", locale);
+        window.RProfiler.addInfo("indicator", "randnum", randNum);
+      }
+    }
+    window.RProfiler ? init() : window.addEventListener("GlimpseLoaded", init);
+  </script>
+</head>
+
+<body class="text-slate-700">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Header Section -->
+    <header class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold text-slate-900">Developer API Testbed</h1>
+      <p class="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">
+        A live collection of REST API endpoints for developers and QA. Test how your application handles various HTTP
+        responses, delays, errors, redirects, and token authentication.
+      </p>
+    </header>
+
+    <!-- API Endpoints Table -->
+    <main>
+      <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead class="bg-slate-100 border-b border-slate-200">
+              <tr>
+                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Path</th>
+                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Description</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <!-- Dynamic & API Routes -->
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top w-1/3 whitespace-nowrap"><a href="/generate"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/generate</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Generates a Bearer token valid for 60 minutes.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/authenticate"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/authenticate</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Validates a Bearer token provided in the Authorization header.
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/response/200"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/response/:code</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Returns a response with the specified HTTP status code.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/test/echo"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/:word/echo</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Returns a JSON object echoing the word provided in the path.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/delayload/10"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/delayload/:time</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Loads an HTML page after a specified delay in seconds.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/delayrespcode/200/5"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/delayrespcode/:code/:time</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Returns a response with a status code after a specified delay.
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/redirect/5"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/redirect/:count</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Performs a 302 redirect the specified number of times.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/xhr-flood"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/xhr-flood</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Once you click on Start, multiple XHR requests gets flooded.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/errorsim"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/errorsim</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Loads a page with a random error message and a 400 status.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/randresp"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/randresp</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Returns a random 4xx or 5xx client/server error response.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/delayed600"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/delayed600</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Succeeds on the 3rd attempt; fails with status 600 otherwise.
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/bigdata"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/bigdata</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Streams a large (350MB) response body.</td>
+              </tr>
+              <!-- Static Page Routes -->
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/loadajax"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/loadajax</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Loads a page with images and an AJAX-powered data field.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/idcard"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/idcard</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Loads a student ID card generator page.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/popup"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/popup</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Loads a page that demonstrates popup windows.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/authpage"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/authpage</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Loads a sample authentication form which accepts username as
+                  "test" and password as "test@123" for a successful authentication.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/simulatedl"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/simulatedl</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Loads a page that simulates a file download.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/mealplanner"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/mealplanner</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Loads a weekly meal planner application page.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/perfmetrics"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/perfmetrics</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Loads a page demonstrating performance timing metrics.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/consent"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/consent</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Loads a sample consent form page.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/spa"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/spa</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Loads a Single Page Application with tabbed content.</td>
+              </tr>
+              <!-- Static Asset Routes -->
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/jpg"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/jpg</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Serves a static JPG image.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/gif"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/gif</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Serves a static GIF file.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/txt"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/txt</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Serves a static text file.</td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><a href="/mhtml"
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/mhtml</a>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Serves a static MHTML file.</td>
+              </tr>
+              <!-- <tr class="hover:bg-slate-50">
+                                <td class="p-4 align-top whitespace-nowrap"><a href="/sitemap.xml" class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/sitemap.xml</a></td>
+                                <td class="p-4 text-slate-600 text-sm">Serves the sitemap.xml file.</td>
+                            </tr>
+                             <tr class="hover:bg-slate-50">
+                                <td class="p-4 align-top whitespace-nowrap"><a href="/proxy.pac" class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1 hover:bg-blue-200 hover:text-blue-800 transition-colors">/proxy.pac</a></td>
+                                <td class="p-4 text-slate-600 text-sm">Serves a proxy auto-config (PAC) file.</td>
+                            </tr> -->
+              <!-- Catch-all Route -->
+              <tr class="hover:bg-slate-50">
+                <td class="p-4 align-top whitespace-nowrap"><code
+                    class="font-mono text-sm bg-slate-200 text-slate-800 rounded-md px-2 py-1">/* (any other path)</code>
+                </td>
+                <td class="p-4 text-slate-600 text-sm">Any other path will return a 400 "Invalid route" error.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer / Actions -->
+    <footer class="text-center mt-12">
+      <button id="showMetrics"
+        class="bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-transform transform hover:scale-105">
+        Show Page Performance Metrics
+      </button>
+    </footer>
+  </div>
+
+  <!-- Performance Metrics Overlay -->
+  <div id="performanceOverlay" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-full overflow-y-auto relative">
+      <button id="closeBtn" class="absolute top-3 right-3 text-slate-500 hover:text-slate-800">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      <div class="p-6">
+        <h2 class="text-2xl font-bold text-slate-800 mb-4">Performance Metrics</h2>
+        <div class="grid md:grid-cols-2 gap-6 text-sm">
+          <div id="leftColumn" class="bg-slate-50 p-4 rounded-md"></div>
+          <div id="rightColumn" class="bg-slate-50 p-4 rounded-md"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Overlay Script (Unchanged) -->
+  <script>
+    document.getElementById("showMetrics").addEventListener("click", function () {
+      const timing = performance.timing;
+      if (!timing) {
+        alert("Performance Timing API is not supported in this browser.");
+        return;
+      }
+
+      // Calculate values
+      const connectTime = timing.connectEnd - timing.connectStart;
+      const sslTime = timing.secureConnectionStart > 0 ? (timing.connectEnd - timing.secureConnectionStart) : "N/A (HTTP)";
+
+      // Populate left column
+      document.getElementById("leftColumn").innerHTML = `
+                <h3 class="font-bold text-lg text-slate-700 mb-2">Key Metrics</h3>
+                <ul class="space-y-2">
+                    <li><strong>Connect Time:</strong> <span class="font-mono text-blue-600">${connectTime} ms</span></li>
+                    <li><strong>SSL Time:</strong> <span class="font-mono text-blue-600">${sslTime}${sslTime === 'N/A (HTTP)' ? '' : ' ms'}</span></li>
+                </ul>`;
+
+      // Populate right column
+      let content = '<h3 class="font-bold text-lg text-slate-700 mb-2">All Timing Events</h3><ul class="space-y-2">';
+      for (let key in timing) {
+        const value = timing[key];
+        if (typeof value === "number" && value > 0) {
+          content += `<li><strong>${key}:</strong> <span class="font-mono text-slate-500">${value}</span></li>`;
+        }
+      }
+      content += "</ul>";
+      document.getElementById("rightColumn").innerHTML = content;
+
+      // Show the overlay
+      document.getElementById("performanceOverlay").style.display = "flex";
+    });
+
+    // Close the overlay
+    document.getElementById("closeBtn").addEventListener("click", function () {
+      document.getElementById("performanceOverlay").style.display = "none";
+    });
+  </script>
+</body>
+
+</html>
