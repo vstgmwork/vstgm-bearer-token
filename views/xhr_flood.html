@@ -5,84 +5,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XHR Background Request Runner</title>
-
-    <!-- Favicon Links -->
-    <link rel="icon" href="/logo.svg" type="image/svg+xml">
-    <link rel="shortcut icon" href="/logo.ico" type="image/x-icon" />
-
-    <!-- Modern Styling with Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-
-    <!-- Custom Styles -->
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            /* Tailwind's slate-50 */
-        }
-
-        /* Style for the log to scroll */
-        #log-container {
-            height: 300px;
-        }
-    </style>
-
-    <!-- Initial Load Script -->
-    <script defer src='https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js'></script>
-    <script>
-        // Your RProfiler script remains unchanged
-        function init() {
-            var locales = ["af", "ax", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "bq", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cu", "cw", "cy", "cz", "dk", "dj", "dm", "do", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gg", "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in", "id", "ir", "iq", "ie", "im", "il", "it", "jm", "jp", "je", "jo", "kz", "ke", "ki", "kp", "kr", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "me", "ms", "ma", "mz", "mm", "na", "nr", "np", "nl", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "bl", "sh", "kn", "lc", "mf", "pm", "vc", "ws", "sm", "st", "sa", "sn", "rs", "sc", "sl", "sg", "sx", "sk", "si", "sb", "so", "za", "gs", "ss", "es", "lk", "sd", "sr", "sj", "sz", "se", "ch", "sy", "tw", "tj", "tz", "th", "tl", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"];
-            var locale = locales[Math.floor(Math.random() * locales.length)];
-            var randNum = Math.floor(Math.random() * 22 - 1) * 10;
-            if (window.RProfiler) {
-                window.RProfiler.addInfo("tracepoint", "locale", locale);
-                window.RProfiler.addInfo("indicator", "randnum", randNum);
-            }
-        }
-        window.RProfiler ? init() : window.addEventListener("GlimpseLoaded", init);
-    </script>
 </head>
 
-<body class="text-slate-800">
+<body>
 
-    <div class="container mx-auto p-6 md:p-10">
+    <div>
         <!-- Header -->
-        <header class="text-center mb-10">
-            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">XHR Request Runner</h1>
-            <p class="mt-2 text-lg text-slate-600">Continuously send AJAX requests to the JSONPlaceholder API to test
-                browser performance.</p>
+        <header>
+            <h1>XHR Request Runner</h1>
+            <p>Continuously send AJAX requests to a local backend endpoint to test server load.</p>
         </header>
 
         <!-- Control and Status Panel -->
-        <section class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+        <section>
+            <div>
                 <!-- Controls -->
-                <div class="flex items-center justify-center gap-4">
-                    <button id="startBtn"
-                        class="w-full bg-green-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition transform hover:scale-105">Start</button>
-                    <button id="stopBtn"
-                        class="w-full bg-red-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition transform hover:scale-105"
-                        disabled>Stop</button>
+                <div>
+                    <button id="startBtn">Start</button>
+                    <button id="stopBtn" disabled>Stop</button>
                 </div>
                 <!-- Status -->
                 <div>
-                    <h3 class="text-sm font-semibold text-slate-500 uppercase">Status</h3>
-                    <p id="status" class="text-2xl font-bold text-slate-500">Stopped</p>
+                    <h3>STATUS</h3>
+                    <p id="status">Stopped</p>
                 </div>
                 <!-- Counters -->
                 <div>
-                    <h3 class="text-sm font-semibold text-slate-500 uppercase">Requests Sent / Succeeded</h3>
-                    <p class="text-2xl font-bold text-blue-600">
+                    <h3>REQUESTS SENT / SUCCEEDED</h3>
+                    <p>
                         <span id="sent-count">0</span> / <span id="success-count">0</span>
                     </p>
                 </div>
@@ -90,83 +40,83 @@
         </section>
 
         <!-- Live Log -->
-        <section class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-xl font-semibold text-slate-800 mb-4">Live Response Log</h2>
-            <div id="log-container" class="bg-slate-900 text-white font-mono text-xs p-4 rounded-lg overflow-y-auto">
+        <section>
+            <h2>Live Response Log</h2>
+            <div id="log-container"
+                style="font-family: monospace; background-color: #333; color: white; padding: 10px; height: 300px; overflow-y: auto;">
                 <!-- Log entries will be added here -->
             </div>
         </section>
     </div>
 
     <script>
-        $(document).ready(function () {
-            const startBtn = $('#startBtn');
-            const stopBtn = $('#stopBtn');
-            const statusEl = $('#status');
-            const sentCountEl = $('#sent-count');
-            const successCountEl = $('#success-count');
-            const logContainer = $('#log-container');
+        // Using plain JavaScript to avoid jQuery dependency
+        document.addEventListener('DOMContentLoaded', function () {
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const statusEl = document.getElementById('status');
+            const sentCountEl = document.getElementById('sent-count');
+            const successCountEl = document.getElementById('success-count');
+            const logContainer = document.getElementById('log-container');
 
             let requestInterval;
             let sentCount = 0;
             let successCount = 0;
+            const XHR_ENDPOINT = '/api/no-content'; // Corrected local endpoint
 
             function sendRequest() {
                 sentCount++;
-                sentCountEl.text(sentCount);
+                sentCountEl.textContent = sentCount;
 
-                // Generate a random number between 10 and 99
-                const randomPostId = Math.floor(Math.random() * 90) + 10;
-                const requestUrl = `https://jsonplaceholder.typicode.com/posts/${randomPostId}`;
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', XHR_ENDPOINT, true);
 
-                $.ajax({
-                    url: requestUrl,
-                    method: "GET",
-                    success: function (response, textStatus, jqXHR) {
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) {
                         successCount++;
-                        successCountEl.text(successCount);
-                        logResponse(response, jqXHR.status);
-                    },
-                    error: function (jqXHR) {
-                        logError(`Request to ${requestUrl} failed with status: ${jqXHR.status} ${jqXHR.statusText}`);
+                        successCountEl.textContent = successCount;
+                        logResponse(xhr.status);
+                    } else {
+                        logError(`Request failed with status: ${xhr.status}`);
                     }
-                });
+                };
+
+                xhr.onerror = function () {
+                    logError('Network Error');
+                };
+
+                xhr.send();
             }
 
-            function logResponse(data, status) {
-                // Sanitize title to prevent potential HTML injection if the API was untrusted
-                const title = data.title.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                const logEntry = $('<div>').html(`<span class="text-green-400">[${status}]</span> <span class="text-slate-400">Post ${data.id}:</span> ${title}`);
+            function logResponse(status) {
+                const logEntry = document.createElement('div');
+                logEntry.innerHTML = `<span style="color: #22c55e;">[${status}]</span> <span style="color: #94a3b8;">${new Date().toISOString()}</span>: Request successful, no content returned.`;
                 logContainer.prepend(logEntry);
-
-                // Keep the log from getting too long
-                if (logContainer.children().length > 100) {
-                    logContainer.children().last().remove();
+                if (logContainer.children.length > 100) {
+                    logContainer.removeChild(logContainer.lastChild);
                 }
             }
 
             function logError(message) {
-                const logEntry = $('<div>').html(`<span class="text-red-400">[ERROR]</span> ${new Date().toLocaleTimeString()}: ${message}`);
+                const logEntry = document.createElement('div');
+                logEntry.innerHTML = `<span style="color: #ef4444;">[ERROR]</span> ${new Date().toLocaleTimeString()}: ${message}`;
                 logContainer.prepend(logEntry);
             }
 
-            startBtn.on('click', function () {
-                // Start sending requests every 100ms
+            startBtn.addEventListener('click', function () {
                 requestInterval = setInterval(sendRequest, 100);
-
-                // Update UI
-                statusEl.text('Running').removeClass('text-slate-500').addClass('text-green-600');
-                startBtn.prop('disabled', true);
-                stopBtn.prop('disabled', false);
+                statusEl.textContent = 'Running';
+                statusEl.style.color = 'green';
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
             });
 
-            stopBtn.on('click', function () {
+            stopBtn.addEventListener('click', function () {
                 clearInterval(requestInterval);
-
-                // Update UI
-                statusEl.text('Stopped').removeClass('text-green-600').addClass('text-slate-500');
-                startBtn.prop('disabled', false);
-                stopBtn.prop('disabled', true);
+                statusEl.textContent = 'Stopped';
+                statusEl.style.color = 'black';
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
             });
         });
     </script>

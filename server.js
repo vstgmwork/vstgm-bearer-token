@@ -83,10 +83,15 @@ app.get("/xhrflood", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "xhr_flood.html"));
 });
 
-// --- NEW ROUTE ADDED HERE ---
-// Route for the new XHR burst test page
+// Route for the XHR burst test page
 app.get("/xhrburst", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "xhr_burst.html"));
+});
+
+// --- NEW ENDPOINT ADDED HERE ---
+// This endpoint sends a 204 No Content response.
+app.get("/api/no-content", (req, res) => {
+    res.status(204).send();
 });
 
 // Endpoint for the XHR requests to hit
