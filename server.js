@@ -6,6 +6,7 @@ app.use(express.json()); // for parsing application/json
 
 // This line tells Express to serve all files from the 'public' directory.
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static('views'));
 
 let attemptCount = 0;
 

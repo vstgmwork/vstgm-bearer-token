@@ -116,7 +116,16 @@
 </head>
 
 <body>
-
+  <!-- Header Section -->
+  <header class="flex flex-col items-center justify-center text-center py-12 px-4 sm:px-6 lg:px-8">
+    <a href="/" class="flex items-center justify-center gap-4 mb-4">
+      <img src="/logo.svg" alt="API Testbed Logo" class="h-16 w-16">
+      <h1 class="text-4xl md:text-5xl font-bold text-slate-100">Developer API Testbed</h1>
+    </a>
+    <p class="mt-4 text-lg text-slate-400 max-w-3xl mx-auto">
+      A live collection of REST API endpoints for developers and QA.
+    </p>
+  </header>
   <div class="container">
     <!-- Form Section -->
     <div class="form-section">
@@ -124,7 +133,7 @@
       <label for="logoUpload">Upload School Logo</label>
       <input type="file" id="logoUpload" accept="image/*" />
       <br>
-      <img id="logoPreview" src="Ryan_International_Group_logo.png" alt="School Logo" width="100" />
+      <img id="logoPreview" src="/Ryan_International_Group_logo.png" alt="School Logo" width="100" />
       <label for="photoUpload">Upload Student Photo</label>
       <input type="file" id="photoUpload" accept="image/*" />
       <input type="text" id="schoolName" placeholder="School Name" />
@@ -186,7 +195,7 @@
     const logo = document.getElementById('logo');
     const logoPreview = document.getElementById('logoPreview');
     const logoUpload = document.getElementById('logoUpload');
-    const defaultLogo = 'Ryan_International_Group_logo.png';
+    const defaultLogo = '/Ryan_International_Group_logo.png';
     logo.src = defaultLogo;
     logoPreview.src = defaultLogo;
 
