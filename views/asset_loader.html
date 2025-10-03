@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Asset Loader - API Testbed</title>
+
+    <!-- Favicon Links -->
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/logo.ico" type="image/x-icon" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-slate-300">
+
+    <!-- Header Section -->
+    <header class="flex flex-col items-center justify-center text-center py-12 px-4 sm:px-6 lg:px-8">
+        <a href="/" class="flex items-center justify-center gap-4 mb-4">
+            <img src="/logo.svg" alt="API Testbed Logo" class="h-16 w-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-100">Asset Loader Page</h1>
+        </a>
+        <p class="mt-4 text-lg text-slate-400 max-w-3xl mx-auto">
+            This page demonstrates loading external scripts and local images.
+        </p>
+    </header>
+
+    <!-- Main Content: Image Display -->
+    <main class="container mx-auto px-4 pb-12">
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Image 1 -->
+            <div class="bg-slate-800 p-6 rounded-lg shadow-2xl text-center">
+                <h2 class="text-2xl font-bold text-slate-100 mb-4">naru.jpg</h2>
+                <img src="/naru.jpg" alt="Naru Image"
+                    class="w-full h-auto rounded-md shadow-lg object-contain max-h-96">
+            </div>
+            <!-- Image 2 -->
+            <div class="bg-slate-800 p-6 rounded-lg shadow-2xl text-center">
+                <h2 class="text-2xl font-bold text-slate-100 mb-4">thankyou.gif</h2>
+                <img src="/thankyou.gif" alt="Thank You GIF"
+                    class="w-full h-auto rounded-md shadow-lg object-contain max-h-96">
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer: UTC Time -->
+    <footer class="text-center py-8 px-4">
+        <div class="bg-slate-800 inline-block p-4 rounded-lg shadow-lg">
+            <p class="text-sm text-slate-400">Current UTC Time</p>
+            <p id="utc-time" class="text-2xl font-mono font-bold text-white"></p>
+        </div>
+    </footer>
+
+    <!-- External Gist Scripts -->
+    <script defer src="https://gist.github.com/vstgmwork/3f1c7a6f59d62068015d1b66b415ad16.js"></script>
+    <script defer src="https://gist.github.com/vstgmwork/c97fe542f3f094da7009021ff648d6c8.js"></script>
+    <script src="https://gist.github.com/vstgmwork/cd554b93a02e7d7cf2b6c763ca08f9c9.js"></script>
+    <script src="https://gist.github.com/vstgmwork/1ea4122cf7f1472c19382ce146fc722e.js"></script>
+
+    <!-- UTC Clock Script -->
+    <script>
+        const utcTimeElement = document.getElementById('utc-time');
+        function updateUtcTime() {
+            const now = new Date();
+            utcTimeElement.textContent = now.toUTCString().substring(5); // Remove day of the week
+        }
+        setInterval(updateUtcTime, 1000);
+        updateUtcTime(); // Initial call
+    </script>
+</body>
+
+</html>
