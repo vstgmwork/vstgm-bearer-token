@@ -387,6 +387,7 @@ app.get("/response/:code", (req, res) => {
 });
 
 app.get('/assetloader', (req, res) => res.sendFile(path.join(__dirname, 'views', 'asset_loader.html')));
+app.get('/spaasset', (req, res) => res.sendFile(path.join(__dirname, 'views', 'spa_asset_loader.html')));
 
 app.get("/favicon.ico", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'logo.ico'));
