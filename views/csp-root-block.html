@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--
+      EXTREME CONTENT SECURITY POLICY
+      This policy ('default-src 'none'') blocks ALL content, including
+      inline styles, inline scripts, images, and resources from any origin.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none';">
+
+    <title>CSP Root Block Test - API Testbed</title>
+
+    <!-- This icon will be BLOCKED -->
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+
+    <!-- These inline styles will be BLOCKED -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            /* Blocked */
+            color: #333;
+            /* Blocked */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #d9534f;
+        }
+
+        /* Blocked */
+    </style>
+</head>
+
+<body>
+    <!-- This content will be rendered as unstyled HTML -->
+    <h1>This text WILL appear, but will be unstyled.</h1>
+    <p>This page has a policy of <code>default-src 'none'</code>.</p>
+    <p>Press <strong>F12</strong> to open the developer console. You will see multiple CSP errors for all inline styles
+        and scripts that were blocked.</p>
+
+    <!-- This inline script will be BLOCKED -->
+    <script>
+        console.log("This message will be BLOCKED by the Content Security Policy.");
+    </script>
+</body>
+
+</html>
