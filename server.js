@@ -391,7 +391,7 @@ app.get('/spaasset', (req, res) => res.sendFile(path.join(__dirname, 'views', 's
 app.get('/csp-child', (req, res) => res.sendFile(path.join(__dirname, 'views', 'csp-child-block.html')));
 
 app.get('/csp-root', (req, res) => {
-    res.setHeader("Content-Security-Policy", "default-src 'none';");
+    res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'none'; img-src 'self'; style-src 'self';");
     res.sendFile(path.join(__dirname, 'views', 'csp-root-block.html'));
 });
 

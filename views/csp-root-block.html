@@ -14,7 +14,7 @@
     <title>CSP Root Block Test - API Testbed</title>
 
     <!-- This icon will be BLOCKED -->
-    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <!-- <link rel="icon" href="/logo.svg" type="image/svg+xml"> -->
 
     <!-- These inline styles will be BLOCKED -->
     <style>
@@ -44,6 +44,7 @@
     <p>This page has a policy of <code>default-src 'none'</code>.</p>
     <p>Press <strong>F12</strong> to open the developer console. You will see multiple CSP errors for all inline styles
         and scripts that were blocked.</p>
+    <iframe src="frame.html" width="400" height="200"></iframe>
 
     <!-- This inline script will be BLOCKED -->
     <script>
