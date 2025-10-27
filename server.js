@@ -389,7 +389,11 @@ app.get("/response/:code", (req, res) => {
 app.get('/assetloader', (req, res) => res.sendFile(path.join(__dirname, 'views', 'asset_loader.html')));
 app.get('/spaasset', (req, res) => res.sendFile(path.join(__dirname, 'views', 'spa_asset_loader.html')));
 app.get('/csp-child', (req, res) => res.sendFile(path.join(__dirname, 'views', 'csp-child-block.html')));
-app.get('/csp-root', (req, res) => res.sendFile(path.join(__dirname, 'views', 'csp-root-block.html')));
+
+app.get('/csp-root', (req, res) => {
+    res.setHeader("Content-Security-Policy", "default-src 'none';");
+    res.sendFile(path.join(__dirname, 'views', 'csp-root-block.html'));
+});
 
 app.get("/favicon.ico", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'logo.ico'));
