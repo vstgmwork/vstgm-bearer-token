@@ -420,6 +420,8 @@ app.get("/favicon.ico", (req, res) => {
     });
 });
 
+app.get("/healthz", (req, res) => res.status(200).send("OK"));
+
 app.get("/bigdata", (req, res) => {
     const FILE_SIZE = 350_000_000; // 350 MB
     res.setHeader("Content-Type", "application/octet-stream");
