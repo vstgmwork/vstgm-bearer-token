@@ -357,6 +357,8 @@ app.get("/authenticate", (req, res) => {
 
 const delayLoadHtmlPath = path.join(PUBLIC_DIR, "delayload.html");
 
+app.get("/healthz", (req, res) => res.status(200).send("OK"));
+
 app.get("/delayload/:time", (req, res) => {
     const time = parseInt(req.params.time);
     if (!isNaN(time)) {
@@ -473,5 +475,13 @@ app.all("*", (req, res) => {
     res.status(400).send("Invalid route");
 });
 
-const PORT = process.env.PORT || 3010;
-app.listen(PORT, () => console.log(`App is listening on port ${PORT}`));
+// const PORT = process.env.PORT || 3010;
+// app.listen(PORT, () => console.log(`App is listening on port ${PORT}`));
+
+const PORT = Number(process.env.PORT) || 8080;   // Choreo expects 8080 by default
+const HOST = "0.0.0.0";
+
+app.listen(PORT, HOST, () => {
+    console.log(`App is listening on http://${HOST}:${PORT}`);
+});
+
