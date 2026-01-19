@@ -1,22 +1,12 @@
 const express = require("express");
 const path = require("path");
 const jwt = require("jsonwebtoken");
-
 const app = express();
 app.use(express.json()); // for parsing application/json
 
-// -----------------------------------------------------------------------------
-// Static files
-// -----------------------------------------------------------------------------
-// After moving everything from ./views -> ./public, serve *everything* from here.
-const PUBLIC_DIR = path.join(__dirname, "public");
-
-// Optional backwards compatibility: if anything still requests /views/<file>,
-// serve that file from /public.
-app.use("/views", express.static(PUBLIC_DIR));
-
-// Serve static assets (including index.html, moved HTML pages, images, etc.)
-app.use(express.static(PUBLIC_DIR));
+// This line tells Express to serve all files from the 'public' directory.
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static('views'));
 
 let attemptCount = 0;
 
@@ -89,18 +79,14 @@ app.use((req, res, next) => {
     next();
 });
 
-// -----------------------------------------------------------------------------
-// Routes serving HTML pages (now from ./public)
-// -----------------------------------------------------------------------------
-
 // Route for the XHR flood test page
 app.get("/xhrflood", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "xhr_flood.html"));
+    res.sendFile(path.join(__dirname, "views", "xhr_flood.html"));
 });
 
 // Route for the XHR burst test page
 app.get("/xhrburst", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "xhr_burst.html"));
+    res.sendFile(path.join(__dirname, "views", "xhr_burst.html"));
 });
 
 // --- NEW ENDPOINT ADDED HERE ---
@@ -123,12 +109,13 @@ app.get("/xhr-endpoint", (req, res) => {
     }, delay);
 });
 
+
 app.get("/loadajax", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "loadajax.html"));
+    res.sendFile(path.join(__dirname, "views", "loadajax.html"));
 });
 
 app.get("/idcard", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "id_card.html"));
+    res.sendFile(path.join(__dirname, "views", "id_card.html"));
 });
 
 app.get("/errorsim", (req, res) => {
@@ -172,47 +159,47 @@ app.get("/errorsim", (req, res) => {
 });
 
 app.get("/popup", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "popup_sim.html"));
+    res.sendFile(path.join(__dirname, "views", "popup_sim.html"));
 });
 
 app.get("/authpage", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "auth_form.html"));
+    res.sendFile(path.join(__dirname, "views", "auth_form.html"));
 });
 
 app.get("/simulatedl", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "simulateDL.html"));
+    res.sendFile(path.join(__dirname, "views", "simulateDL.html"));
 });
 
 app.get("/mealplanner", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "meal_planner.html"));
+    res.sendFile(path.join(__dirname, "views", "meal_planner.html"));
 });
 
 app.get("/perfmetrics", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "perfMetrics.html"));
+    res.sendFile(path.join(__dirname, "views", "perfMetrics.html"));
 });
 
 app.get("/consent", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "consent_page.html"));
+    res.sendFile(path.join(__dirname, "views", "consent_page.html"));
 });
 
 app.get("/jpg", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "naru.jpg"));
+    res.sendFile(path.join(__dirname, "views", "naru.jpg"));
 });
 
 app.get("/txt", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "welcome.txt"));
+    res.sendFile(path.join(__dirname, "views", "welcome.txt"));
 });
 
 app.get("/mhtml", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "WelcometoPimcore.mhtml"));
+    res.sendFile(path.join(__dirname, "views", "WelcometoPimcore.mhtml"));
 });
 
 app.get("/gif", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "thankyou.gif"));
+    res.sendFile(path.join(__dirname, "views", "thankyou.gif"));
 });
 
 app.get("/sitemap.xml", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "sitemap.xml"));
+    res.sendFile(path.join(__dirname, "public", "sitemap.xml"));
 });
 
 app.get("/:word/echo", (req, res) => {
@@ -220,7 +207,7 @@ app.get("/:word/echo", (req, res) => {
 });
 
 app.get("/spa", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "spa.html"));
+    res.sendFile(path.join(__dirname, "views", "spa.html"));
 });
 
 app.get("/proxy.pac", (req, res) => {
@@ -298,6 +285,7 @@ app.get("/generate", (req, res) => {
   `);
 });
 
+
 // Middleware for authentication
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers["authorization"];
@@ -355,7 +343,7 @@ app.get("/authenticate", (req, res) => {
   `);
 });
 
-const delayLoadHtmlPath = path.join(PUBLIC_DIR, "delayload.html");
+const delayLoadHtmlPath = __dirname + "/views/delayload.html";
 
 app.get("/delayload/:time", (req, res) => {
     const time = parseInt(req.params.time);
@@ -398,26 +386,17 @@ app.get("/response/:code", (req, res) => {
     }
 });
 
-app.get('/assetloader', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'asset_loader.html')));
-app.get('/spaasset', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'spa_asset_loader.html')));
-app.get('/csp-child', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'csp-child-block.html')));
+app.get('/assetloader', (req, res) => res.sendFile(path.join(__dirname, 'views', 'asset_loader.html')));
+app.get('/spaasset', (req, res) => res.sendFile(path.join(__dirname, 'views', 'spa_asset_loader.html')));
+app.get('/csp-child', (req, res) => res.sendFile(path.join(__dirname, 'views', 'csp-child-block.html')));
 
 app.get('/csp-root', (req, res) => {
     res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'none'; img-src 'self'; style-src 'self';");
-    res.sendFile(path.join(PUBLIC_DIR, 'csp-root-block.html'));
+    res.sendFile(path.join(__dirname, 'views', 'csp-root-block.html'));
 });
 
-// Keep this as a dedicated route so /favicon.ico always works, even if a file is
-// renamed/removed later. (If public/favicon.ico exists, Express static would also
-// handle it, but this makes the intent explicit.)
 app.get("/favicon.ico", (req, res) => {
-    // Prefer favicon.ico if you keep one, otherwise fall back to logo.ico
-    const faviconPath = path.join(PUBLIC_DIR, 'favicon.ico');
-    res.sendFile(faviconPath, (err) => {
-        if (err) {
-            res.sendFile(path.join(PUBLIC_DIR, 'logo.ico'));
-        }
-    });
+    res.sendFile(path.join(__dirname, 'public', 'logo.ico'));
 });
 
 app.get("/bigdata", (req, res) => {
@@ -473,5 +452,4 @@ app.all("*", (req, res) => {
     res.status(400).send("Invalid route");
 });
 
-const PORT = process.env.PORT || 3010;
-app.listen(PORT, () => console.log(`App is listening on port ${PORT}`));
+app.listen(3010, () => console.log("App is listening on port 3010"));
