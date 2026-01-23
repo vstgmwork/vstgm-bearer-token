@@ -215,8 +215,8 @@ app.get("/sitemap.xml", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "sitemap.xml"));
 });
 
-app.get("/:word/echo", (req, res) => {
-    res.json({ echo: req.params.word });
+app.get("/echo/:word", (req, res) => {
+    res.json({ echoing: req.params.word });
 });
 
 app.get("/spa", (req, res) => {
