@@ -273,6 +273,46 @@ app.post("/generate", (req, res) => {
     });
 });
 
+// Route to generate a token valid for 1 week (7 days)
+app.post("/generate/week", (req, res) => {
+    const expiresIn = "7d";
+    const token = jwt.sign({}, SECRET_KEY, { expiresIn });
+    const issuedAt = new Date();
+    const utcTime = issuedAt.toISOString();
+
+    res.set("Authorization", `Bearer ${token}`);
+    res.set("utctime", utcTime);
+
+    const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+    res.json({
+        token,
+        issuedAt: utcTime,
+        expiresIn,
+        expiresAt: new Date(issuedAt.getTime() + WEEK_MS).toISOString(),
+    });
+});
+
+// Route to generate a token valid for ~1 month (30 days)
+app.post("/generate/month", (req, res) => {
+    const expiresIn = "30d";
+    const token = jwt.sign({}, SECRET_KEY, { expiresIn });
+    const issuedAt = new Date();
+    const utcTime = issuedAt.toISOString();
+
+    res.set("Authorization", `Bearer ${token}`);
+    res.set("utctime", utcTime);
+
+    const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
+
+    res.json({
+        token,
+        issuedAt: utcTime,
+        expiresIn,
+        expiresAt: new Date(issuedAt.getTime() + MONTH_MS).toISOString(),
+    });
+});
+
 app.get("/generate", (req, res) => {
     res.send(`
     <!DOCTYPE html>
@@ -283,7 +323,9 @@ app.get("/generate", (req, res) => {
     </head>
     <body>
       <h1>Generate Token</h1>
-      <button onclick="generateToken()">Generate</button>
+      <button onclick="generateToken()">Generate (60 minutes)</button>
+      <button onclick="generateTokenWeek()">Generate (1 week)</button>
+      <button onclick="generateTokenMonth()">Generate (1 month)</button>
       <pre id="result"></pre>
 
       <script>
@@ -292,6 +334,19 @@ app.get("/generate", (req, res) => {
           const data = await res.json();
           document.getElementById("result").textContent = JSON.stringify(data, null, 2);
         }
+
+        async function generateTokenWeek() {
+          const res = await fetch("/generate/week", { method: "POST" });
+          const data = await res.json();
+          document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function generateTokenMonth() {
+          const res = await fetch("/generate/month", { method: "POST" });
+          const data = await res.json();
+          document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+        }
+
       </script>
     </body>
     </html>
