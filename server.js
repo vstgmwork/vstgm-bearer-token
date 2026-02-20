@@ -456,7 +456,7 @@ app.get("/response/:code", (req, res) => {
 app.get('/assetloader', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'asset_loader.html')));
 app.get('/spaasset', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'spa_asset_loader.html')));
 app.get('/csp-child', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'csp-child-block.html')));
-
+app.get('/cdn-dns-failure', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'cdn-dns-failure.html')));
 app.get('/csp-root', (req, res) => {
     res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'none'; img-src 'self'; style-src 'self';");
     res.sendFile(path.join(PUBLIC_DIR, 'csp-root-block.html'));

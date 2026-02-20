@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CDN Assets + DNS Host Failure (Network-only)</title>
+
+    <!-- Optional perf hints -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+    <style>
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.4;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 14px;
+            margin: 14px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+        }
+
+        .imgwrap {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .imgwrap img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+        }
+
+        code {
+            background: #f6f6f6;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .ok {
+            color: #0a7a2f;
+            font-weight: 600;
+        }
+
+        .bad {
+            color: #b00020;
+            font-weight: 600;
+        }
+
+        button {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #f7f7f7;
+        }
+
+        .small {
+            font-size: 0.92rem;
+            color: #555;
+        }
+    </style>
+
+    <!-- CDN JS (these should load fine) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/dayjs/dayjs.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+</head>
+
+<body>
+    <h1>CDN Assets + DNS Host Failure (shows in Network tab)</h1>
+
+    <div class="card">
+        <p>
+            Open DevTools → <strong>Network</strong>, then refresh.
+            You should see multiple successful CDN/image requests, plus <strong>one request that fails with a DNS
+                error</strong>
+            (e.g., <code>ERR_NAME_NOT_RESOLVED</code>). The page should still render normally.
+        </p>
+        <p class="small">
+            The failing request is triggered via <code>fetch()</code> to a host under the reserved TLD
+            <code>.invalid</code>
+            so it reliably fails DNS. We catch the error so it doesn’t break the page.
+        </p>
+        <button id="trigger">Trigger another DNS-failure request</button>
+        <span id="triggerStatus" class="small"></span>
+    </div>
+
+    <div class="card">
+        <h2>Loaded CDN Libraries</h2>
+        <ul id="libStatus"></ul>
+    </div>
+
+    <div class="card">
+        <h2>Images (multiple hosts)</h2>
+        <div id="imgGrid" class="grid"></div>
+    </div>
+
+    <script>
+        // ---------- 1) Render image grid (from multiple hosts) ----------
+        const images = [
+            { label: "picsum.photos", url: "https://picsum.photos/seed/cdn-a/480/300" },
+            { label: "picsum.photos", url: "https://picsum.photos/seed/cdn-b/480/300" },
+            { label: "placehold.co", url: "https://placehold.co/480x300/png?text=placehold.co" },
+            { label: "dummyimage.com", url: "https://dummyimage.com/480x300/222/fff.png&text=dummyimage.com" },
+            { label: "via.placeholder.com", url: "https://via.placeholder.com/480x300.png?text=via.placeholder.com" },
+            { label: "picsum.photos", url: "https://picsum.photos/seed/cdn-c/480/300" }
+        ];
+
+        const imgGrid = document.getElementById("imgGrid");
+        for (const item of images) {
+            const wrap = document.createElement("div");
+            wrap.className = "imgwrap";
+            wrap.innerHTML = `
+        <div class="small"><strong>${item.label}</strong></div>
+        <div class="small">URL: <code>${item.url}</code></div>
+        <div class="small">Status: <span class="small" data-status>loading…</span></div>
+      `;
+
+            const img = new Image();
+            img.loading = "lazy";
+            img.decoding = "async";
+            img.referrerPolicy = "no-referrer"; // optional
+            img.src = item.url;
+
+            const statusEl = wrap.querySelector("[data-status]");
+            img.addEventListener("load", () => {
+                statusEl.textContent = "loaded";
+                statusEl.className = "ok";
+            });
+            img.addEventListener("error", () => {
+                statusEl.textContent = "failed";
+                statusEl.className = "bad";
+            });
+
+            wrap.appendChild(img);
+            imgGrid.appendChild(wrap);
+        }
+
+        // ---------- 2) Show which CDN JS libs loaded ----------
+        function renderLibStatus() {
+            const libs = [
+                { name: "dayjs", ok: typeof window.dayjs === "function" },
+                { name: "axios", ok: typeof window.axios !== "undefined" },
+                { name: "lodash (_)", ok: typeof window._ !== "undefined" }
+            ];
+
+            const ul = document.getElementById("libStatus");
+            ul.innerHTML = "";
+            for (const lib of libs) {
+                const li = document.createElement("li");
+                li.innerHTML = `${lib.ok ? '<span class="ok">OK</span>' : '<span class="bad">MISSING</span>'}
+                        — <code>${lib.name}</code>`;
+                ul.appendChild(li);
+            }
+        }
+
+        // Defer scripts execute before DOMContentLoaded, so this is safe:
+        document.addEventListener("DOMContentLoaded", renderLibStatus);
+
+        // ---------- 3) Trigger an intentional DNS failure request ----------
+        // This looks like a CDN URL but the host is deliberately modified to *.invalid (guaranteed non-existent).
+        // Important: We do NOT inject it as <script src=...> to avoid console noise; we fetch it and catch errors.
+        function triggerDnsFailure() {
+            const status = document.getElementById("triggerStatus");
+            const cacheBust = Date.now();
+
+            // "Modified host" version of a common jsDelivr URL:
+            // Real: https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js
+            // Bad : https://cdn.jsdelivr.net.invalid/npm/axios/dist/axios.min.js
+            const badCdnUrl = `https://cdn.jsdelivr.net.invalid/npm/axios/dist/axios.min.js?cb=${cacheBust}`;
+
+            status.textContent = ` → triggered DNS-fail request at ${new Date().toLocaleTimeString()}`;
+
+            // mode:no-cors still causes the network request + DNS lookup; failure shows in Network tab.
+            fetch(badCdnUrl, { mode: "no-cors", cache: "no-store" })
+                .then(() => { /* no-op */ })
+                .catch(() => { /* swallow to keep page "fine" */ });
+        }
+
+        // Fire once after the page has loaded so it never blocks rendering.
+        window.addEventListener("load", () => triggerDnsFailure());
+
+        // Button to trigger repeatedly (useful for waterfall demos)
+        document.getElementById("trigger").addEventListener("click", triggerDnsFailure);
+    </script>
+</body>
+
+</html>
