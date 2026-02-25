@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>TBT 3-Hour Repro (2 hours bad, 3rd hour normal)</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.4;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+
+        .warn {
+            background: #fff5f5;
+            border-color: #f1b0b7;
+        }
+
+        label {
+            display: block;
+            margin: 6px 0 4px;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            min-width: 220px;
+        }
+
+        button {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #f7f7f7;
+        }
+
+        code {
+            background: #f6f6f6;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .ok {
+            color: #0a7a2f;
+            font-weight: 700;
+        }
+
+        .bad {
+            color: #b00020;
+            font-weight: 700;
+        }
+
+        pre {
+            background: #0b1020;
+            color: #e5e7eb;
+            padding: 12px;
+            border-radius: 12px;
+            overflow: auto;
+        }
+
+        .small {
+            color: #555;
+            font-size: 0.92rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>TBT 3-Hour Repro</h1>
+
+    <div class="card warn">
+        <div class="bad">Warning</div>
+        <p>
+            This page intentionally blocks the main thread with long tasks to create a very high Total Blocking Time.
+            During the “bad hours”, the tab may become barely responsive.
+        </p>
+        <p class="small">
+            Keep the tab in the foreground. If the tab is backgrounded, browsers may throttle timers and your blocking
+            pattern
+            may change.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Controls</h2>
+        <div class="row">
+            <div>
+                <label>“Hour” length (seconds)</label>
+                <input id="hourSeconds" type="number" min="5" step="1" value="3600" />
+                <div class="small">Tip: set to <code>60</code> for a quick demo (1 “hour” = 60 seconds).</div>
+            </div>
+
+            <div>
+                <label>Bad hours</label>
+                <input id="badHours" type="number" min="1" step="1" value="2" />
+            </div>
+
+            <div>
+                <label>Total hours</label>
+                <input id="totalHours" type="number" min="1" step="1" value="3" />
+            </div>
+
+            <div>
+                <label>Blocking profile</label>
+                <select id="profile">
+                    <option value="extreme">Extreme (near-continuous blocking)</option>
+                    <option value="high" selected>High (very heavy blocking)</option>
+                    <option value="medium">Medium (noticeable blocking)</option>
+                </select>
+                <div class="small">Higher profile → higher TBT growth.</div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 10px;">
+            <button id="start">Start run</button>
+            <button id="stop">Stop</button>
+            <button id="reset">Reset</button>
+            <span id="status" class="small"></span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Live metrics</h2>
+        <div id="metrics"></div>
+    </div>
+
+    <div class="card">
+        <h2>Hour snapshots</h2>
+        <div class="small">Each time we cross an “hour boundary”, we record the cumulative TBT at that moment.</div>
+        <pre id="snapshots">[]</pre>
+    </div>
+
+    <script>
+        // ---------------------------
+        // Utility formatting
+        // ---------------------------
+        function fmtMs(ms) {
+            ms = Math.max(0, ms);
+            const totalSeconds = Math.floor(ms / 1000);
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            const pad = (n) => String(n).padStart(2, "0");
+            return `${pad(h)}:${pad(m)}:${pad(s)}`;
+        }
+
+        function fmtNum(n) {
+            return new Intl.NumberFormat().format(n);
+        }
+
+        // ---------------------------
+        // TBT measurement using Long Tasks API:
+        // Blocking time = sum(max(0, duration - 50ms))
+        // ---------------------------
+        let observer = null;
+        let longTaskCount = 0;
+        let totalLongTaskMs = 0;
+        let totalBlockingTimeMs = 0;
+
+        function startObserver() {
+            longTaskCount = 0;
+            totalLongTaskMs = 0;
+            totalBlockingTimeMs = 0;
+
+            if (observer) observer.disconnect();
+
+            if (!("PerformanceObserver" in window)) return false;
+
+            try {
+                observer = new PerformanceObserver((list) => {
+                    for (const entry of list.getEntries()) {
+                        const d = entry.duration || 0;
+                        longTaskCount++;
+                        totalLongTaskMs += d;
+                        totalBlockingTimeMs += Math.max(0, d - 50);
+                    }
+                });
+                observer.observe({ entryTypes: ["longtask"] });
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // ---------------------------
+        // Blocking workload (creates long tasks)
+        // ---------------------------
+        function blockFor(ms) {
+            const end = performance.now() + ms;
+            // keep CPU busy; avoid being optimized away
+            let x = 0;
+            while (performance.now() < end) {
+                x += Math.sqrt(Math.random() * 1000);
+            }
+            return x;
+        }
+
+        // Profiles: (blockMs, idleMs)
+        function profileParams(name) {
+            // The goal is to make blocking dominate the timeline during the first 2 hours.
+            // Larger blocks reduce the "50ms per task" overhead and get closer to ~1h TBT per hour elapsed.
+            switch (name) {
+                case "extreme":
+                    return { blockMs: 29950, idleMs: 50 };   // ~30s blocks, tiny idle
+                case "high":
+                    return { blockMs: 9950, idleMs: 50 };    // ~10s blocks, tiny idle
+                case "medium":
+                    return { blockMs: 950, idleMs: 50 };     // ~1s blocks, small idle
+                default:
+                    return { blockMs: 9950, idleMs: 50 };
+            }
+        }
+
+        // ---------------------------
+        // Run state
+        // ---------------------------
+        let running = false;
+        let startPerf = 0;
+        let hourLenMs = 3600_000;
+        let badHours = 2;
+        let totalHours = 3;
+        let badUntilMs = 0;
+        let endAtMs = 0;
+
+        let nextHourMarkMs = 0;
+        let snapshots = [];
+
+        let uiTimer = null;
+
+        function render() {
+            const now = performance.now();
+            const elapsed = running ? (now - startPerf) : 0;
+
+            // Hour snapshot capture (even if UI is delayed, we record when we notice crossing)
+            while (running && elapsed >= nextHourMarkMs && nextHourMarkMs <= endAtMs) {
+                const hourIndex = Math.round(nextHourMarkMs / hourLenMs);
+                snapshots.push({
+                    hour: hourIndex,
+                    elapsed: fmtMs(elapsed),
+                    totalBlockingTime: fmtMs(totalBlockingTimeMs),
+                    totalBlockingTimeMs: Math.round(totalBlockingTimeMs),
+                    longTasks: longTaskCount
+                });
+                nextHourMarkMs += hourLenMs;
+                document.getElementById("snapshots").textContent = JSON.stringify(snapshots, null, 2);
+            }
+
+            const phase = running
+                ? (elapsed < badUntilMs ? "BAD (heavy main-thread blocking)" : elapsed < endAtMs ? "GOOD (normal)" : "DONE")
+                : "IDLE";
+
+            const phaseClass = (phase.startsWith("BAD")) ? "bad" : (phase.startsWith("GOOD") ? "ok" : "");
+
+            document.getElementById("metrics").innerHTML = `
+        <div><strong>Status:</strong> <span class="${phaseClass}">${phase}</span></div>
+        <div><strong>Elapsed:</strong> <code>${fmtMs(elapsed)}</code></div>
+        <div><strong>Long tasks observed:</strong> <code>${fmtNum(longTaskCount)}</code></div>
+        <div><strong>Total long-task time:</strong> <code>${fmtMs(totalLongTaskMs)}</code></div>
+        <div><strong>Total Blocking Time (computed):</strong> <code>${fmtMs(totalBlockingTimeMs)}</code></div>
+        <div class="small">
+          Blocking time is computed as Σ max(0, longTask.duration − 50ms) using the Long Tasks API.
+        </div>
+      `;
+        }
+
+        async function startRun() {
+            if (running) return;
+
+            hourLenMs = Number(document.getElementById("hourSeconds").value) * 1000;
+            badHours = Number(document.getElementById("badHours").value);
+            totalHours = Number(document.getElementById("totalHours").value);
+
+            if (!Number.isFinite(hourLenMs) || hourLenMs < 5000) {
+                alert("Hour length must be >= 5 seconds.");
+                return;
+            }
+            if (badHours < 1 || totalHours < 1 || totalHours < badHours) {
+                alert("Make sure totalHours >= badHours and both are >= 1.");
+                return;
+            }
+
+            const ok = startObserver();
+            if (!ok) {
+                alert("Long Tasks API not available in this browser. Try Chrome/Edge.");
+                return;
+            }
+
+            // Reset run state
+            snapshots = [];
+            document.getElementById("snapshots").textContent = "[]";
+            document.getElementById("status").textContent = "";
+
+            startPerf = performance.now();
+            badUntilMs = badHours * hourLenMs;
+            endAtMs = totalHours * hourLenMs;
+
+            nextHourMarkMs = hourLenMs; // snapshot at hour 1, hour 2, ...
+
+            running = true;
+            render();
+
+            // UI refresh (will be delayed during blocking; that's OK)
+            if (uiTimer) clearInterval(uiTimer);
+            uiTimer = setInterval(render, 500);
+
+            // Start the heavy-blocking loop
+            const { blockMs, idleMs } = profileParams(document.getElementById("profile").value);
+
+            function loop() {
+                if (!running) return;
+
+                const elapsed = performance.now() - startPerf;
+
+                if (elapsed >= endAtMs) {
+                    running = false;
+                    render();
+                    return;
+                }
+
+                if (elapsed < badUntilMs) {
+                    // Create a long task by blocking the main thread synchronously
+                    blockFor(blockMs);
+                    // Yield briefly so timers/UI can run
+                    setTimeout(loop, idleMs);
+                } else {
+                    // GOOD phase: stop blocking entirely.
+                    // Keep updating UI until endAtMs so you can observe "normal" behavior in the third hour.
+                    setTimeout(loop, 250);
+                }
+            }
+
+            loop();
+        }
+
+        function stopRun() {
+            running = false;
+            if (observer) observer.disconnect();
+            if (uiTimer) clearInterval(uiTimer);
+            render();
+            document.getElementById("status").textContent = "Stopped.";
+        }
+
+        function resetAll() {
+            stopRun();
+            longTaskCount = 0;
+            totalLongTaskMs = 0;
+            totalBlockingTimeMs = 0;
+            snapshots = [];
+            document.getElementById("snapshots").textContent = "[]";
+            document.getElementById("status").textContent = "Reset.";
+            render();
+        }
+
+        document.getElementById("start").addEventListener("click", startRun);
+        document.getElementById("stop").addEventListener("click", stopRun);
+        document.getElementById("reset").addEventListener("click", resetAll);
+
+        render();
+    </script>
+</body>
+
+</html>
