@@ -456,8 +456,15 @@ app.get("/response/:code", (req, res) => {
 app.get('/assetloader', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'asset_loader.html')));
 app.get('/spaasset', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'spa_asset_loader.html')));
 app.get('/csp-child', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'csp-child-block.html')));
+app.get('/heavy', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'marketplace_heavy.html')));
+
 app.get('/cdn-dns-failure', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'cdn-dns-failure.html')));
-app.get('/tbt-repro', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'tbt-3hour-repro.html')));
+
+app.get("/tbt/:target", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "tbt-path-repro.html"));
+});
+
+app.get("/tbt", (req, res) => res.redirect("/tbt/10s"));
 app.get('/csp-root', (req, res) => {
     res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'none'; img-src 'self'; style-src 'self';");
     res.sendFile(path.join(PUBLIC_DIR, 'csp-root-block.html'));

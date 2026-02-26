@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Marketplace Heavy Page (HD Images + Many CDN JS)</title>
+    <meta name="description"
+        content="A heavy e-commerce style page for performance and waterfall testing. Loads many HD images and CDN JS files." />
+
+    <!-- Perf hints -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preconnect" href="https://picsum.photos" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS (CDN) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+    <style>
+        :root {
+            --bg: #0b1220;
+            --card: #111a2e;
+            --muted: #9aa4b2;
+            --border: #223150;
+        }
+
+        body {
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: #e5e7eb;
+        }
+
+        .topbar {
+            background: #060a14;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .brand {
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
+
+        .pill {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 999px;
+            padding: 6px 10px;
+            color: var(--muted);
+            font-size: .9rem;
+        }
+
+        .hero {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            background: #070b16;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .section-title .muted {
+            color: var(--muted);
+            font-size: .92rem;
+        }
+
+        .cardx {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+
+        .product {
+            height: 100%;
+        }
+
+        .product img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 12px;
+        }
+
+        .rating {
+            color: #ffd24d;
+            letter-spacing: 1px;
+        }
+
+        .smallmuted {
+            color: var(--muted);
+            font-size: .9rem;
+        }
+
+        .footer {
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            padding: 18px 0;
+            margin-top: 24px;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .02), rgba(255, 255, 255, .06));
+            background-size: 200% 100%;
+            animation: sk 1.2s infinite;
+            border-radius: 12px;
+        }
+
+        @keyframes sk {
+            0% {
+                background-position: 200% 0
+            }
+
+            100% {
+                background-position: -200% 0
+            }
+        }
+
+        .hero-img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .chip {
+            font-size: .85rem;
+            padding: 2px 8px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--muted);
+        }
+
+        .btn-outline-light {
+            border-color: rgba(255, 255, 255, .25);
+        }
+
+        .code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: .92rem;
+        }
+    </style>
+
+    <!-- JS (CDN) - "core bundles" -->
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/js/bootstrap.bundle.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/axios@1/dist/axios.min.js"></script>
+
+    <!-- Big libs (simulate large storefront JS like real commerce sites) -->
+    <script defer src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script defer src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- UI lib (carousel) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+</head>
+
+<body>
+    <!-- Top bar / header -->
+    <div class="topbar">
+        <div class="container-fluid py-3">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="brand fs-4">Marketplace<span style="color:#60a5fa;">•Heavy</span></div>
+
+                <div class="flex-grow-1" style="min-width:280px; max-width: 820px;">
+                    <div class="input-group">
+                        <input id="searchBox" class="form-control" placeholder="Search products (client-side)..." />
+                        <button id="searchBtn" class="btn btn-primary">Search</button>
+                    </div>
+                    <div class="smallmuted mt-1">
+                        Tip: open DevTools → Network and refresh to watch the waterfall.
+                    </div>
+                </div>
+
+                <div class="ms-auto d-flex gap-2 align-items-center flex-wrap">
+                    <span class="pill">Assets: <span id="assetCount">0</span></span>
+                    <span class="pill">Imgs loaded: <span id="imgOk">0</span> / <span id="imgTotal">0</span></span>
+                    <span class="pill">Scripts loaded: <span id="jsOk">0</span></span>
+                    <button id="loadMoreBtn" class="btn btn-outline-light btn-sm">Load 60 more products</button>
+                </div>
+            </div>
+
+            <div class="mt-2 d-flex gap-2 flex-wrap">
+                <span class="chip">HD images</span>
+                <span class="chip">CDN JS bundles</span>
+                <span class="chip">Lazy + optional eager</span>
+                <span class="chip">Background prefetch</span>
+                <span class="chip code" id="configChip"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid my-4">
+        <!-- Hero -->
+        <div class="hero mb-4">
+            <div class="swiper" id="heroSwiper">
+                <div class="swiper-wrapper" id="heroSlides">
+                    <!-- slides injected -->
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+
+        <!-- Content sections -->
+        <div class="section-title mb-2">
+            <h2>Recommended Deals</h2>
+            <div class="muted">Loads lots of images + scripts like a real storefront</div>
+        </div>
+
+        <div class="row g-3" id="productGrid">
+            <!-- products injected -->
+        </div>
+
+        <div class="footer text-center">
+            <div>
+                This page is intentionally “heavy”. Use query params to tune it:
+            </div>
+            <div class="code mt-2">
+                ?products=120&img=1200&aboveFold=18&prefetch=40&eager=0
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // -----------------------------
+        // Query params to tune heaviness
+        // -----------------------------
+        const qs = new URLSearchParams(location.search);
+
+        // Number of product cards to render initially
+        let productCount = clampInt(qs.get("products"), 80, 20, 400);
+
+        // Image size (square products). Use 800/1200/1600 for "HD"
+        const IMG_SIZE = clampInt(qs.get("img"), 1200, 400, 2000);
+
+        // How many images to eager-load immediately (above fold)
+        const ABOVE_FOLD = clampInt(qs.get("aboveFold"), 18, 0, 120);
+
+        // How many extra images to prefetch in the background (not necessarily visible)
+        const PREFETCH = clampInt(qs.get("prefetch"), 40, 0, 300);
+
+        // If eager=1, load all product images immediately (very heavy)
+        const EAGER_ALL = (qs.get("eager") === "1" || qs.get("eager") === "true");
+
+        document.getElementById("configChip").textContent =
+            `products=${productCount}, img=${IMG_SIZE}, aboveFold=${ABOVE_FOLD}, prefetch=${PREFETCH}, eager=${EAGER_ALL ? 1 : 0}`;
+
+        function clampInt(v, def, min, max) {
+            const n = Number(v);
+            if (!Number.isFinite(n)) return def;
+            return Math.max(min, Math.min(max, Math.floor(n)));
+        }
+
+        // -----------------------------
+        // Counters (Network realism)
+        // -----------------------------
+        let imgOk = 0;
+        let imgTotal = 0;
+        let jsOk = 0;
+
+        function setText(id, v) { document.getElementById(id).textContent = String(v); }
+        function updateCounters() {
+            setText("imgOk", imgOk);
+            setText("imgTotal", imgTotal);
+            setText("jsOk", jsOk);
+            // approximate "asset count": scripts + images (not perfect, but good enough for UI)
+            setText("assetCount", jsOk + imgTotal);
+        }
+
+        // -----------------------------
+        // Hero carousel (HD banners)
+        // -----------------------------
+        const heroSeeds = ["hero-a", "hero-b", "hero-c", "hero-d"];
+        const heroSlides = document.getElementById("heroSlides");
+
+        for (let i = 0; i < heroSeeds.length; i++) {
+            const seed = heroSeeds[i];
+            const slide = document.createElement("div");
+            slide.className = "swiper-slide";
+
+            // Big hero banners
+            const w = 1800, h = 520;
+            const url = `https://picsum.photos/seed/${encodeURIComponent(seed)}/${w}/${h}`;
+
+            slide.innerHTML = `
+        <img class="hero-img" src="${url}" alt="Hero banner ${i + 1}" fetchpriority="${i === 0 ? "high" : "auto"}">
+      `;
+            heroSlides.appendChild(slide);
+        }
+
+        function initSwiper() {
+            // Swiper is loaded via CDN; if blocked, the page still works (just no carousel behavior)
+            if (!window.Swiper) return;
+            new Swiper("#heroSwiper", {
+                loop: true,
+                autoplay: { delay: 2500, disableOnInteraction: false },
+                pagination: { el: ".swiper-pagination" },
+            });
+        }
+
+        // -----------------------------
+        // Product generator (Amazon-ish grid)
+        // -----------------------------
+        const grid = document.getElementById("productGrid");
+
+        function productImageUrl(i) {
+            // Seed makes URLs unique; image size is HD
+            return `https://picsum.photos/seed/prod-${i}-${IMG_SIZE}/${IMG_SIZE}/${IMG_SIZE}`;
+        }
+
+        function starString(rating) {
+            const full = Math.round(rating);
+            return "★★★★★".slice(0, full) + "☆☆☆☆☆".slice(0, 5 - full);
+        }
+
+        function renderProducts(startIndex, count) {
+            const frag = document.createDocumentFragment();
+
+            for (let i = startIndex; i < startIndex + count; i++) {
+                const price = (Math.random() * 140 + 8).toFixed(2);
+                const rating = (Math.random() * 2 + 3).toFixed(1); // 3.0 - 5.0
+                const title = `HD Product ${i + 1} — “${pick(["Wireless", "Premium", "Ultra", "Smart", "Pro", "Max"])}”`;
+                const badge = pick(["Limited Deal", "Best Seller", "New Arrival", "Top Rated", "Member Price"]);
+                const ship = pick(["Free delivery", "Fast delivery", "2‑day delivery", "Pickup available"]);
+
+                const col = document.createElement("div");
+                col.className = "col-6 col-sm-4 col-md-3 col-xl-2";
+
+                const url = productImageUrl(i);
+
+                // To simulate Amazon:
+                // - aboveFold images load eagerly
+                // - rest can be lazy (or eager-all via query)
+                const isAbove = i < ABOVE_FOLD;
+                const eager = EAGER_ALL || isAbove;
+
+                // We use data-src for lazy images, and swap when observed
+                // (keeps initial load lighter, like real storefronts).
+                const imgTag = eager
+                    ? `<img src="${url}" alt="${escapeHtml(title)}" loading="eager" decoding="async">`
+                    : `<div class="skeleton" style="width:100%; aspect-ratio:1/1;" data-skel></div>
+             <img data-src="${url}" alt="${escapeHtml(title)}" loading="lazy" decoding="async" style="display:none;">`;
+
+                col.innerHTML = `
+          <div class="cardx p-2 product h-100">
+            ${imgTag}
+            <div class="pt-2 px-1">
+              <div class="d-flex justify-content-between align-items-center gap-2">
+                <span class="chip">${badge}</span>
+                <span class="smallmuted">${ship}</span>
+              </div>
+              <div class="mt-2 fw-semibold" style="font-size:.98rem; min-height: 44px;">
+                ${escapeHtml(title)}
+              </div>
+              <div class="d-flex align-items-center justify-content-between mt-1">
+                <div class="rating">${starString(rating)}</div>
+                <div class="smallmuted">${rating}</div>
+              </div>
+              <div class="mt-2 d-flex align-items-center justify-content-between">
+                <div class="fw-bold">$${price}</div>
+                <button class="btn btn-sm btn-primary addBtn">Add</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+                // Hook up image load counters
+                const img = col.querySelector("img");
+                if (img) {
+                    imgTotal++;
+                    img.addEventListener("load", () => { imgOk++; updateCounters(); }, { once: true });
+                    img.addEventListener("error", () => { updateCounters(); }, { once: true });
+                }
+
+                frag.appendChild(col);
+            }
+
+            grid.appendChild(frag);
+            updateCounters();
+            setupLazyImages();
+        }
+
+        function pick(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
+        }
+
+        // -----------------------------
+        // Lazy loading via IntersectionObserver
+        // -----------------------------
+        let io = null;
+        function setupLazyImages() {
+            if (EAGER_ALL) return;
+            if (!("IntersectionObserver" in window)) {
+                // fallback: just load all
+                document.querySelectorAll("img[data-src]").forEach(loadLazyImg);
+                return;
+            }
+            if (!io) {
+                io = new IntersectionObserver((entries) => {
+                    for (const e of entries) {
+                        if (e.isIntersecting) {
+                            loadLazyImg(e.target);
+                            io.unobserve(e.target);
+                        }
+                    }
+                }, { rootMargin: "600px" }); // preload before you scroll to it
+            }
+
+            document.querySelectorAll("img[data-src]").forEach(img => io.observe(img));
+        }
+
+        function loadLazyImg(img) {
+            const src = img.getAttribute("data-src");
+            if (!src) return;
+            img.removeAttribute("data-src");
+            img.style.display = "block";
+            const skel = img.parentElement.querySelector("[data-skel]");
+            if (skel) skel.remove();
+            img.src = src;
+        }
+
+        // -----------------------------
+        // Background prefetch (like real sites preloading assets)
+        // -----------------------------
+        function prefetchImages(n, startSeed) {
+            for (let i = 0; i < n; i++) {
+                const idx = startSeed + i;
+                const img = new Image();
+                img.decoding = "async";
+                // slightly smaller than visible images, but still "HD-ish"
+                img.src = `https://picsum.photos/seed/prefetch-${idx}/${Math.min(IMG_SIZE, 1000)}/${Math.min(IMG_SIZE, 1000)}`;
+            }
+        }
+
+        // -----------------------------
+        // Load extra "chunk scripts" after page load (simulate many JS files like Amazon)
+        // -----------------------------
+        const extraScripts = [
+            "https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.8/handlebars.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.7.2/bluebird.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
+        ];
+
+        function loadScript(url) {
+            return new Promise((resolve) => {
+                const s = document.createElement("script");
+                s.src = url;
+                s.async = true;
+                s.crossOrigin = "anonymous";
+                s.onload = () => resolve({ url, ok: true });
+                s.onerror = () => resolve({ url, ok: false });
+                document.head.appendChild(s);
+            });
+        }
+
+        // -----------------------------
+        // UI actions (search + load more)
+        // -----------------------------
+        function wireUI() {
+            document.getElementById("loadMoreBtn").addEventListener("click", () => {
+                const start = productCount;
+                const add = 60;
+                productCount += add;
+                renderProducts(start, add);
+                // Prefetch a bit more too
+                prefetchImages(Math.min(12, PREFETCH), start + 1000);
+            });
+
+            document.getElementById("searchBtn").addEventListener("click", () => {
+                const q = document.getElementById("searchBox").value.trim().toLowerCase();
+                if (!q) return;
+
+                // lightweight “search”: just scroll to a random match
+                const cards = Array.from(document.querySelectorAll(".product"));
+                const match = cards.find(c => c.textContent.toLowerCase().includes(q));
+                if (match) match.scrollIntoView({ behavior: "smooth", block: "center" });
+            });
+
+            document.addEventListener("click", (e) => {
+                const btn = e.target.closest(".addBtn");
+                if (!btn) return;
+                btn.textContent = "Added";
+                btn.classList.remove("btn-primary");
+                btn.classList.add("btn-success");
+                setTimeout(() => {
+                    btn.textContent = "Add";
+                    btn.classList.add("btn-primary");
+                    btn.classList.remove("btn-success");
+                }, 900);
+            });
+        }
+
+        // -----------------------------
+        // Start
+        // -----------------------------
+        // Render initial products (lots of images)
+        renderProducts(0, productCount);
+
+        // Prefetch some extra images (background requests)
+        if (PREFETCH > 0) {
+            // Start after initial paint
+            requestAnimationFrame(() => setTimeout(() => prefetchImages(PREFETCH, 5000), 600));
+        }
+
+        // Init carousel after scripts are ready
+        window.addEventListener("load", () => {
+            initSwiper();
+            wireUI();
+
+            // Count main scripts we loaded (best-effort)
+            // (This is just to show "scripts loaded" in the UI.)
+            const known = [
+                !!window.bootstrap,
+                !!window._,
+                !!window.dayjs,
+                !!window.axios,
+                !!window.React,
+                !!window.ReactDOM,
+                !!window.Swiper
+            ];
+            jsOk += known.filter(Boolean).length;
+            updateCounters();
+
+            // Load extra “chunks” with stagger to create many script requests in the waterfall
+            extraScripts.forEach((u, i) => {
+                setTimeout(async () => {
+                    const r = await loadScript(u);
+                    if (r.ok) jsOk++;
+                    updateCounters();
+                }, 250 + i * 120);
+            });
+        });
+
+    </script>
+</body>
+
+</html>
