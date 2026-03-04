@@ -516,6 +516,338 @@ app.get("/bigdata", (req, res) => {
     sendChunk();
 });
 
+// -------------------------------
+// SSO → Credentials simulation
+// -------------------------------
+function getCookie(req, name) {
+    const raw = req.headers.cookie || "";
+    const parts = raw.split(";").map((p) => p.trim()).filter(Boolean);
+    for (const p of parts) {
+        const idx = p.indexOf("=");
+        const k = idx >= 0 ? p.slice(0, idx) : p;
+        const v = idx >= 0 ? p.slice(idx + 1) : "";
+        if (k === name) return decodeURIComponent(v);
+    }
+    return null;
+}
+
+function setCookie(res, name, value, opts = {}) {
+    const {
+        path = "/",
+        httpOnly = true,
+        sameSite = "Lax",
+        maxAgeSeconds = 60 * 60, // default 1 hour
+    } = opts;
+
+    const parts = [`${name}=${encodeURIComponent(value)}`, `Path=${path}`, `SameSite=${sameSite}`, `Max-Age=${maxAgeSeconds}`];
+    if (httpOnly) parts.push("HttpOnly");
+    // If you're on HTTPS, you can uncomment Secure:
+    // parts.push("Secure");
+    res.setHeader("Set-Cookie", parts.join("; "));
+}
+
+function clearCookie(res, name) {
+    res.setHeader("Set-Cookie", `${name}=; Path=/; Max-Age=0; SameSite=Lax`);
+}
+
+function randState() {
+    return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+}
+
+function parseDelayMs(req) {
+    const d = Number(req.query.delay || 0);
+    return Number.isFinite(d) ? Math.max(0, Math.min(d, 60_000)) : 0; // clamp 0..60s
+}
+
+function decideOutcome(req) {
+    // mode=success | fail | fail403 | random
+    const mode = (req.query.mode || "random").toString();
+    if (mode === "success") return "success";
+    if (mode === "fail") return "fail";
+    if (mode === "fail403") return "fail403";
+    // random:
+    const pFail = Number(req.query.pFail ?? 0.5);
+    const pf = Number.isFinite(pFail) ? Math.max(0, Math.min(pFail, 1)) : 0.5;
+    return Math.random() < pf ? "fail" : "success";
+}
+
+// Landing / control page
+app.get("/sso-sim", (req, res) => {
+    res.type("html").send(`
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>SSO Simulation</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 24px; line-height: 1.4; }
+    .card { border:1px solid #ddd; border-radius: 12px; padding: 14px; margin: 12px 0; }
+    code { background:#f6f6f6; padding: 2px 6px; border-radius: 6px; }
+    a { display:inline-block; margin: 6px 10px 6px 0; }
+    .warn { background:#fff5f5; border-color:#f1b0b7; }
+  </style>
+</head>
+<body>
+  <h1>SSO → Credentials Simulation</h1>
+  <div class="card warn">
+    <strong>SIMULATION ONLY:</strong> This does not contact Salesforce and does not perform real authentication.
+  </div>
+
+  <div class="card">
+    <div>Start at a “protected” page (like a Salesforce org home):</div>
+    <a href="/sso-sim/protected?mode=success">Force SSO success</a>
+    <a href="/sso-sim/protected?mode=fail">Force SSO fail → credentials</a>
+    <a href="/sso-sim/protected?mode=fail403">Fail via 403 on SSO asset → credentials</a>
+    <a href="/sso-sim/protected?mode=random&pFail=0.5">Random (50% fail)</a>
+  </div>
+
+  <div class="card">
+    Add delay per step (ms) to make the waterfall more obvious:
+    <div><code>/sso-sim/protected?mode=random&pFail=0.5&delay=1500</code></div>
+  </div>
+
+  <div class="card">
+    <a href="/sso-sim/logout">Logout (clear session cookie)</a>
+  </div>
+</body>
+</html>
+`);
+});
+
+// Protected resource (like the Salesforce landing page)
+app.get("/sso-sim/protected", (req, res) => {
+    const session = getCookie(req, "sso_sim_session");
+    if (session === "1") {
+        return res.redirect("/sso-sim/app");
+    }
+
+    const qs = new URLSearchParams({
+        returnTo: "/sso-sim/app",
+        mode: (req.query.mode || "random").toString(),
+        pFail: (req.query.pFail || "0.5").toString(),
+        delay: (req.query.delay || "0").toString(),
+    }).toString();
+
+    return res.redirect(`/sso-sim/sso/start?${qs}`);
+});
+
+// Start SSO (server redirect)
+app.get("/sso-sim/sso/start", (req, res) => {
+    const delay = parseDelayMs(req);
+    const state = randState();
+
+    const qs = new URLSearchParams({
+        state,
+        returnTo: (req.query.returnTo || "/sso-sim/app").toString(),
+        mode: (req.query.mode || "random").toString(),
+        pFail: (req.query.pFail || "0.5").toString(),
+        delay: (req.query.delay || "0").toString(),
+    }).toString();
+
+    setTimeout(() => res.redirect(`/sso-sim/idp?${qs}`), delay);
+});
+
+// Simulated IdP page
+app.get("/sso-sim/idp", (req, res) => {
+    const { state, returnTo, mode, pFail, delay } = req.query;
+
+    res.type("html").send(`
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Simulated SSO Provider</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 24px; line-height: 1.4; }
+    .box { border:1px solid #ddd; border-radius: 12px; padding: 14px; }
+    code { background:#f6f6f6; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Simulated SSO Provider</h1>
+  <div class="box">
+    <div>Attempting SSO handshake…</div>
+    <div>State: <code>${String(state || "")}</code></div>
+    <div>Mode: <code>${String(mode || "")}</code></div>
+    <div>Delay: <code>${String(delay || "0")}ms</code></div>
+    <div style="margin-top:10px;color:#555;">
+      This page loads a “bridge” script. If it returns <strong>403</strong>, we fall back to credentials.
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const returnTo = params.get("returnTo") || "/sso-sim/app";
+    const mode = params.get("mode") || "random";
+    const pFail = params.get("pFail") || "0.5";
+    const delay = params.get("delay") || "0";
+    const state = params.get("state") || "";
+
+    function go(url) { window.location.replace(url); }
+
+    window.__SSO_BRIDGE_OK = false;
+
+    const s = document.createElement("script");
+    s.src = "/sso-sim/idp/bridge.js?mode=" + encodeURIComponent(mode) +
+            "&pFail=" + encodeURIComponent(pFail) +
+            "&delay=" + encodeURIComponent(delay);
+
+    s.onload = () => { /* bridge sets __SSO_BRIDGE_OK */ };
+    s.onerror = () => {
+      go("/sso-sim/credentials?reason=idp_asset_403&returnTo=" + encodeURIComponent(returnTo) +
+         "&mode=" + encodeURIComponent(mode) + "&pFail=" + encodeURIComponent(pFail) + "&delay=" + encodeURIComponent(delay));
+    };
+
+    document.head.appendChild(s);
+
+    // After a short “handshake” time, go to callback if bridge OK; else fallback.
+    setTimeout(() => {
+      if (!window.__SSO_BRIDGE_OK) {
+        go("/sso-sim/credentials?reason=idp_bridge_missing&returnTo=" + encodeURIComponent(returnTo) +
+           "&mode=" + encodeURIComponent(mode) + "&pFail=" + encodeURIComponent(pFail) + "&delay=" + encodeURIComponent(delay));
+        return;
+      }
+      go("/sso-sim/sso/callback?state=" + encodeURIComponent(state) +
+         "&returnTo=" + encodeURIComponent(returnTo) +
+         "&mode=" + encodeURIComponent(mode) + "&pFail=" + encodeURIComponent(pFail) + "&delay=" + encodeURIComponent(delay));
+    }, 1200);
+  </script>
+</body>
+</html>
+`);
+});
+
+// Bridge asset that can be 403 (simulating “SSO asset blocked”)
+app.get("/sso-sim/idp/bridge.js", (req, res) => {
+    const delay = parseDelayMs(req);
+    const mode = (req.query.mode || "random").toString();
+
+    // If explicitly fail via 403 asset:
+    if (mode === "fail403") {
+        return setTimeout(() => {
+            res.status(403).type("application/javascript").send("// Forbidden (simulated)\n");
+        }, delay);
+    }
+
+    // Otherwise succeed (even if the overall auth later fails)
+    setTimeout(() => {
+        res.type("application/javascript").send("window.__SSO_BRIDGE_OK = true;");
+    }, delay);
+});
+
+// Callback endpoint: decides success/fail and redirects accordingly
+app.get("/sso-sim/sso/callback", (req, res) => {
+    const delay = parseDelayMs(req);
+    const outcome = decideOutcome(req);
+    const returnTo = (req.query.returnTo || "/sso-sim/app").toString();
+
+    setTimeout(() => {
+        if (outcome === "success") {
+            setCookie(res, "sso_sim_session", "1", { maxAgeSeconds: 60 * 60 }); // 1h session
+            return res.redirect(returnTo);
+        }
+
+        // fall back to credentials
+        const qs = new URLSearchParams({
+            reason: "sso_rejected",
+            returnTo,
+            mode: (req.query.mode || "random").toString(),
+            pFail: (req.query.pFail || "0.5").toString(),
+            delay: (req.query.delay || "0").toString(),
+        }).toString();
+
+        return res.redirect(`/sso-sim/credentials?${qs}`);
+    }, delay);
+});
+
+// “Credentials” page (generic, test-only)
+app.get("/sso-sim/credentials", (req, res) => {
+    const reason = (req.query.reason || "unknown").toString();
+    const returnTo = (req.query.returnTo || "/sso-sim/app").toString();
+
+    res.type("html").send(`
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Credentials Required (Simulation)</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 24px; line-height: 1.4; }
+    .card { border:1px solid #ddd; border-radius: 12px; padding: 14px; max-width: 640px; }
+    .warn { background:#fff5f5; border-color:#f1b0b7; }
+    code { background:#f6f6f6; padding: 2px 6px; border-radius: 6px; }
+    button { padding: 10px 12px; border-radius: 10px; border: 1px solid #ccc; background:#fff; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h1>Credentials Required (Simulation)</h1>
+  <div class="card warn">
+    <strong>TEST ONLY:</strong> This page is not a real login. Do not enter real credentials.
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <div>SSO failed, falling back to credentials.</div>
+    <div>Reason: <code>${reason}</code></div>
+    <div>ReturnTo: <code>${returnTo}</code></div>
+    <p style="color:#555;">
+      Click “Continue” to simulate a successful credential login and go back to the protected app.
+    </p>
+
+    <a href="/sso-sim/credentials/continue?returnTo=${encodeURIComponent(returnTo)}">
+      <button>Continue</button>
+    </a>
+  </div>
+
+  <p style="margin-top:14px;"><a href="/sso-sim/logout">Logout</a> • <a href="/sso-sim">Back to SSO controls</a></p>
+</body>
+</html>
+`);
+});
+
+// Simulate successful credential login
+app.get("/sso-sim/credentials/continue", (req, res) => {
+    const returnTo = (req.query.returnTo || "/sso-sim/app").toString();
+    setCookie(res, "sso_sim_session", "1", { maxAgeSeconds: 60 * 60 });
+    res.redirect(returnTo);
+});
+
+// App page (requires session)
+app.get("/sso-sim/app", (req, res) => {
+    const session = getCookie(req, "sso_sim_session");
+    if (session !== "1") {
+        return res.redirect("/sso-sim/protected");
+    }
+
+    res.type("html").send(`
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Protected App (Simulation)</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 24px; line-height: 1.4; }
+    .card { border:1px solid #ddd; border-radius: 12px; padding: 14px; max-width: 760px; }
+    code { background:#f6f6f6; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Protected App (Simulation)</h1>
+  <div class="card">
+    <div>You are “logged in” via the simulated session cookie.</div>
+    <div>Cookie: <code>sso_sim_session=1</code></div>
+    <p>Use DevTools → Network to inspect the redirect chain that got you here.</p>
+    <p><a href="/sso-sim/logout">Logout</a></p>
+  </div>
+</body>
+</html>
+`);
+});
+
+app.get("/sso-sim/logout", (req, res) => {
+    clearCookie(res, "sso_sim_session");
+    res.redirect("/sso-sim");
+});
+
 // Route that responds with a random 4xx or 5xx error code.
 app.all("/randresp", (req, res) => {
     let randomCode;
