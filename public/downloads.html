@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Download Size Test</title>
+</head>
+
+<body style="font-family:system-ui;margin:24px;">
+    <h1>Download size test</h1>
+    <p>Examples: <code>10k</code>, <code>10m</code>, <code>10g</code></p>
+
+    <input id="sz" value="10m" style="padding:8px;width:120px;">
+    <button onclick="go()">Download</button>
+
+    <p>
+        <a href="/download/10k">/download/10k</a> |
+        <a href="/download/10m">/download/10m</a> |
+        <a href="/download/10g">/download/10g</a>
+    </p>
+
+    <script>
+        function go() {
+            const v = document.getElementById("sz").value.trim();
+            window.location.href = "/download/" + encodeURIComponent(v);
+        }
+    </script>
+</body>
+
+</html>

@@ -865,6 +865,105 @@ app.all("/randresp", (req, res) => {
     res.status(randomCode).send(htmlContent);
 });
 
+// ----------------------------------------
+// Dynamic download endpoint: /download/10k | /download/10m | /download/10g
+// ----------------------------------------
+
+// Uses decimal units (k=1000, m=1,000,000, g=1,000,000,000)
+// This matches your existing /bigdata style where 350MB = 350_000_000 bytes :contentReference[oaicite:2]{index=2}
+function parseDownloadSizeSpec(spec) {
+    // Accept: 10k, 10m, 10g (case-insensitive), optionally with 'b' (10mb)
+    const m = String(spec || "").trim().match(/^(\d+)([kmg])b?$/i);
+    if (!m) {
+        return {
+            ok: false,
+            error: "Invalid size. Use /download/10k, /download/10m, or /download/10g"
+        };
+    }
+
+    const qty = parseInt(m[1], 10);
+    const unit = m[2].toLowerCase();
+
+    if (!Number.isFinite(qty) || qty <= 0) {
+        return { ok: false, error: "Size must be a positive integer." };
+    }
+
+    const multipliers = {
+        k: 1_000,
+        m: 1_000_000,
+        g: 1_000_000_000
+    };
+
+    const bytes = qty * multipliers[unit];
+
+    // Safety cap (adjust if you want). This allows up to 10g (10 GB) comfortably.
+    const MAX_BYTES = 10 * 1_000_000_000; // 10 GB (decimal)
+    if (bytes > MAX_BYTES) {
+        return { ok: false, error: `Requested size too large. Max is 10g (${MAX_BYTES} bytes).` };
+    }
+
+    return { ok: true, qty, unit, bytes, label: `${qty}${unit}` };
+}
+
+// Optional: HEAD support (lets you verify headers/Content-Length without downloading)
+app.head("/download/:size", (req, res) => {
+    const parsed = parseDownloadSizeSpec(req.params.size);
+    if (!parsed.ok) return res.status(400).send(parsed.error);
+
+    const { bytes, label } = parsed;
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader("Content-Disposition", `attachment; filename="download_${label}.bin"`);
+    res.setHeader("Content-Length", String(bytes));
+    res.setHeader("Cache-Control", "no-store");
+    res.end();
+});
+
+app.get("/download/:size", (req, res) => {
+    const parsed = parseDownloadSizeSpec(req.params.size);
+    if (!parsed.ok) return res.status(400).send(parsed.error);
+
+    const { bytes, label } = parsed;
+
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader("Content-Disposition", `attachment; filename="download_${label}.bin"`);
+    res.setHeader("Content-Length", String(bytes));
+    res.setHeader("Cache-Control", "no-store");
+
+    // Stream content in chunks (don’t allocate the whole file in memory)
+    const CHUNK_SIZE = 256 * 1024; // 256 KB
+    const chunk = Buffer.alloc(CHUNK_SIZE, 65); // 'A'
+
+    let bytesSent = 0;
+    let stopped = false;
+
+    // Stop streaming if client disconnects
+    req.on("close", () => { stopped = true; });
+
+    function sendChunk() {
+        if (stopped || res.writableEnded || res.destroyed) return;
+
+        if (bytesSent >= bytes) {
+            res.end();
+            return;
+        }
+
+        const remaining = bytes - bytesSent;
+        const size = Math.min(CHUNK_SIZE, remaining);
+
+        // subarray avoids new allocations; content is constant so safe
+        const ok = res.write(chunk.subarray(0, size));
+        bytesSent += size;
+
+        if (!ok) {
+            res.once("drain", sendChunk);
+        } else {
+            setImmediate(sendChunk);
+        }
+    }
+
+    sendChunk();
+});
+
 // Catch-all route (move this to the end)
 app.all("*", (req, res) => {
     res.status(400).send("Invalid route");
