@@ -1,20 +1,23 @@
 {
-    "links": {
-        "status": {
-            "href": "http://192.168.29.53:3005/",
-            "method": "GET"
-        },
-        "delete": {
-            "href": "http://192.168.29.53:3005/",
-            "method": "DELETE"
-        },
-        "uploadPart": {
-            "href": "http://192.168.29.53:3005/",
-            "method": "POST"
-        },
-        "complete": {
-            "href": "http://192.168.29.53:3005/",
-            "method": "PUT"
-        }
+  "project": "vstgm-bearer-token",
+  "purpose": "A testbed for bearer-token APIs, HTTP behavior, and frontend scenario simulation.",
+  "publicLinks": {
+    "home": {
+      "href": "https://www.vstgm.co.in/",
+      "method": "GET"
+    },
+    "health": {
+      "href": "https://www.vstgm.co.in/healthz",
+      "method": "GET"
+    },
+    "tokenGeneratorPage": {
+      "href": "https://www.vstgm.co.in/generate",
+      "method": "GET"
     }
+  },
+  "aiForGood": [
+    "AI helps doctors triage patients faster through assisted diagnostics.",
+    "AI improves accessibility with captions, translation, and assistive voice interfaces.",
+    "AI supports climate work with forecasting, grid optimization, and anomaly detection."
+  ]
 }
