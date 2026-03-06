@@ -964,6 +964,73 @@ app.get("/download/:size", (req, res) => {
     sendChunk();
 });
 
+// ----------------------------------------
+// /download/<size> via GET and PUT
+// Examples: /download/10k  /download/10m  /download/10g
+// ----------------------------------------
+
+function parseDownloadSizeSpec(spec) {
+    const m = String(spec || "").trim().match(/^(\d+)([kmg])b?$/i);
+    if (!m) return { ok: false, error: "Invalid size. Use /download/10k, /download/10m, or /download/10g" };
+
+    const qty = parseInt(m[1], 10);
+    const unit = m[2].toLowerCase();
+    if (!Number.isFinite(qty) || qty <= 0) return { ok: false, error: "Size must be a positive integer." };
+
+    const multipliers = { k: 1_000, m: 1_000_000, g: 1_000_000_000 };
+    const bytes = qty * multipliers[unit];
+
+    // Adjust/remove this safety cap if needed
+    const MAX_BYTES = 10 * 1_000_000_000; // 10 GB
+    if (bytes > MAX_BYTES) return { ok: false, error: "Requested size too large (max 10g)." };
+
+    return { ok: true, bytes, label: `${qty}${unit}` };
+}
+
+function streamDownload(req, res) {
+    const parsed = parseDownloadSizeSpec(req.params.size);
+    if (!parsed.ok) return res.status(400).send(parsed.error);
+
+    const { bytes, label } = parsed;
+
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader("Content-Disposition", `attachment; filename="download_${label}.bin"`);
+    res.setHeader("Content-Length", String(bytes));
+    res.setHeader("Cache-Control", "no-store");
+
+    const CHUNK_SIZE = 256 * 1024; // 256KB
+    const chunk = Buffer.alloc(CHUNK_SIZE, 65); // 'A'
+    let sent = 0;
+    let stopped = false;
+
+    req.on("close", () => { stopped = true; });
+
+    function pump() {
+        if (stopped || res.writableEnded || res.destroyed) return;
+        if (sent >= bytes) return res.end();
+
+        const remaining = bytes - sent;
+        const size = Math.min(CHUNK_SIZE, remaining);
+
+        const ok = res.write(chunk.subarray(0, size));
+        sent += size;
+
+        if (!ok) res.once("drain", pump);
+        else setImmediate(pump);
+    }
+
+    pump();
+}
+
+// GET download
+app.get("/download/:size", streamDownload);
+
+// PUT download (non-standard, but useful for testing)
+app.put("/download/:size", streamDownload);
+
+// Optional: HEAD support (inspect headers without downloading)
+// app.head("/download/:size", streamDownload);
+
 // Catch-all route (move this to the end)
 app.all("*", (req, res) => {
     res.status(400).send("Invalid route");
