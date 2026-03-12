@@ -5,6 +5,17 @@ const jwt = require("jsonwebtoken");
 const app = express();
 app.use(express.json()); // for parsing application/json
 
+function readPositiveIntEnv(name, fallback) {
+    const raw = process.env[name];
+    if (raw === undefined) return fallback;
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+    return Math.floor(parsed);
+}
+
+const TRUST_PROXY_HOPS = readPositiveIntEnv("TRUST_PROXY_HOPS", 1);
+app.set("trust proxy", TRUST_PROXY_HOPS);
+
 // -----------------------------------------------------------------------------
 // Static files
 // -----------------------------------------------------------------------------
@@ -203,10 +214,6 @@ app.get("/txt", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "welcome.txt"));
 });
 
-app.get("/mhtml", (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, "WelcometoPimcore.mhtml"));
-});
-
 app.get("/gif", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "thankyou.gif"));
 });
@@ -234,8 +241,223 @@ function FindProxyForURL(url, host) {
 
 app.get("/delayed600", rateLimitMiddleware);
 
-// Secret key for generating and verifying tokens
-const SECRET_KEY = "YOUR-SECRET-KEY";
+// -----------------------------------------------------------------------------
+// Security config
+// -----------------------------------------------------------------------------
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    if (process.env.NODE_ENV === "production") {
+        console.error("Missing JWT_SECRET in production. Refusing to start.");
+        process.exit(1);
+    }
+    console.warn("[WARN] JWT_SECRET is not set. Using insecure development fallback secret.");
+}
+
+const SECRET_KEY = JWT_SECRET || "dev-only-insecure-secret-change-me";
+
+const GENERATE_BASIC_AUTH_USER = (process.env.GENERATE_BASIC_AUTH_USER || "").trim();
+const GENERATE_BASIC_AUTH_PASS = (process.env.GENERATE_BASIC_AUTH_PASS || "").trim();
+const GENERATE_ALLOWLIST = (process.env.GENERATE_ALLOWLIST || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+const generateBasicAuthConfigured = Boolean(GENERATE_BASIC_AUTH_USER && GENERATE_BASIC_AUTH_PASS);
+if (process.env.NODE_ENV === "production" && !generateBasicAuthConfigured && GENERATE_ALLOWLIST.length === 0) {
+    console.error(
+        "In production, configure GENERATE_ALLOWLIST or both GENERATE_BASIC_AUTH_USER and GENERATE_BASIC_AUTH_PASS."
+    );
+    process.exit(1);
+}
+
+function normalizeIp(ip) {
+    if (!ip || typeof ip !== "string") return "";
+    return ip.startsWith("::ffff:") ? ip.slice(7) : ip;
+}
+
+function getClientIp(req) {
+    const xff = req.headers["x-forwarded-for"];
+    if (typeof xff === "string" && xff.trim().length > 0) {
+        return normalizeIp(xff.split(",")[0].trim());
+    }
+    return normalizeIp(req.ip || req.socket?.remoteAddress || "");
+}
+
+function parseBasicAuth(req) {
+    const authHeader = req.headers.authorization || "";
+    if (!authHeader.startsWith("Basic ")) return null;
+
+    try {
+        const decoded = Buffer.from(authHeader.slice("Basic ".length), "base64").toString("utf8");
+        const separator = decoded.indexOf(":");
+        if (separator === -1) return null;
+
+        return {
+            username: decoded.slice(0, separator),
+            password: decoded.slice(separator + 1),
+        };
+    } catch {
+        return null;
+    }
+}
+
+const protectGenerateRoutes = (req, res, next) => {
+    if (GENERATE_ALLOWLIST.length > 0 && GENERATE_ALLOWLIST.includes(getClientIp(req))) {
+        return next();
+    }
+
+    if (generateBasicAuthConfigured) {
+        const basicAuth = parseBasicAuth(req);
+        if (
+            basicAuth &&
+            basicAuth.username === GENERATE_BASIC_AUTH_USER &&
+            basicAuth.password === GENERATE_BASIC_AUTH_PASS
+        ) {
+            return next();
+        }
+    }
+
+    // In local/dev where no guard is configured, preserve current behavior.
+    if (process.env.NODE_ENV !== "production" && !generateBasicAuthConfigured && GENERATE_ALLOWLIST.length === 0) {
+        return next();
+    }
+
+    res.set("WWW-Authenticate", 'Basic realm="Token Generator"');
+    return res.status(401).json({ error: "Unauthorized for token generation endpoints." });
+};
+
+app.use(["/generate", "/generate/week", "/generate/month"], protectGenerateRoutes);
+
+const CANONICAL_HOST = (process.env.CANONICAL_HOST || "www.vstgm.co.in").toLowerCase().trim();
+const ENABLE_CANONICAL_REDIRECT = (process.env.ENABLE_CANONICAL_REDIRECT || "true").toLowerCase() !== "false";
+const CANONICAL_APEX_HOST = CANONICAL_HOST.replace(/^www\./, "");
+
+// Keep search engines and users on one hostname.
+app.use((req, res, next) => {
+    if (!ENABLE_CANONICAL_REDIRECT || !CANONICAL_HOST) return next();
+
+    const hostHeader = String(req.headers.host || "").split(":")[0].toLowerCase().trim();
+    if (!hostHeader || hostHeader !== CANONICAL_APEX_HOST || hostHeader === CANONICAL_HOST) {
+        return next();
+    }
+
+    const forwardedProto = String(req.headers["x-forwarded-proto"] || "")
+        .split(",")[0]
+        .toLowerCase()
+        .trim();
+    const scheme = forwardedProto || (process.env.NODE_ENV === "production" ? "https" : "http");
+    return res.redirect(301, `${scheme}://${CANONICAL_HOST}${req.originalUrl}`);
+});
+
+const ENABLE_SCENARIO_RATE_LIMIT = (process.env.ENABLE_SCENARIO_RATE_LIMIT || "true").toLowerCase() !== "false";
+const SCENARIO_RATE_LIMIT_WINDOW_MS = readPositiveIntEnv("SCENARIO_RATE_LIMIT_WINDOW_MS", 60_000);
+const SCENARIO_RATE_LIMIT_MAX_REQUESTS = readPositiveIntEnv(
+    "SCENARIO_RATE_LIMIT_MAX_REQUESTS",
+    process.env.NODE_ENV === "production" ? 60 : 300
+);
+
+const ENABLE_STREAM_CONCURRENCY_LIMIT = (process.env.ENABLE_STREAM_CONCURRENCY_LIMIT || "true").toLowerCase() !== "false";
+const STREAM_MAX_CONCURRENT_PER_IP = readPositiveIntEnv(
+    "STREAM_MAX_CONCURRENT_PER_IP",
+    process.env.NODE_ENV === "production" ? 2 : 10
+);
+
+const SCENARIO_ROUTE_PREFIXES = [
+    "/bigdata",
+    "/download/",
+    "/delayrespcode/",
+    "/delayload/",
+    "/delayed600",
+    "/randresp",
+    "/errorsim",
+    "/redirect/",
+    "/xhr-endpoint",
+    "/xhrflood",
+    "/xhrburst",
+    "/assetloader",
+    "/spaasset",
+    "/heavy",
+    "/cdn-dns-failure",
+    "/tbt",
+];
+
+function isScenarioRoute(pathname) {
+    return SCENARIO_ROUTE_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
+}
+
+function isStreamRoute(pathname) {
+    return pathname === "/bigdata" || pathname.startsWith("/download/");
+}
+
+const scenarioRequestsByIp = new Map();
+const activeStreamsByIp = new Map();
+
+function pruneScenarioMap(nowMs) {
+    if (scenarioRequestsByIp.size < 1000) return;
+    for (const [ip, bucket] of scenarioRequestsByIp.entries()) {
+        if (nowMs - bucket.windowStart >= SCENARIO_RATE_LIMIT_WINDOW_MS) {
+            scenarioRequestsByIp.delete(ip);
+        }
+    }
+}
+
+const scenarioAbuseGuard = (req, res, next) => {
+    if (!ENABLE_SCENARIO_RATE_LIMIT || !isScenarioRoute(req.path)) return next();
+
+    const nowMs = Date.now();
+    const ip = getClientIp(req) || "unknown";
+    const existing = scenarioRequestsByIp.get(ip);
+    let bucket = existing;
+
+    if (!bucket || nowMs - bucket.windowStart >= SCENARIO_RATE_LIMIT_WINDOW_MS) {
+        bucket = { windowStart: nowMs, count: 0 };
+    }
+
+    bucket.count += 1;
+    scenarioRequestsByIp.set(ip, bucket);
+    pruneScenarioMap(nowMs);
+
+    if (bucket.count > SCENARIO_RATE_LIMIT_MAX_REQUESTS) {
+        const retryAfterSec = Math.max(
+            1,
+            Math.ceil((SCENARIO_RATE_LIMIT_WINDOW_MS - (nowMs - bucket.windowStart)) / 1000)
+        );
+        res.set("Retry-After", String(retryAfterSec));
+        return res.status(429).json({ error: "Too many scenario requests. Please retry later." });
+    }
+
+    return next();
+};
+
+const streamConcurrencyGuard = (req, res, next) => {
+    if (!ENABLE_STREAM_CONCURRENCY_LIMIT || !isStreamRoute(req.path)) return next();
+
+    const ip = getClientIp(req) || "unknown";
+    const activeStreams = activeStreamsByIp.get(ip) || 0;
+    if (activeStreams >= STREAM_MAX_CONCURRENT_PER_IP) {
+        res.set("Retry-After", "30");
+        return res.status(429).json({ error: "Too many concurrent stream requests from this IP." });
+    }
+
+    activeStreamsByIp.set(ip, activeStreams + 1);
+
+    let released = false;
+    const release = () => {
+        if (released) return;
+        released = true;
+        const current = (activeStreamsByIp.get(ip) || 1) - 1;
+        if (current <= 0) activeStreamsByIp.delete(ip);
+        else activeStreamsByIp.set(ip, current);
+    };
+
+    res.on("finish", release);
+    res.on("close", release);
+    req.on("aborted", release);
+    return next();
+};
+
+app.use(scenarioAbuseGuard);
+app.use(streamConcurrencyGuard);
 
 // Redirect the page N number of times
 app.get('/redirect/:count', (req, res) => {
@@ -1120,10 +1342,10 @@ app.get("/heavy/file/:id", (req, res) => {
 
 // Catch-all route (move this to the end)
 app.all("*", (req, res) => {
-    res.status(400).send("Invalid route");
+    res.status(404).send("Route not found");
 });
 
 
-const PORT = 3010;
+const PORT = Number(process.env.PORT) || 3010;
 const HOST = "0.0.0.0";
 app.listen(PORT, HOST, () => console.log(`App is listening on http://${HOST}:${PORT}`));
