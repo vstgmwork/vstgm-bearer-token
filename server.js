@@ -456,7 +456,7 @@ app.get("/response/:code", (req, res) => {
 app.get('/assetloader', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'asset_loader.html')));
 app.get('/spaasset', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'spa_asset_loader.html')));
 app.get('/csp-child', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'csp-child-block.html')));
-app.get('/heavy', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'marketplace_heavy.html')));
+// app.get('/heavy', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'marketplace_heavy.html')));
 
 app.get('/cdn-dns-failure', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'cdn-dns-failure.html')));
 
@@ -1030,6 +1030,93 @@ app.put("/download/:size", streamDownload);
 
 // Optional: HEAD support (inspect headers without downloading)
 // app.head("/download/:size", streamDownload);
+
+// -----------------------------------------------------------------------------
+// /heavy (page) + /heavy/file/:id (streams a >50MB binary file)
+// Default: 55MB (decimal) per file
+// -----------------------------------------------------------------------------
+
+const HEAVY_DEFAULT_BYTES = 55_000_000; // 55 MB (decimal) => > 50 MB
+const HEAVY_MIN_BYTES = 50_000_001;     // must be > 50MB
+const HEAVY_MAX_BYTES = Number(process.env.HEAVY_MAX_SIZE_BYTES || "200000000"); // 200MB cap by default
+
+const HEAVY_CHUNK_SIZE = 64 * 1024; // 64KB
+const HEAVY_CHUNK = Buffer.alloc(HEAVY_CHUNK_SIZE, 65); // 'A'
+
+function parseHumanSizeToBytes(spec) {
+    if (!spec) return HEAVY_DEFAULT_BYTES;
+    const s = String(spec).trim();
+
+    // Accept 55m / 60mb / 10k / 1g (decimal units)
+    const m = s.match(/^(\d+)([kmg])b?$/i);
+    if (m) {
+        const n = parseInt(m[1], 10);
+        const u = m[2].toLowerCase();
+        const mult = u === "k" ? 1_000 : u === "m" ? 1_000_000 : 1_000_000_000;
+        return n * mult;
+    }
+
+    // Also accept plain bytes: ?size=60000000
+    const asNum = Number(s);
+    if (Number.isFinite(asNum)) return Math.floor(asNum);
+
+    return null;
+}
+
+function streamFixedBytes(req, res, totalBytes) {
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader("Content-Length", String(totalBytes));
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+
+    let sent = 0;
+    let stopped = false;
+
+    req.on("close", () => { stopped = true; });
+
+    function pump() {
+        if (stopped || res.writableEnded || res.destroyed) return;
+        if (sent >= totalBytes) return res.end();
+
+        const remaining = totalBytes - sent;
+        const size = Math.min(HEAVY_CHUNK_SIZE, remaining);
+
+        const ok = res.write(HEAVY_CHUNK.subarray(0, size));
+        sent += size;
+
+        if (!ok) res.once("drain", pump);
+        else setImmediate(pump);
+    }
+
+    pump();
+}
+
+// Page: /heavy
+app.get("/heavy", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "heavy.html"));
+});
+
+// Large file stream: /heavy/file/1?size=55m
+app.get("/heavy/file/:id", (req, res) => {
+    const id = String(req.params.id || "0").replace(/[^0-9A-Za-z_-]/g, "");
+    const sizeSpec = req.query.size || req.query.s || "";
+    const bytes = parseHumanSizeToBytes(sizeSpec);
+
+    const finalBytes = (bytes == null) ? HEAVY_DEFAULT_BYTES : bytes;
+
+    if (!Number.isFinite(finalBytes) || finalBytes <= 0) {
+        return res.status(400).send("Invalid size. Example: /heavy/file/1?size=55m");
+    }
+    if (finalBytes < HEAVY_MIN_BYTES) {
+        return res.status(400).send("Size must be > 50MB. Example: ?size=55m");
+    }
+    if (finalBytes > HEAVY_MAX_BYTES) {
+        return res.status(413).send(`Too large. Max allowed is ${HEAVY_MAX_BYTES} bytes. (Set HEAVY_MAX_SIZE_BYTES to change.)`);
+    }
+
+    res.setHeader("Content-Disposition", `attachment; filename="heavy_${id}_${finalBytes}.bin"`);
+    streamFixedBytes(req, res, finalBytes);
+});
 
 // Catch-all route (move this to the end)
 app.all("*", (req, res) => {

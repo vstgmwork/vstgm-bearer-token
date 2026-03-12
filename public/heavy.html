@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>/heavy – 10 large files</title>
+    <style>
+        body {
+            font-family: system-ui, Arial;
+            margin: 22px;
+            line-height: 1.4;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+
+        .warn {
+            background: #fff5f5;
+            border-color: #f1b0b7;
+        }
+
+        code {
+            background: #f6f6f6;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #eee;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #fafafa;
+        }
+
+        progress {
+            width: 240px;
+        }
+
+        button {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #f7f7f7;
+        }
+
+        .muted {
+            color: #555;
+            font-size: 0.92rem;
+        }
+
+        .ok {
+            color: #0a7a2f;
+            font-weight: 700;
+        }
+
+        .bad {
+            color: #b00020;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>/heavy – downloads 10 files &gt; 50MB each</h1>
+
+    <div class="card warn">
+        <div class="bad">Warning</div>
+        <div>This page intentionally downloads a lot of data. Default is <code>10 × 55MB ≈ 550MB</code>.</div>
+        <div class="muted">Open DevTools → Network and refresh to see the waterfall.</div>
+    </div>
+
+    <div class="card">
+        <div><strong>Controls</strong></div>
+        <div class="muted">
+            Query params:
+            <code>?size=55m&amp;files=10&amp;parallel=4&amp;autostart=1</code>
+            <br />Examples: <code>?size=60m</code> or <code>?size=52000000</code>
+        </div>
+        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <button id="startBtn">Start</button>
+            <button id="stopBtn">Stop</button>
+            <span id="summary" class="muted"></span>
+        </div>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>URL</th>
+                    <th>Progress</th>
+                    <th>Received</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const qs = new URLSearchParams(location.search);
+
+        const size = (qs.get("size") || "55m").trim();            // >50MB default
+        const fileCount = clampInt(qs.get("files"), 10, 1, 50);
+        const parallel = clampInt(qs.get("parallel"), 4, 1, 10);  // how many concurrent fetches
+        const autostart = (qs.get("autostart") ?? "1") !== "0";
+
+        function clampInt(v, def, min, max) {
+            const n = Number(v);
+            if (!Number.isFinite(n)) return def;
+            return Math.max(min, Math.min(max, Math.floor(n)));
+        }
+
+        function fmtBytes(n) {
+            if (!Number.isFinite(n)) return "—";
+            const units = ["B", "KB", "MB", "GB", "TB"];
+            let i = 0;
+            while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+            return n.toFixed(i === 0 ? 0 : 2) + " " + units[i];
+        }
+
+        const rowsEl = document.getElementById("rows");
+        const summaryEl = document.getElementById("summary");
+
+        let running = false;
+        let controllers = [];
+        let nextIndex = 1;
+        let active = 0;
+        let done = 0;
+        let failed = 0;
+
+        const rowState = new Map(); // id -> { ...dom refs ... }
+
+        function makeRow(i) {
+            const tr = document.createElement("tr");
+
+            const url = `/heavy/file/${i}?size=${encodeURIComponent(size)}&cb=${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+            tr.innerHTML = `
+      <td><code>${i}</code></td>
+      <td class="muted"><code>${url}</code></td>
+      <td><progress max="100" value="0"></progress></td>
+      <td class="muted" data-recv>0 B</td>
+      <td class="muted" data-total>—</td>
+      <td class="muted" data-status>queued</td>
+      <td class="muted" data-time>—</td>
+    `;
+
+            rowsEl.appendChild(tr);
+
+            rowState.set(i, {
+                url,
+                prog: tr.querySelector("progress"),
+                recvEl: tr.querySelector("[data-recv]"),
+                totalEl: tr.querySelector("[data-total]"),
+                statusEl: tr.querySelector("[data-status]"),
+                timeEl: tr.querySelector("[data-time]")
+            });
+        }
+
+        function updateSummary() {
+            summaryEl.textContent =
+                `size=${size}, files=${fileCount}, parallel=${parallel} | done=${done}, failed=${failed}, active=${active}`;
+        }
+
+        async function downloadOne(i) {
+            const st = rowState.get(i);
+            const ctrl = new AbortController();
+            controllers.push(ctrl);
+
+            st.statusEl.textContent = "starting";
+            updateSummary();
+
+            const t0 = performance.now();
+
+            try {
+                const res = await fetch(st.url, { cache: "no-store", signal: ctrl.signal });
+                if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+
+                const total = Number(res.headers.get("content-length") || 0);
+                if (total) st.totalEl.textContent = fmtBytes(total);
+
+                if (!res.body) throw new Error("ReadableStream not available");
+
+                st.statusEl.textContent = "downloading";
+
+                const reader = res.body.getReader();
+                let received = 0;
+
+                while (true) {
+                    const { done: rDone, value } = await reader.read();
+                    if (rDone) break;
+                    received += value.byteLength;
+
+                    st.recvEl.textContent = fmtBytes(received);
+                    if (total) st.prog.value = Math.min(100, (received / total) * 100);
+                }
+
+                st.prog.value = 100;
+                st.statusEl.textContent = "done";
+                st.statusEl.className = "ok";
+                done++;
+            } catch (e) {
+                st.statusEl.textContent = running ? ("failed: " + e.message) : "stopped";
+                st.statusEl.className = "bad";
+                failed++;
+            } finally {
+                st.timeEl.textContent = ((performance.now() - t0) / 1000).toFixed(1) + "s";
+                updateSummary();
+            }
+        }
+
+        async function workerLoop() {
+            while (running) {
+                const i = nextIndex++;
+                if (i > fileCount) return;
+
+                active++;
+                updateSummary();
+                await downloadOne(i);
+                active--;
+                updateSummary();
+            }
+        }
+
+        async function start() {
+            if (running) return;
+            running = true;
+
+            // reset state
+            controllers.forEach(c => c.abort());
+            controllers = [];
+            nextIndex = 1;
+            active = 0;
+            done = 0;
+            failed = 0;
+
+            // rebuild rows
+            rowsEl.innerHTML = "";
+            rowState.clear();
+            for (let i = 1; i <= fileCount; i++) makeRow(i);
+
+            updateSummary();
+
+            // start workers
+            const workers = [];
+            for (let w = 0; w < parallel; w++) workers.push(workerLoop());
+            await Promise.allSettled(workers);
+
+            running = false;
+            updateSummary();
+        }
+
+        function stop() {
+            running = false;
+            controllers.forEach(c => c.abort());
+            controllers = [];
+            updateSummary();
+        }
+
+        document.getElementById("startBtn").addEventListener("click", start);
+        document.getElementById("stopBtn").addEventListener("click", stop);
+
+        updateSummary();
+        if (autostart) start();
+    </script>
+</body>
+
+</html>
