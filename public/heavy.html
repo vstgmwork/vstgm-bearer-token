@@ -4,289 +4,352 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>/heavy – 10 large files</title>
+    <title>Heavy Page (Xfinity-style)</title>
     <style>
         body {
             font-family: system-ui, Arial;
-            margin: 22px;
-            line-height: 1.4;
+            margin: 18px;
+            line-height: 1.35;
+            background: #0b1220;
+            color: #e5e7eb;
         }
 
         .card {
-            border: 1px solid #ddd;
+            border: 1px solid #243047;
             border-radius: 12px;
             padding: 14px;
             margin: 12px 0;
-        }
-
-        .warn {
-            background: #fff5f5;
-            border-color: #f1b0b7;
+            background: #0f172a;
         }
 
         code {
-            background: #f6f6f6;
+            background: #111827;
             padding: 2px 6px;
             border-radius: 6px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            border-bottom: 1px solid #eee;
-            padding: 8px;
-            text-align: left;
-            vertical-align: top;
-        }
-
-        th {
-            background: #fafafa;
-        }
-
-        progress {
-            width: 240px;
+        input {
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            background: #0b1220;
+            color: #e5e7eb;
+            width: 110px;
         }
 
         button {
             padding: 10px 12px;
             border-radius: 10px;
-            border: 1px solid #ccc;
-            background: #fff;
+            border: 1px solid #334155;
+            background: #111827;
+            color: #e5e7eb;
             cursor: pointer;
         }
 
         button:hover {
-            background: #f7f7f7;
+            background: #0b1220;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
         }
 
         .muted {
-            color: #555;
-            font-size: 0.92rem;
+            color: #9ca3af;
+            font-size: .92rem;
         }
 
         .ok {
-            color: #0a7a2f;
+            color: #22c55e;
             font-weight: 700;
         }
 
         .bad {
-            color: #b00020;
+            color: #ef4444;
             font-weight: 700;
+        }
+
+        .imggrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 10px;
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid #243047;
+            background: #0b1220;
+        }
+
+        ul {
+            margin: 8px 0 0 18px;
         }
     </style>
 </head>
 
 <body>
-    <h1>/heavy – downloads 10 files &gt; 50MB each</h1>
 
-    <div class="card warn">
-        <div class="bad">Warning</div>
-        <div>This page intentionally downloads a lot of data. Default is <code>10 × 55MB ≈ 550MB</code>.</div>
-        <div class="muted">Open DevTools → Network and refresh to see the waterfall.</div>
+    <h1>Heavy Page (Xfinity-style asset loading)</h1>
+
+    <div class="card">
+        <div class="muted">
+            This page intentionally loads many <code>script</code>, <code>stylesheet</code>, and large <code>svg</code>
+            images from
+            same-origin endpoints (so DevTools shows a “real website”-like waterfall).
+        </div>
+        <ul class="muted">
+            <li>JS: <code>/heavy-assets/js/...</code></li>
+            <li>CSS: <code>/heavy-assets/css/...</code></li>
+            <li>Images: <code>/heavy-assets/svg/...</code></li>
+        </ul>
     </div>
 
     <div class="card">
-        <div><strong>Controls</strong></div>
-        <div class="muted">
-            Query params:
-            <code>?size=55m&amp;files=10&amp;parallel=4&amp;autostart=1</code>
-            <br />Examples: <code>?size=60m</code> or <code>?size=52000000</code>
+        <div class="grid">
+            <div>
+                <div><strong>JS chunks</strong></div>
+                <div class="muted">chunks</div>
+                <input id="jsCount" value="35">
+                <div class="muted">chunk size</div>
+                <input id="jsSize" value="1500k">
+            </div>
+
+            <div>
+                <div><strong>Bundles</strong></div>
+                <div class="muted">vendor</div>
+                <input id="vendorSize" value="6m">
+                <div class="muted">app</div>
+                <input id="appSize" value="3m">
+            </div>
+
+            <div>
+                <div><strong>CSS</strong></div>
+                <div class="muted">count</div>
+                <input id="cssCount" value="5">
+                <div class="muted">size</div>
+                <input id="cssSize" value="600k">
+            </div>
+
+            <div>
+                <div><strong>Images (SVG)</strong></div>
+                <div class="muted">count</div>
+                <input id="imgCount" value="12">
+                <div class="muted">size</div>
+                <input id="imgSize" value="4m">
+            </div>
+
+            <div>
+                <div><strong>Cache</strong></div>
+                <div class="muted">cache=0 forces full download each refresh</div>
+                <input id="cache" value="0">
+            </div>
         </div>
-        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-            <button id="startBtn">Start</button>
-            <button id="stopBtn">Stop</button>
+
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <button id="startBtn">Start loading assets</button>
+            <button id="reloadBtn">Reload with settings</button>
             <span id="summary" class="muted"></span>
         </div>
     </div>
 
     <div class="card">
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>URL</th>
-                    <th>Progress</th>
-                    <th>Received</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Time</th>
-                </tr>
-            </thead>
-            <tbody id="rows"></tbody>
-        </table>
+        <div><strong>Status</strong></div>
+        <div class="muted" id="statusLine">Not started.</div>
+        <div class="muted" id="lastEvent"></div>
+    </div>
+
+    <div class="card">
+        <div><strong>Images</strong></div>
+        <div class="imggrid" id="imgGrid"></div>
     </div>
 
     <script>
-        const qs = new URLSearchParams(location.search);
-
-        const size = (qs.get("size") || "55m").trim();            // >50MB default
-        const fileCount = clampInt(qs.get("files"), 10, 1, 50);
-        const parallel = clampInt(qs.get("parallel"), 4, 1, 10);  // how many concurrent fetches
-        const autostart = (qs.get("autostart") ?? "1") !== "0";
-
-        function clampInt(v, def, min, max) {
+        const el = (id) => document.getElementById(id);
+        const clampInt = (v, d, min, max) => {
             const n = Number(v);
-            if (!Number.isFinite(n)) return def;
+            if (!Number.isFinite(n)) return d;
             return Math.max(min, Math.min(max, Math.floor(n)));
+        };
+
+        function settingsFromInputs() {
+            return {
+                jsCount: clampInt(el("jsCount").value, 35, 0, 200),
+                jsSize: el("jsSize").value.trim() || "1500k",
+                vendorSize: el("vendorSize").value.trim() || "6m",
+                appSize: el("appSize").value.trim() || "3m",
+                cssCount: clampInt(el("cssCount").value, 5, 0, 50),
+                cssSize: el("cssSize").value.trim() || "600k",
+                imgCount: clampInt(el("imgCount").value, 12, 0, 80),
+                imgSize: el("imgSize").value.trim() || "4m",
+                cache: (el("cache").value.trim() === "1") ? "1" : "0",
+            };
         }
 
-        function fmtBytes(n) {
-            if (!Number.isFinite(n)) return "—";
-            const units = ["B", "KB", "MB", "GB", "TB"];
-            let i = 0;
-            while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
-            return n.toFixed(i === 0 ? 0 : 2) + " " + units[i];
+        function updateSummary(s, counters) {
+            el("summary").textContent =
+                `JS chunks=${s.jsCount} (${s.jsSize}), vendor=${s.vendorSize}, app=${s.appSize} | ` +
+                `CSS=${s.cssCount} (${s.cssSize}) | IMG=${s.imgCount} (${s.imgSize}) | cache=${s.cache} | ` +
+                `loaded=${counters.loaded}/${counters.total}, failed=${counters.failed}`;
         }
 
-        const rowsEl = document.getElementById("rows");
-        const summaryEl = document.getElementById("summary");
+        function reloadWithSettings() {
+            const s = settingsFromInputs();
+            const qs = new URLSearchParams(s).toString();
+            location.href = "/heavy?" + qs;
+        }
 
-        let running = false;
-        let controllers = [];
-        let nextIndex = 1;
-        let active = 0;
-        let done = 0;
-        let failed = 0;
+        function settingsFromQueryOrDefaults() {
+            const q = new URLSearchParams(location.search);
+            const s = settingsFromInputs();
 
-        const rowState = new Map(); // id -> { ...dom refs ... }
+            // Override from query if present
+            for (const k of Object.keys(s)) {
+                if (q.has(k)) s[k] = q.get(k);
+            }
 
-        function makeRow(i) {
-            const tr = document.createElement("tr");
+            // Reflect into inputs
+            el("jsCount").value = s.jsCount;
+            el("jsSize").value = s.jsSize;
+            el("vendorSize").value = s.vendorSize;
+            el("appSize").value = s.appSize;
+            el("cssCount").value = s.cssCount;
+            el("cssSize").value = s.cssSize;
+            el("imgCount").value = s.imgCount;
+            el("imgSize").value = s.imgSize;
+            el("cache").value = s.cache;
 
-            const url = `/heavy/file/${i}?size=${encodeURIComponent(size)}&cb=${Date.now()}_${Math.random().toString(16).slice(2)}`;
+            // Normalize ints
+            s.jsCount = clampInt(s.jsCount, 35, 0, 200);
+            s.cssCount = clampInt(s.cssCount, 5, 0, 50);
+            s.imgCount = clampInt(s.imgCount, 12, 0, 80);
 
-            tr.innerHTML = `
-      <td><code>${i}</code></td>
-      <td class="muted"><code>${url}</code></td>
-      <td><progress max="100" value="0"></progress></td>
-      <td class="muted" data-recv>0 B</td>
-      <td class="muted" data-total>—</td>
-      <td class="muted" data-status>queued</td>
-      <td class="muted" data-time>—</td>
-    `;
+            return s;
+        }
 
-            rowsEl.appendChild(tr);
+        function mkCb() {
+            return Date.now().toString(36) + Math.random().toString(36).slice(2);
+        }
 
-            rowState.set(i, {
-                url,
-                prog: tr.querySelector("progress"),
-                recvEl: tr.querySelector("[data-recv]"),
-                totalEl: tr.querySelector("[data-total]"),
-                statusEl: tr.querySelector("[data-status]"),
-                timeEl: tr.querySelector("[data-time]")
+        function addScript(src, counters, label) {
+            return new Promise((resolve) => {
+                const s = document.createElement("script");
+                s.src = src;
+                s.async = true;
+                s.onload = () => resolve({ ok: true, label, src });
+                s.onerror = () => resolve({ ok: false, label, src });
+                document.head.appendChild(s);
+            }).then((r) => {
+                counters.loaded++;
+                if (!r.ok) counters.failed++;
+                el("lastEvent").textContent = `${r.ok ? "OK" : "FAIL"} script: ${r.label}`;
+                return r;
             });
         }
 
-        function updateSummary() {
-            summaryEl.textContent =
-                `size=${size}, files=${fileCount}, parallel=${parallel} | done=${done}, failed=${failed}, active=${active}`;
+        function addCss(href, counters, label) {
+            return new Promise((resolve) => {
+                const l = document.createElement("link");
+                l.rel = "stylesheet";
+                l.href = href;
+                l.onload = () => resolve({ ok: true, label, href });
+                l.onerror = () => resolve({ ok: false, label, href });
+                document.head.appendChild(l);
+            }).then((r) => {
+                counters.loaded++;
+                if (!r.ok) counters.failed++;
+                el("lastEvent").textContent = `${r.ok ? "OK" : "FAIL"} css: ${r.label}`;
+                return r;
+            });
         }
 
-        async function downloadOne(i) {
-            const st = rowState.get(i);
-            const ctrl = new AbortController();
-            controllers.push(ctrl);
-
-            st.statusEl.textContent = "starting";
-            updateSummary();
-
-            const t0 = performance.now();
-
-            try {
-                const res = await fetch(st.url, { cache: "no-store", signal: ctrl.signal });
-                if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-
-                const total = Number(res.headers.get("content-length") || 0);
-                if (total) st.totalEl.textContent = fmtBytes(total);
-
-                if (!res.body) throw new Error("ReadableStream not available");
-
-                st.statusEl.textContent = "downloading";
-
-                const reader = res.body.getReader();
-                let received = 0;
-
-                while (true) {
-                    const { done: rDone, value } = await reader.read();
-                    if (rDone) break;
-                    received += value.byteLength;
-
-                    st.recvEl.textContent = fmtBytes(received);
-                    if (total) st.prog.value = Math.min(100, (received / total) * 100);
-                }
-
-                st.prog.value = 100;
-                st.statusEl.textContent = "done";
-                st.statusEl.className = "ok";
-                done++;
-            } catch (e) {
-                st.statusEl.textContent = running ? ("failed: " + e.message) : "stopped";
-                st.statusEl.className = "bad";
-                failed++;
-            } finally {
-                st.timeEl.textContent = ((performance.now() - t0) / 1000).toFixed(1) + "s";
-                updateSummary();
-            }
-        }
-
-        async function workerLoop() {
-            while (running) {
-                const i = nextIndex++;
-                if (i > fileCount) return;
-
-                active++;
-                updateSummary();
-                await downloadOne(i);
-                active--;
-                updateSummary();
-            }
+        function addImg(src, counters, label) {
+            return new Promise((resolve) => {
+                const img = document.createElement("img");
+                img.src = src;
+                img.alt = label;
+                img.onload = () => resolve({ ok: true, label, src, img });
+                img.onerror = () => resolve({ ok: false, label, src, img });
+                el("imgGrid").appendChild(img);
+            }).then((r) => {
+                counters.loaded++;
+                if (!r.ok) counters.failed++;
+                el("lastEvent").textContent = `${r.ok ? "OK" : "FAIL"} img: ${r.label}`;
+                return r;
+            });
         }
 
         async function start() {
-            if (running) return;
-            running = true;
+            const s = settingsFromQueryOrDefaults();
+            const cb = mkCb();
 
-            // reset state
-            controllers.forEach(c => c.abort());
-            controllers = [];
-            nextIndex = 1;
-            active = 0;
-            done = 0;
-            failed = 0;
+            const counters = { loaded: 0, failed: 0, total: 0 };
 
-            // rebuild rows
-            rowsEl.innerHTML = "";
-            rowState.clear();
-            for (let i = 1; i <= fileCount; i++) makeRow(i);
+            // Build a realistic “site-like” mix:
+            const cssUrls = [];
+            for (let i = 1; i <= s.cssCount; i++) {
+                cssUrls.push({
+                    label: `style-${i}.css`,
+                    url: `/heavy-assets/css/style-${i}.css?size=${encodeURIComponent(s.cssSize)}&cache=${s.cache}&v=${cb}-${i}`
+                });
+            }
 
-            updateSummary();
+            const jsUrls = [
+                { label: "runtime.js", url: `/heavy-assets/js/runtime.js?size=180k&cache=${s.cache}&v=${cb}-rt` },
+                { label: "vendor.js", url: `/heavy-assets/js/vendor.js?size=${encodeURIComponent(s.vendorSize)}&cache=${s.cache}&v=${cb}-vd` },
+                { label: "app.js", url: `/heavy-assets/js/app.js?size=${encodeURIComponent(s.appSize)}&cache=${s.cache}&v=${cb}-ap` },
+            ];
 
-            // start workers
-            const workers = [];
-            for (let w = 0; w < parallel; w++) workers.push(workerLoop());
-            await Promise.allSettled(workers);
+            for (let i = 1; i <= s.jsCount; i++) {
+                const n = String(i).padStart(3, "0");
+                jsUrls.push({
+                    label: `chunk-${n}.js`,
+                    url: `/heavy-assets/js/chunk-${n}.js?size=${encodeURIComponent(s.jsSize)}&cache=${s.cache}&v=${cb}-${n}`
+                });
+            }
 
-            running = false;
-            updateSummary();
+            const imgUrls = [];
+            for (let i = 1; i <= s.imgCount; i++) {
+                const n = String(i).padStart(2, "0");
+                imgUrls.push({
+                    label: `img-${n}.svg`,
+                    url: `/heavy-assets/svg/img-${n}.svg?size=${encodeURIComponent(s.imgSize)}&cache=${s.cache}&v=${cb}-${n}`
+                });
+            }
+
+            counters.total = cssUrls.length + jsUrls.length + imgUrls.length;
+
+            el("statusLine").textContent = "Loading assets… open DevTools → Network to see the waterfall.";
+            updateSummary(s, counters);
+
+            // Start CSS first (affects render), then JS, then images.
+            // We intentionally do NOT await each sequentially; we allow concurrency like real sites.
+            const tasks = [];
+
+            for (const c of cssUrls) tasks.push(addCss(c.url, counters, c.label).then(() => updateSummary(s, counters)));
+            for (const j of jsUrls) tasks.push(addScript(j.url, counters, j.label).then(() => updateSummary(s, counters)));
+            for (const im of imgUrls) tasks.push(addImg(im.url, counters, im.label).then(() => updateSummary(s, counters)));
+
+            await Promise.all(tasks);
+
+            el("statusLine").textContent = counters.failed === 0
+                ? "All assets loaded."
+                : `Loaded with some failures (failed=${counters.failed}).`;
+
+            updateSummary(s, counters);
         }
 
-        function stop() {
-            running = false;
-            controllers.forEach(c => c.abort());
-            controllers = [];
-            updateSummary();
-        }
+        el("startBtn").addEventListener("click", start);
+        el("reloadBtn").addEventListener("click", reloadWithSettings);
 
-        document.getElementById("startBtn").addEventListener("click", start);
-        document.getElementById("stopBtn").addEventListener("click", stop);
-
-        updateSummary();
-        if (autostart) start();
+        // Auto-start
+        settingsFromQueryOrDefaults();
+        start();
     </script>
+
 </body>
 
 </html>

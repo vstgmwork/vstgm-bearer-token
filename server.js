@@ -1118,6 +1118,186 @@ app.get("/heavy/file/:id", (req, res) => {
     streamFixedBytes(req, res, finalBytes);
 });
 
+// -----------------------------------------------------------------------------
+// Xfinity-style heavy page assets (large JS/CSS/SVG served with correct types)
+// -----------------------------------------------------------------------------
+// URLs:
+//   /heavy-assets/js/<name>.js?size=2m&cache=0
+//   /heavy-assets/css/<name>.css?size=500k&cache=0
+//   /heavy-assets/svg/<name>.svg?size=4m&cache=0
+//
+// NOTE: We generate "noisy" text (base64-like chars) to avoid compressing too well.
+// -----------------------------------------------------------------------------
+
+const HEAVY_ASSET_MAX_BYTES = Number(process.env.HEAVY_ASSET_MAX_BYTES || "25000000"); // 25MB per asset cap
+
+const B64_ALPHABET = Buffer.from("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+
+function sanitizeName(s) {
+    return String(s || "").replace(/[^0-9A-Za-z._-]/g, "_").slice(0, 120);
+}
+
+// Parse size like: 500k, 2m, 1g, or raw bytes "12345"
+function parseSizeParam(spec, defaultBytes) {
+    if (!spec) return defaultBytes;
+    const s = String(spec).trim();
+
+    const m = s.match(/^(\d+)([kmg])b?$/i);
+    if (m) {
+        const n = parseInt(m[1], 10);
+        const u = m[2].toLowerCase();
+        const mult = u === "k" ? 1_000 : u === "m" ? 1_000_000 : 1_000_000_000;
+        return n * mult;
+    }
+
+    const asNum = Number(s);
+    if (Number.isFinite(asNum)) return Math.floor(asNum);
+
+    return defaultBytes;
+}
+
+// Small non-crypto hash -> seed
+function seedFromString(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+}
+
+// Xorshift32 PRNG
+function xorshift32(x) {
+    x ^= (x << 13); x >>>= 0;
+    x ^= (x >>> 17); x >>>= 0;
+    x ^= (x << 5); x >>>= 0;
+    return x >>> 0;
+}
+
+// Fill buffer with "random-looking" base64 alphabet chars (good for big text + low compression)
+function fillNoise(buf, seed) {
+    let x = seed >>> 0;
+    for (let i = 0; i < buf.length; i++) {
+        x = xorshift32(x);
+        buf[i] = B64_ALPHABET[x & 63];
+    }
+    return x >>> 0;
+}
+
+function cacheHeaders(req, res) {
+    const cache = String(req.query.cache || "0") === "1";
+    if (cache) {
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    } else {
+        // no-transform discourages intermediary compression/transforms (may or may not be honored)
+        res.setHeader("Cache-Control", "no-store, no-transform");
+    }
+}
+
+function streamLargeText(req, res, contentType, totalBytes, prefixStr, suffixStr, seed) {
+    const prefix = Buffer.from(prefixStr, "utf8");
+    const suffix = Buffer.from(suffixStr, "utf8");
+
+    const minBytes = prefix.length + suffix.length;
+    let finalBytes = Math.max(totalBytes, minBytes);
+
+    if (finalBytes > HEAVY_ASSET_MAX_BYTES) {
+        return res.status(413).send(`Asset too large. Max is ${HEAVY_ASSET_MAX_BYTES} bytes. (Set HEAVY_ASSET_MAX_BYTES to change.)`);
+    }
+
+    cacheHeaders(req, res);
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Length", String(finalBytes));
+    res.setHeader("X-Content-Type-Options", "nosniff");
+
+    // Stream: prefix + noise + suffix
+    let remaining = finalBytes - prefix.length - suffix.length;
+    let stopped = false;
+
+    req.on("close", () => { stopped = true; });
+
+    res.write(prefix);
+
+    const CHUNK_SIZE = 64 * 1024;
+    const chunk = Buffer.alloc(Math.min(CHUNK_SIZE, Math.max(1, remaining)));
+    let state = seed >>> 0;
+
+    function pump() {
+        if (stopped || res.writableEnded || res.destroyed) return;
+
+        if (remaining <= 0) {
+            res.end(suffix);
+            return;
+        }
+
+        const size = Math.min(chunk.length, remaining);
+        const view = chunk.subarray(0, size);
+
+        state = fillNoise(view, state);
+
+        const ok = res.write(view);
+        remaining -= size;
+
+        if (!ok) res.once("drain", pump);
+        else setImmediate(pump);
+    }
+
+    pump();
+}
+
+// JS bundles
+app.get("/heavy-assets/js/:name", (req, res) => {
+    const name = sanitizeName(req.params.name);
+    const size = parseSizeParam(req.query.size, 2_000_000); // default 2MB
+    const seed = seedFromString("js:" + name);
+
+    const prefix =
+        `/* heavy-js: ${name} */\n` +
+        `(window.__heavyAssets=window.__heavyAssets||{js:[],css:[],img:[]}).js.push(${JSON.stringify(name)});\n` +
+        `/*`;
+
+    const suffix = `*/\n`;
+
+    streamLargeText(req, res, "application/javascript; charset=utf-8", size, prefix, suffix, seed);
+});
+
+// CSS bundles
+app.get("/heavy-assets/css/:name", (req, res) => {
+    const name = sanitizeName(req.params.name);
+    const size = parseSizeParam(req.query.size, 500_000); // default 500KB
+    const seed = seedFromString("css:" + name);
+
+    const prefix =
+        `/* heavy-css: ${name} */\n` +
+        `:root{--heavy-css-${name.replace(/[^a-zA-Z0-9]/g, "")}:1;}\n` +
+        `/*`;
+
+    const suffix = `*/\n`;
+
+    streamLargeText(req, res, "text/css; charset=utf-8", size, prefix, suffix, seed);
+});
+
+// SVG images (valid images, large file sizes)
+app.get("/heavy-assets/svg/:name", (req, res) => {
+    const name = sanitizeName(req.params.name);
+    const size = parseSizeParam(req.query.size, 4_000_000); // default 4MB
+    const seed = seedFromString("svg:" + name);
+
+    const prefix =
+        `<?xml version="1.0" encoding="UTF-8"?>\n` +
+        `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">\n` +
+        `  <rect width="100%" height="100%" fill="#111827"/>\n` +
+        `  <text x="40" y="90" fill="#e5e7eb" font-family="Arial" font-size="54">Heavy SVG: ${name}</text>\n` +
+        `  <text x="40" y="140" fill="#9ca3af" font-family="Arial" font-size="22">/heavy-assets/svg/${name}?size=${size}</text>\n` +
+        `  <!--`;
+
+    const suffix =
+        `  -->\n</svg>\n`;
+
+    streamLargeText(req, res, "image/svg+xml; charset=utf-8", size, prefix, suffix, seed);
+});
+
 // Catch-all route (move this to the end)
 app.all("*", (req, res) => {
     res.status(400).send("Invalid route");
