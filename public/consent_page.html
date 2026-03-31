@@ -88,27 +88,32 @@
 
         let scriptsInitialized = false; // Flag to prevent the init function from running multiple times
 
-        // This function loads the external script and then runs your init() function
+        // This function loads the local utag.js wrapper and then runs your init() function
         function loadAndInitScripts() {
             console.log("Consent given. Loading scripts...");
 
-            // 1. Create the external script element
-            const externalScript = document.createElement('script');
-            externalScript.src = 'https://cpqa.catchpoint.com/jp/237218/v4.0.9/InitialLoadScript.js';
-            externalScript.defer = true;
+            if (document.querySelector('script[data-local-utag="true"]')) {
+                init();
+                return;
+            }
 
-            // This logic runs your init() function AFTER the external script has loaded
+            // This logic runs your init() function AFTER the wrapper script has loaded
             const runInitLogic = () => {
                 // Attempt to initialize immediately on script load
                 init();
                 // Also listen for the custom event, in case the script isn't ready right away
-                window.addEventListener("GlimpseLoaded", init);
+                window.addEventListener("GlimpseLoaded", init, { once: true });
             };
 
-            externalScript.onload = runInitLogic;
+            // 1. Create the local utag.js script element
+            const utagScript = document.createElement('script');
+            utagScript.src = '/utag.js';
+            utagScript.defer = true;
+            utagScript.dataset.localUtag = 'true';
+            utagScript.onload = runInitLogic;
 
-            // Add the script to the page to trigger the download
-            document.head.appendChild(externalScript);
+            // Add the wrapper script to the page to trigger the download
+            document.head.appendChild(utagScript);
         }
 
         // Define your init function
