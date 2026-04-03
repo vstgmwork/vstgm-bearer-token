@@ -1,9 +1,11 @@
 const express = require("express");
+const crypto = require("crypto");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json()); // for parsing application/json
+app.use(express.urlencoded({ extended: false }));
 
 // -----------------------------------------------------------------------------
 // Static files
@@ -236,6 +238,118 @@ app.get("/delayed600", rateLimitMiddleware);
 
 // Secret key for generating and verifying tokens
 const SECRET_KEY = "YOUR-SECRET-KEY";
+const COOKIE_DOWNLOAD_COOKIE_NAME = "vstgm_gt";
+const COOKIE_DOWNLOAD_FILE_NAME = "TestFile-1MB.txt";
+const COOKIE_DOWNLOAD_MARKER = "trust-but-verify";
+const COOKIE_DOWNLOAD_BYTES = 1_000_000;
+const COOKIE_DOWNLOAD_REQUEST_TOKEN_TTL_MS = 2 * 60 * 1000;
+const cookieDownloadRequestTokens = new Map();
+
+function cleanupCookieDownloadRequestTokens() {
+    const now = Date.now();
+
+    for (const [requestToken, info] of cookieDownloadRequestTokens.entries()) {
+        if (!info || info.expiresAt <= now) {
+            cookieDownloadRequestTokens.delete(requestToken);
+        }
+    }
+}
+
+function issueCookieDownloadRequestToken(cookieToken) {
+    cleanupCookieDownloadRequestTokens();
+
+    const requestToken = crypto.randomBytes(24).toString("hex");
+    cookieDownloadRequestTokens.set(requestToken, {
+        cookieToken,
+        expiresAt: Date.now() + COOKIE_DOWNLOAD_REQUEST_TOKEN_TTL_MS
+    });
+
+    return requestToken;
+}
+
+function consumeCookieDownloadRequestToken(requestToken, cookieToken) {
+    cleanupCookieDownloadRequestTokens();
+
+    if (!requestToken) return false;
+
+    const info = cookieDownloadRequestTokens.get(requestToken);
+    if (!info) return false;
+
+    cookieDownloadRequestTokens.delete(requestToken);
+    return info.cookieToken === cookieToken;
+}
+
+function buildCookieDownloadFileBuffer() {
+    const buffer = Buffer.alloc(COOKIE_DOWNLOAD_BYTES, 65); // 'A'
+    const marker = Buffer.from(`${COOKIE_DOWNLOAD_MARKER}\n`, "utf8");
+
+    marker.copy(buffer, 0);
+    marker.copy(buffer, Math.min(64 * 1024, buffer.length - marker.length));
+    marker.copy(buffer, Math.min(512 * 1024, buffer.length - marker.length));
+
+    return buffer;
+}
+
+const cookieDownloadFileBuffer = buildCookieDownloadFileBuffer();
+
+const authenticateCookieDownloadToken = (req, res, next) => {
+    const cookieToken = getCookie(req, COOKIE_DOWNLOAD_COOKIE_NAME);
+
+    if (!cookieToken) {
+        return res.status(401).json({
+            error: "Missing authentication cookie",
+            cookieName: COOKIE_DOWNLOAD_COOKIE_NAME
+        });
+    }
+
+    jwt.verify(cookieToken, SECRET_KEY, (err, user) => {
+        if (err) {
+            return res.status(403).json({
+                error: "Invalid or expired authentication cookie",
+                cookieName: COOKIE_DOWNLOAD_COOKIE_NAME
+            });
+        }
+
+        req.downloadCookieToken = cookieToken;
+        req.user = user;
+        next();
+    });
+};
+
+app.get("/cookie-download", (req, res) => {
+    res.redirect("/cookie-download/folder/0");
+});
+
+app.get("/cookie-download/folder/0", (req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, "cookie_download.html"));
+});
+
+app.post("/cookie-download/tokens", authenticateCookieDownloadToken, (req, res) => {
+    const requestToken = issueCookieDownloadRequestToken(req.downloadCookieToken);
+
+    res.json({
+        marker: COOKIE_DOWNLOAD_MARKER,
+        requestToken,
+        cookieName: COOKIE_DOWNLOAD_COOKIE_NAME,
+        fileName: COOKIE_DOWNLOAD_FILE_NAME,
+        downloadPath: "/cookie-download/file/1mb"
+    });
+});
+
+app.post("/cookie-download/file/1mb", authenticateCookieDownloadToken, (req, res) => {
+    const requestToken = String(req.body.request_token || "");
+    const isValidRequestToken = consumeCookieDownloadRequestToken(requestToken, req.downloadCookieToken);
+
+    if (!isValidRequestToken) {
+        return res.status(403).type("text/plain").send("Invalid request token");
+    }
+
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="${COOKIE_DOWNLOAD_FILE_NAME}"`);
+    res.setHeader("Content-Length", String(cookieDownloadFileBuffer.length));
+    res.setHeader("Cache-Control", "no-store");
+    res.send(cookieDownloadFileBuffer);
+});
 
 // Redirect the page N number of times
 app.get('/redirect/:count', (req, res) => {
