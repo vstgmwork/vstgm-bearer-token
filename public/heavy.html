@@ -177,7 +177,7 @@
 
         function settingsFromInputs() {
             return {
-                jsCount: clampInt(el("jsCount").value, 35, 0, 200),
+                jsCount: clampInt(el("jsCount").value, 35, 0, 600),
                 jsSize: el("jsSize").value.trim() || "1500k",
                 vendorSize: el("vendorSize").value.trim() || "6m",
                 appSize: el("appSize").value.trim() || "3m",
@@ -223,7 +223,7 @@
             el("cache").value = s.cache;
 
             // Normalize ints
-            s.jsCount = clampInt(s.jsCount, 35, 0, 200);
+            s.jsCount = clampInt(s.jsCount, 35, 0, 600);
             s.cssCount = clampInt(s.cssCount, 5, 0, 50);
             s.imgCount = clampInt(s.imgCount, 12, 0, 80);
 
