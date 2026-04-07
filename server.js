@@ -67,7 +67,7 @@ const getTokenPreview = (token) => {
     }
 
     const trimmedToken = token.trim();
-    return trimmedToken ? trimmedToken.slice(0, 5) : null;
+    return trimmedToken ? trimmedToken.slice(-5) : null;
 };
 
 const pickFirstDefined = (...values) => {
