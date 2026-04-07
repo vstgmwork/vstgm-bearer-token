@@ -1,5 +1,6 @@
 const express = require("express");
 const crypto = require("crypto");
+const fs = require("fs");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 
@@ -12,13 +13,9 @@ app.use(express.urlencoded({ extended: false }));
 // -----------------------------------------------------------------------------
 // After moving everything from ./views -> ./public, serve *everything* from here.
 const PUBLIC_DIR = path.join(__dirname, "public");
-
-// Optional backwards compatibility: if anything still requests /views/<file>,
-// serve that file from /public.
-app.use("/views", express.static(PUBLIC_DIR));
-
-// Serve static assets (including index.html, moved HTML pages, images, etc.)
-app.use(express.static(PUBLIC_DIR));
+const INDEX_HTML_PATH = path.join(PUBLIC_DIR, "index.html");
+const INDEX_HTML_PLACEHOLDER = "<!-- VSTGM_PAGE_CONTEXT_SCRIPT -->";
+const INDEX_HTML_TEMPLATE = fs.readFileSync(INDEX_HTML_PATH, "utf8");
 
 let attemptCount = 0;
 
@@ -57,6 +54,117 @@ const errorMessages = [
     "Connectivity issue. Please check your internet connection and try again."
 ];
 
+const RPROFILER_LOCALES = ["af", "ax", "al", "dz", "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "au", "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm", "bt", "bo", "bq", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi", "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc", "co", "km", "cg", "cd", "ck", "cr", "ci", "hr", "cu", "cw", "cy", "cz", "dk", "dj", "dm", "do", "ec", "eg", "sv", "gq", "er", "ee", "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm", "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gg", "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in", "id", "ir", "iq", "ie", "im", "il", "it", "jm", "jp", "je", "jo", "kz", "ke", "ki", "kp", "kr", "kw", "kg", "la", "lv", "lb", "ls", "lr", "ly", "li", "lt", "lu", "mo", "mk", "mg", "mw", "my", "mv", "ml", "mt", "mh", "mq", "mr", "mu", "yt", "mx", "fm", "md", "mc", "mn", "me", "ms", "ma", "mz", "mm", "na", "nr", "np", "nl", "nc", "nz", "ni", "ne", "ng", "nu", "nf", "mp", "no", "om", "pk", "pw", "ps", "pa", "pg", "py", "pe", "ph", "pn", "pl", "pt", "pr", "qa", "re", "ro", "ru", "rw", "bl", "sh", "kn", "lc", "mf", "pm", "vc", "ws", "sm", "st", "sa", "sn", "rs", "sc", "sl", "sg", "sx", "sk", "si", "sb", "so", "za", "gs", "ss", "es", "lk", "sd", "sr", "sj", "sz", "se", "ch", "sy", "tw", "tj", "tz", "th", "tl", "tg", "tk", "to", "tt", "tn", "tr", "tm", "tc", "tv", "ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn", "vg", "vi", "wf", "eh", "ye", "zm", "zw"];
+
+const createPageContext = () => ({
+    locale: RPROFILER_LOCALES[Math.floor(Math.random() * RPROFILER_LOCALES.length)],
+    randNum: (Math.floor(Math.random() * 22) - 1) * 10
+});
+
+const getTokenPreview = (token) => {
+    if (typeof token !== "string") {
+        return null;
+    }
+
+    const trimmedToken = token.trim();
+    return trimmedToken ? trimmedToken.slice(0, 5) : null;
+};
+
+const pickFirstDefined = (...values) => {
+    for (const value of values) {
+        if (value === undefined || value === null) {
+            continue;
+        }
+
+        const normalizedValue = String(value).trim();
+        if (normalizedValue !== "") {
+            return normalizedValue;
+        }
+    }
+
+    return null;
+};
+
+const getRequestContext = (req) => {
+    const body = req.body && typeof req.body === "object" ? req.body : {};
+    const query = req.query && typeof req.query === "object" ? req.query : {};
+
+    return {
+        locale: pickFirstDefined(req.get("x-vstgm-locale"), body.locale, query.locale),
+        randNum: pickFirstDefined(req.get("x-vstgm-randnum"), body.randNum, query.randNum)
+    };
+};
+
+const getResolvedRequestContext = (req) => {
+    const requestContext = getRequestContext(req);
+    const fallbackContext = createPageContext();
+
+    return {
+        locale: requestContext.locale || fallbackContext.locale,
+        randNum: requestContext.randNum || String(fallbackContext.randNum)
+    };
+};
+
+const applyResponseMetadata = (res, metadata) => {
+    const nextMetadata = {
+        ...(res.locals.responseMetadata || {})
+    };
+
+    for (const [key, value] of Object.entries(metadata)) {
+        if (value === undefined || value === null || value === "") {
+            continue;
+        }
+
+        const normalizedValue = String(value);
+        nextMetadata[key] = normalizedValue;
+        res.set(key, normalizedValue);
+    }
+
+    res.locals.responseMetadata = nextMetadata;
+};
+
+const renderMetadataLog = (metadata) => {
+    const logParts = Object.entries(metadata || {})
+        .filter(([, value]) => value !== undefined && value !== null && value !== "")
+        .map(([key, value]) => `${key}=${value}`);
+
+    return logParts.length ? ` | ${logParts.join(" | ")}` : "";
+};
+
+const buildPageContextScript = (pageContext) => {
+    const serializedContext = JSON.stringify(pageContext);
+    return `
+    <script>
+        window.__vstgmPageContext = ${serializedContext};
+
+        function initVstgmRProfiler() {
+            var locale = window.__vstgmPageContext.locale;
+            var randNum = window.__vstgmPageContext.randNum;
+
+            if (window.RProfiler) {
+                window.RProfiler.addInfo("tracepoint", "locale", locale);
+                window.RProfiler.addInfo("indicator", "randnum", randNum);
+            }
+        }
+
+        window.getVstgmRequestHeaders = function (extraHeaders) {
+            return Object.assign({
+                "x-vstgm-locale": window.__vstgmPageContext.locale,
+                "x-vstgm-randnum": String(window.__vstgmPageContext.randNum)
+            }, extraHeaders || {});
+        };
+
+        window.RProfiler ? initVstgmRProfiler() : window.addEventListener("GlimpseLoaded", initVstgmRProfiler);
+    </script>`;
+};
+
+const renderIndexHtml = (pageContext) => {
+    return INDEX_HTML_TEMPLATE.replace(
+        INDEX_HTML_PLACEHOLDER,
+        buildPageContextScript(pageContext)
+    );
+};
+
 const generateHtmlForCode = (code) => {
     return `
     <!DOCTYPE html>
@@ -84,7 +192,7 @@ app.use((req, res, next) => {
     res.on('finish', () => {
         const d = new Date();
         console.log(
-            `${d.toLocaleString()} : ${req.method} - ${res.statusCode} - ${req.path} from ${req.ip}`
+            `${d.toLocaleString()} : ${req.method} - ${res.statusCode} - ${req.path} from ${req.ip}${renderMetadataLog(res.locals.responseMetadata)}`
         );
     });
 
@@ -94,6 +202,19 @@ app.use((req, res, next) => {
 // -----------------------------------------------------------------------------
 // Routes serving HTML pages (now from ./public)
 // -----------------------------------------------------------------------------
+
+app.get(["/", "/index.html"], (req, res) => {
+    const pageContext = createPageContext();
+    applyResponseMetadata(res, pageContext);
+    res.type("html").send(renderIndexHtml(pageContext));
+});
+
+// Optional backwards compatibility: if anything still requests /views/<file>,
+// serve that file from /public.
+app.use("/views", express.static(PUBLIC_DIR));
+
+// Serve static assets (including moved HTML pages, images, etc.)
+app.use(express.static(PUBLIC_DIR));
 
 // Route for the XHR flood test page
 app.get("/xhrflood", (req, res) => {
@@ -369,12 +490,16 @@ app.get('/redirect/:count', (req, res) => {
     }, 1000); // 1-second delay before redirecting
 });
 
-// Route to generate a token
-app.post("/generate", (req, res) => {
-    const expiresIn = "60m"; // Token validity
+const sendGeneratedTokenResponse = (req, res, expiresIn, durationMs) => {
+    const requestContext = getResolvedRequestContext(req);
     const token = jwt.sign({}, SECRET_KEY, { expiresIn });
     const issuedAt = new Date();
     const utcTime = issuedAt.toISOString();
+
+    applyResponseMetadata(res, {
+        ...requestContext,
+        token: getTokenPreview(token)
+    });
 
     res.set("Authorization", `Bearer ${token}`);
     res.set("utctime", utcTime);
@@ -382,57 +507,37 @@ app.post("/generate", (req, res) => {
     res.json({
         token,
         issuedAt: utcTime,
-        expiresIn, // Displaying validity as a string (e.g., "60m")
-        expiresAt: new Date(issuedAt.getTime() + 60 * 60 * 1000).toISOString(), // Optional: exact expiry time
+        expiresIn,
+        expiresAt: new Date(issuedAt.getTime() + durationMs).toISOString(),
     });
+};
+
+// Route to generate a token
+app.post("/generate", (req, res) => {
+    sendGeneratedTokenResponse(req, res, "60m", 60 * 60 * 1000);
 });
 
 // Route to generate a token valid for 1 week (7 days)
 app.post("/generate/week", (req, res) => {
-    const expiresIn = "7d";
-    const token = jwt.sign({}, SECRET_KEY, { expiresIn });
-    const issuedAt = new Date();
-    const utcTime = issuedAt.toISOString();
-
-    res.set("Authorization", `Bearer ${token}`);
-    res.set("utctime", utcTime);
-
     const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-
-    res.json({
-        token,
-        issuedAt: utcTime,
-        expiresIn,
-        expiresAt: new Date(issuedAt.getTime() + WEEK_MS).toISOString(),
-    });
+    sendGeneratedTokenResponse(req, res, "7d", WEEK_MS);
 });
 
 // Route to generate a token valid for ~1 month (30 days)
 app.post("/generate/month", (req, res) => {
-    const expiresIn = "30d";
-    const token = jwt.sign({}, SECRET_KEY, { expiresIn });
-    const issuedAt = new Date();
-    const utcTime = issuedAt.toISOString();
-
-    res.set("Authorization", `Bearer ${token}`);
-    res.set("utctime", utcTime);
-
     const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
-
-    res.json({
-        token,
-        issuedAt: utcTime,
-        expiresIn,
-        expiresAt: new Date(issuedAt.getTime() + MONTH_MS).toISOString(),
-    });
+    sendGeneratedTokenResponse(req, res, "30d", MONTH_MS);
 });
 
 app.get("/generate", (req, res) => {
+    const pageContext = createPageContext();
+    applyResponseMetadata(res, pageContext);
     res.send(`
     <!DOCTYPE html>
     <html>
     <head>
       <script defer src='https://qaportal.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
+      ${buildPageContextScript(pageContext)}
       <title>Token Generator</title>
     </head>
     <body>
@@ -444,19 +549,28 @@ app.get("/generate", (req, res) => {
 
       <script>
         async function generateToken() {
-          const res = await fetch("/generate", { method: "POST" });
+          const res = await fetch("/generate", {
+            method: "POST",
+            headers: window.getVstgmRequestHeaders()
+          });
           const data = await res.json();
           document.getElementById("result").textContent = JSON.stringify(data, null, 2);
         }
 
         async function generateTokenWeek() {
-          const res = await fetch("/generate/week", { method: "POST" });
+          const res = await fetch("/generate/week", {
+            method: "POST",
+            headers: window.getVstgmRequestHeaders()
+          });
           const data = await res.json();
           document.getElementById("result").textContent = JSON.stringify(data, null, 2);
         }
 
         async function generateTokenMonth() {
-          const res = await fetch("/generate/month", { method: "POST" });
+          const res = await fetch("/generate/month", {
+            method: "POST",
+            headers: window.getVstgmRequestHeaders()
+          });
           const data = await res.json();
           document.getElementById("result").textContent = JSON.stringify(data, null, 2);
         }
@@ -471,6 +585,12 @@ app.get("/generate", (req, res) => {
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
+    const requestContext = getResolvedRequestContext(req);
+
+    applyResponseMetadata(res, {
+        ...requestContext,
+        token: getTokenPreview(token)
+    });
 
     if (null == token || undefined == token) return res.sendStatus(401); // If there isn't any token or showing as undefined
 
@@ -489,11 +609,14 @@ app.post("/authenticate", authenticateToken, (req, res) => {
 });
 
 app.get("/authenticate", (req, res) => {
+    const pageContext = createPageContext();
+    applyResponseMetadata(res, pageContext);
     res.send(`
     <!DOCTYPE html>
     <html>
     <head>
       <script defer src='https://qaportal.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
+      ${buildPageContextScript(pageContext)}
       <title>Token Authenticator</title>
     </head>
     <body>
@@ -507,9 +630,9 @@ app.get("/authenticate", (req, res) => {
           const token = document.getElementById("token").value.trim();
           const res = await fetch("/authenticate", {
             method: "POST",
-            headers: {
+            headers: window.getVstgmRequestHeaders({
               "Authorization": "Bearer " + token
-            }
+            })
           });
 
           const resultText = res.status === 200
