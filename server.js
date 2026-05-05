@@ -306,6 +306,180 @@ app.get("/simulatedl", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "simulateDL.html"));
 });
 
+const SEQUENCE_LOAD_MAX_BYTES = 100_000_000;
+const SEQUENCE_LOAD_MAX_COUNT = 25;
+const SEQUENCE_LOAD_CHUNK_SIZE = 256 * 1024;
+const SEQUENCE_LOAD_CHUNK = Buffer.alloc(SEQUENCE_LOAD_CHUNK_SIZE, 65);
+
+function normalizeSequenceLoadType(type) {
+    const value = String(type || "").trim().toLowerCase();
+    if (value === "js" || value === "javascript" || value === "script") return "js";
+    if (value === "image" || value === "img" || value === "svg") return "image";
+    return null;
+}
+
+function validateSequenceLoadSize(size) {
+    const parsedSize = parseDownloadSizeSpec(size);
+    if (!parsedSize.ok) return parsedSize;
+    if (parsedSize.bytes > SEQUENCE_LOAD_MAX_BYTES) {
+        return {
+            ok: false,
+            error: "Sequential asset load supports files up to 100m."
+        };
+    }
+
+    return parsedSize;
+}
+
+function validateSequenceLoadCount(countValue) {
+    const count = parseInt(countValue, 10);
+    if (!Number.isFinite(count) || count <= 0) {
+        return {
+            ok: false,
+            error: "Invalid count. Use /sequence-load/js/8m/3 or /sequence-load/image/7k/2"
+        };
+    }
+
+    if (count > SEQUENCE_LOAD_MAX_COUNT) {
+        return {
+            ok: false,
+            error: `Count too large. Max supported sequential count is ${SEQUENCE_LOAD_MAX_COUNT}.`
+        };
+    }
+
+    return { ok: true, count };
+}
+
+function streamSequenceLoadAsset(req, res, options) {
+    const prefix = Buffer.from(options.prefix, "utf8");
+    const suffix = Buffer.from(options.suffix, "utf8");
+    const totalBytes = options.totalBytes;
+
+    if (totalBytes < prefix.length + suffix.length) {
+        return res.status(400).type("text/plain").send("Requested size is too small for this asset type.");
+    }
+
+    res.setHeader("Content-Type", options.contentType);
+    res.setHeader("Content-Length", String(totalBytes));
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Sequence-Load-Type", options.assetType);
+    res.setHeader("X-Sequence-Load-Index", String(options.index));
+
+    let remaining = totalBytes - prefix.length - suffix.length;
+    let stopped = false;
+
+    req.on("close", () => { stopped = true; });
+
+    res.write(prefix);
+
+    function pump() {
+        if (stopped || res.writableEnded || res.destroyed) return;
+
+        if (remaining <= 0) {
+            res.end(suffix);
+            return;
+        }
+
+        const size = Math.min(SEQUENCE_LOAD_CHUNK.length, remaining);
+        const ok = res.write(SEQUENCE_LOAD_CHUNK.subarray(0, size));
+        remaining -= size;
+
+        if (!ok) {
+            res.once("drain", pump);
+        } else {
+            setImmediate(pump);
+        }
+    }
+
+    pump();
+}
+
+app.get("/sequence-load", (req, res) => {
+    res.redirect("/sequence-load/js/8m/3");
+});
+
+app.get("/sequence-download", (req, res) => {
+    res.redirect("/sequence-load/js/8m/3");
+});
+
+app.get("/sequence-download/:size/:count", (req, res) => {
+    res.redirect(`/sequence-load/js/${encodeURIComponent(req.params.size)}/${encodeURIComponent(req.params.count)}`);
+});
+
+app.get("/sequence-load/:type/:size/:count", (req, res) => {
+    const assetType = normalizeSequenceLoadType(req.params.type);
+    if (!assetType) {
+        return res.status(400).type("text/plain").send("Invalid type. Use js or image.");
+    }
+
+    const parsedSize = parseDownloadSizeSpec(req.params.size);
+    if (!parsedSize.ok) {
+        return res.status(400).type("text/plain").send(parsedSize.error);
+    }
+
+    const parsedCount = validateSequenceLoadCount(req.params.count);
+    if (!parsedCount.ok) {
+        return res.status(400).type("text/plain").send(parsedCount.error);
+    }
+
+    if (parsedSize.bytes > SEQUENCE_LOAD_MAX_BYTES) {
+        return res.status(400).type("text/plain").send("Sequential asset load supports files up to 100m.");
+    }
+
+    res.sendFile(path.join(PUBLIC_DIR, "sequential_load.html"));
+});
+
+app.get("/sequence-load/asset/js/:size/:index", (req, res) => {
+    const parsedSize = validateSequenceLoadSize(req.params.size);
+    if (!parsedSize.ok) {
+        return res.status(400).type("text/plain").send(parsedSize.error);
+    }
+
+    const index = Math.max(1, parseInt(req.params.index, 10) || 1);
+    const prefix = [
+        `window.__vstgmSequenceLoads = window.__vstgmSequenceLoads || [];`,
+        `window.__vstgmSequenceLoads.push({ type: "js", size: "${parsedSize.label}", index: ${index}, loadedAt: Date.now() });`,
+        `/*`
+    ].join("\n");
+
+    streamSequenceLoadAsset(req, res, {
+        assetType: "js",
+        contentType: "application/javascript; charset=utf-8",
+        index,
+        prefix,
+        suffix: "\n*/\n",
+        totalBytes: parsedSize.bytes
+    });
+});
+
+app.get("/sequence-load/asset/image/:size/:index", (req, res) => {
+    const parsedSize = validateSequenceLoadSize(req.params.size);
+    if (!parsedSize.ok) {
+        return res.status(400).type("text/plain").send(parsedSize.error);
+    }
+
+    const index = Math.max(1, parseInt(req.params.index, 10) || 1);
+    const prefix = [
+        `<?xml version="1.0" encoding="UTF-8"?>`,
+        `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">`,
+        `<rect width="640" height="360" fill="#eef3fb"/>`,
+        `<rect x="24" y="24" width="592" height="312" rx="10" fill="#ffffff" stroke="#0f62fe" stroke-width="3"/>`,
+        `<text x="48" y="128" fill="#122033" font-family="Arial, sans-serif" font-size="34" font-weight="700">Sequential image ${index}</text>`,
+        `<text x="48" y="178" fill="#516072" font-family="Arial, sans-serif" font-size="22">size=${parsedSize.label}, bytes=${parsedSize.bytes}</text>`,
+        `<!--`
+    ].join("\n");
+
+    streamSequenceLoadAsset(req, res, {
+        assetType: "image",
+        contentType: "image/svg+xml; charset=utf-8",
+        index,
+        prefix,
+        suffix: "\n-->\n</svg>\n",
+        totalBytes: parsedSize.bytes
+    });
+});
+
 app.get("/mealplanner", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "meal_planner.html"));
 });

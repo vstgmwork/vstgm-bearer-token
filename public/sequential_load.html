@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sequential Asset Load Test</title>
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --panel: #ffffff;
+            --line: #d6dfeb;
+            --ink: #122033;
+            --muted: #516072;
+            --accent: #0f62fe;
+            --accent-dark: #0b4ed1;
+            --console: #0f172a;
+            --console-text: #dbeafe;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 32px;
+            background: var(--bg);
+            color: var(--ink);
+        }
+
+        .shell {
+            max-width: 1040px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 10px 24px rgba(18, 32, 51, 0.08);
+            padding: 24px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .metric {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 14px;
+            background: #fbfdff;
+        }
+
+        .metric-label {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #ffffff;
+            font-weight: 700;
+            padding: 12px 18px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--accent-dark);
+        }
+
+        button:disabled {
+            background: #90a4c2;
+            cursor: wait;
+        }
+
+        code {
+            background: #eef3fb;
+            border-radius: 6px;
+            padding: 2px 6px;
+        }
+
+        #statusBox {
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 8px;
+            background: var(--console);
+            color: var(--console-text);
+            white-space: pre-wrap;
+            min-height: 170px;
+            overflow: auto;
+        }
+
+        #assetMount {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .asset-card {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fbfdff;
+            padding: 12px;
+            min-height: 72px;
+        }
+
+        .asset-card img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid var(--line);
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 18px;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+        <div class="panel">
+            <h1>Sequential Asset Load Test</h1>
+            <p class="muted">
+                Path format: <code>/sequence-load/:type/:size/:count</code>.
+                Examples: <code>/sequence-load/js/8m/3</code> and <code>/sequence-load/image/7k/2</code>.
+            </p>
+
+            <div class="summary">
+                <div class="metric">
+                    <div class="metric-label">Asset type</div>
+                    <div class="metric-value" id="assetTypeValue">-</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Asset size</div>
+                    <div class="metric-value" id="assetSizeValue">-</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Repeat count</div>
+                    <div class="metric-value" id="assetCountValue">-</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button type="button" id="startBtn">Start load sequence</button>
+                <span class="muted">Each request starts after the previous asset finishes loading.</span>
+            </div>
+
+            <div id="statusBox">Preparing sequential asset load test...</div>
+            <div id="assetMount"></div>
+        </div>
+    </div>
+
+    <script>
+        const statusBox = document.getElementById("statusBox");
+        const assetMount = document.getElementById("assetMount");
+        const startBtn = document.getElementById("startBtn");
+        const assetTypeValue = document.getElementById("assetTypeValue");
+        const assetSizeValue = document.getElementById("assetSizeValue");
+        const assetCountValue = document.getElementById("assetCountValue");
+
+        function setStatus(message) {
+            statusBox.textContent = message;
+        }
+
+        function appendStatus(message) {
+            statusBox.textContent += `\n${message}`;
+            statusBox.scrollTop = statusBox.scrollHeight;
+        }
+
+        function normalizeType(type) {
+            const value = String(type || "").trim().toLowerCase();
+            if (value === "js" || value === "javascript" || value === "script") return "js";
+            if (value === "image" || value === "img" || value === "svg") return "image";
+            return null;
+        }
+
+        function parseRouteConfig() {
+            const match = window.location.pathname.match(/^\/sequence-load\/([^/]+)\/([^/]+)\/([^/]+)$/);
+            if (!match) {
+                throw new Error("Invalid path. Use /sequence-load/js/8m/3 or /sequence-load/image/7k/2");
+            }
+
+            const type = normalizeType(decodeURIComponent(match[1]));
+            const size = decodeURIComponent(match[2]).trim().toLowerCase();
+            const count = parseInt(decodeURIComponent(match[3]), 10);
+
+            if (!type) {
+                throw new Error("Type must be js or image.");
+            }
+
+            if (!Number.isFinite(count) || count <= 0) {
+                throw new Error("Count must be a positive integer.");
+            }
+
+            return { type, size, count };
+        }
+
+        function assetUrl(config, iteration) {
+            const typePath = config.type === "js" ? "js" : "image";
+            return `/sequence-load/asset/${typePath}/${encodeURIComponent(config.size)}/${iteration}`;
+        }
+
+        function createAssetCard(title, detail) {
+            const card = document.createElement("div");
+            card.className = "asset-card";
+            card.innerHTML = `<strong>${title}</strong><div class="muted">${detail}</div>`;
+            assetMount.appendChild(card);
+            return card;
+        }
+
+        function loadJsAsset(url, iteration) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement("script");
+                const card = createAssetCard(`JS ${iteration}`, url);
+
+                script.async = false;
+                script.src = url;
+                script.onload = () => {
+                    card.insertAdjacentHTML("beforeend", `<div>Loaded</div>`);
+                    resolve();
+                };
+                script.onerror = () => reject(new Error(`JS asset ${iteration} failed to load.`));
+                document.head.appendChild(script);
+            });
+        }
+
+        function loadImageAsset(url, iteration) {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                const card = createAssetCard(`Image ${iteration}`, url);
+
+                image.onload = () => {
+                    card.appendChild(image);
+                    resolve();
+                };
+                image.onerror = () => reject(new Error(`Image asset ${iteration} failed to load.`));
+                image.alt = `Sequential image ${iteration}`;
+                image.src = url;
+            });
+        }
+
+        async function loadAsset(config, iteration) {
+            const url = assetUrl(config, iteration);
+            appendStatus(`Starting ${iteration} of ${config.count}: ${url}`);
+
+            const startedAt = performance.now();
+            if (config.type === "js") {
+                await loadJsAsset(url, iteration);
+            } else {
+                await loadImageAsset(url, iteration);
+            }
+
+            const elapsedMs = Math.round(performance.now() - startedAt);
+            appendStatus(`Finished ${iteration} of ${config.count} in ${elapsedMs} ms`);
+        }
+
+        let runInProgress = false;
+
+        async function runSequence() {
+            if (runInProgress) {
+                return;
+            }
+
+            runInProgress = true;
+            startBtn.disabled = true;
+            assetMount.textContent = "";
+
+            try {
+                const config = parseRouteConfig();
+                setStatus(`Queued ${config.count} sequential ${config.type} asset load(s).`);
+
+                for (let iteration = 1; iteration <= config.count; iteration += 1) {
+                    await loadAsset(config, iteration);
+                }
+
+                appendStatus("All sequential assets loaded successfully.");
+            } catch (error) {
+                setStatus(`Sequential asset load failed: ${error.message}`);
+            } finally {
+                runInProgress = false;
+                startBtn.disabled = false;
+            }
+        }
+
+        startBtn.addEventListener("click", runSequence);
+
+        try {
+            const config = parseRouteConfig();
+            assetTypeValue.textContent = config.type;
+            assetSizeValue.textContent = config.size;
+            assetCountValue.textContent = String(config.count);
+            setStatus(`Ready to load ${config.count} ${config.type} asset(s), size ${config.size}, in sequence.`);
+            window.setTimeout(runSequence, 0);
+        } catch (error) {
+            setStatus(`Sequential asset load failed: ${error.message}`);
+        }
+    </script>
+</body>
+
+</html>
