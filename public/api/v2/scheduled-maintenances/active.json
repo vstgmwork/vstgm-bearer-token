@@ -1,0 +1,67 @@
+{
+  "page": {
+    "id": "vstgm-status",
+    "name": "VSTGM Demo Status",
+    "url": "https://www.vstgm.co.in",
+    "time_zone": "Asia/Kolkata",
+    "updated_at": "2026-05-06T09:00:00.000+05:30"
+  },
+  "scheduled_maintenances": [
+    {
+      "id": "maint-001",
+      "name": "Demo database maintenance",
+      "status": "in_progress",
+      "impact": "minor",
+      "scheduled_for": "2026-05-06T09:00:00.000+05:30",
+      "scheduled_until": "2026-05-06T10:00:00.000+05:30",
+      "created_at": "2026-05-05T18:00:00.000+05:30",
+      "updated_at": "2026-05-06T09:00:00.000+05:30",
+      "monitoring_at": null,
+      "resolved_at": null,
+      "incident_updates": [
+        {
+          "id": "update-001",
+          "status": "in_progress",
+          "body": "Demo maintenance is currently in progress.",
+          "created_at": "2026-05-06T09:00:00.000+05:30",
+          "updated_at": "2026-05-06T09:00:00.000+05:30"
+        }
+      ],
+      "components": [
+        {
+          "id": "component-001",
+          "name": "Demo API",
+          "status": "under_maintenance"
+        }
+      ]
+    },
+    {
+      "id": "maint-002",
+      "name": "Demo cache refresh",
+      "status": "scheduled",
+      "impact": "none",
+      "scheduled_for": "2026-05-06T11:00:00.000+05:30",
+      "scheduled_until": "2026-05-06T11:30:00.000+05:30",
+      "created_at": "2026-05-05T19:30:00.000+05:30",
+      "updated_at": "2026-05-05T19:30:00.000+05:30",
+      "monitoring_at": null,
+      "resolved_at": null,
+      "incident_updates": [
+        {
+          "id": "update-002",
+          "status": "scheduled",
+          "body": "Demo cache refresh is scheduled.",
+          "created_at": "2026-05-05T19:30:00.000+05:30",
+          "updated_at": "2026-05-05T19:30:00.000+05:30"
+        }
+      ],
+      "components": [
+        {
+          "id": "component-002",
+          "name": "Demo CDN",
+          "status": "operational"
+        }
+      ]
+    }
+  ]
+}
