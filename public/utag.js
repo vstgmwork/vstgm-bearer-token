@@ -2,7 +2,7 @@
     if (window.__catchpointUtagLoaded) return;
     window.__catchpointUtagLoaded = true;
 
-    var CATCHPOINT_SCRIPT_URL = "https://qaportal.catchpoint.com/jp/237218/latest/InitialLoadScript.js";
+    var CATCHPOINT_SCRIPT_URL = "https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js";
 
     function enablePageHide() {
         if (window.RProfiler && typeof window.RProfiler.usePageHide === "function") {

@@ -8,6 +8,6 @@
 
 Only the `/consent` page loads the local `/utag.js` wrapper.
 
-- `/utag.js` then loads `https://qaportal.catchpoint.com/jp/237218/latest/InitialLoadScript.js`
+- `/utag.js` then loads `https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js`
 - `pageHide` mode is enabled inside `public/utag.js`
 - Other pages are left as they were before

@@ -172,7 +172,7 @@ const generateHtmlForCode = (code) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <script defer src='qaportal.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
+      <script defer src='https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js'></script>
       <title>VSTGM Repro App - Status ${code}</title>
       <style>
         body { font-family: sans-serif; text-align: center; padding: 40px; }
@@ -261,7 +261,7 @@ app.get("/errorsim", (req, res) => {
   <!DOCTYPE html>
   <html lang="en">
   <head>
-  <script defer src='https://qaportal.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
+  <script defer src='https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js'></script>
     <meta charset="UTF-8">
     <title>Error</title>
     <style>
@@ -655,7 +655,7 @@ app.get('/redirect/:count', (req, res) => {
     }
 
     if (count === 0) {
-        return res.send(`<html><head><script defer src='https://qaportal.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script></head><body><h1>Redirection completed ${req.query.originalCount} times</h1></body></html>`);
+        return res.send(`<html><head><script defer src='https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js'></script></head><body><h1>Redirection completed ${req.query.originalCount} times</h1></body></html>`);
     }
 
     const originalCount = req.query.originalCount || count;
@@ -710,7 +710,7 @@ app.get("/generate", (req, res) => {
     <!DOCTYPE html>
     <html>
     <head>
-      <script defer src='https://qaportal.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
+      <script defer src='https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js'></script>
       ${buildPageContextScript(pageContext)}
       <title>Token Generator</title>
     </head>
@@ -789,7 +789,7 @@ app.get("/authenticate", (req, res) => {
     <!DOCTYPE html>
     <html>
     <head>
-      <script defer src='https://qaportal.catchpoint.com/jp/237218/latest/InitialLoadScript.js'></script>
+      <script defer src='https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js'></script>
       ${buildPageContextScript(pageContext)}
       <title>Token Authenticator</title>
     </head>
