@@ -228,6 +228,21 @@
                 description: "Returns a JSON object echoing the word provided in the path."
             },
             {
+                label: "/api/v2/status.json",
+                href: "/api/v2/status.json",
+                description: "Returns a Statuspage-style summary that rotates between operational and incident states."
+            },
+            {
+                label: "/api/v2/incidents/unresolved.json",
+                href: "/api/v2/incidents/unresolved.json",
+                description: "Returns zero or one rotating unresolved incident with Statuspage-style fields."
+            },
+            {
+                label: "/api/v2/scheduled-maintenances/active.json",
+                href: "/api/v2/scheduled-maintenances/active.json",
+                description: "Returns a rotating active maintenance payload for Catchpoint JSON parsing tests."
+            },
+            {
                 label: "/delayload/:time",
                 href: "/delayload/10",
                 description: "Loads an HTML page after a specified delay in seconds."

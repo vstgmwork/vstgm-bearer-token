@@ -209,6 +209,266 @@ app.get(["/", "/index.html"], (req, res) => {
     res.type("html").send(renderIndexHtml(pageContext));
 });
 
+// -----------------------------------------------------------------------------
+// Statuspage-compatible dynamic API fixtures
+// -----------------------------------------------------------------------------
+
+const STATUSPAGE_DEMO_URL = "https://www.vstgm.co.in";
+const STATUSPAGE_TIME_ZONE = "Asia/Kolkata";
+const STATUSPAGE_ROTATION_MS = 2 * 60 * 1000;
+
+const STATUSPAGE_COMPONENTS = [
+    { id: "component-api", name: "VSTGM Demo API" },
+    { id: "component-cdn", name: "VSTGM Demo CDN" },
+    { id: "component-auth", name: "VSTGM Demo Auth" }
+];
+
+const INCIDENT_PHASES = [
+    {
+        key: "none",
+        indicator: "none",
+        description: "All Systems Operational"
+    },
+    {
+        key: "investigating",
+        indicator: "minor",
+        description: "Minor Service Outage",
+        impact: "minor",
+        componentStatus: "degraded_performance",
+        body: "We are investigating elevated API latency in the demo environment."
+    },
+    {
+        key: "identified",
+        indicator: "major",
+        description: "Partial System Outage",
+        impact: "major",
+        componentStatus: "partial_outage",
+        body: "The cause has been identified and a fix is being tested."
+    },
+    {
+        key: "monitoring",
+        indicator: "minor",
+        description: "Minor Service Outage",
+        impact: "minor",
+        componentStatus: "operational",
+        body: "A fix has been applied and the demo service is being monitored."
+    },
+    {
+        key: "none",
+        indicator: "none",
+        description: "All Systems Operational"
+    }
+];
+
+const MAINTENANCE_PHASES = [
+    { key: "none" },
+    {
+        key: "scheduled",
+        status: "scheduled",
+        impact: "none",
+        body: "Demo maintenance is scheduled."
+    },
+    {
+        key: "in_progress",
+        status: "in_progress",
+        impact: "minor",
+        body: "Demo maintenance is currently in progress."
+    },
+    {
+        key: "verifying",
+        status: "verifying",
+        impact: "minor",
+        body: "Demo maintenance is complete and undergoing verification."
+    },
+    { key: "none" }
+];
+
+function toStatuspageTimestamp(timeMs) {
+    const indiaOffsetMs = 5.5 * 60 * 60 * 1000;
+    return new Date(timeMs + indiaOffsetMs).toISOString().replace(/\.\d{3}Z$/, ".000+05:30");
+}
+
+function getStatuspagePage(updatedAt) {
+    return {
+        id: "vstgm-status",
+        name: "VSTGM Demo Status",
+        url: STATUSPAGE_DEMO_URL,
+        time_zone: STATUSPAGE_TIME_ZONE,
+        updated_at: updatedAt
+    };
+}
+
+function getRotatingPhase(req, phases) {
+    const requestedState = String(req.query.state || "").trim().toLowerCase();
+    const forcedPhase = phases.find((phase) => phase.key === requestedState);
+    if (forcedPhase) {
+        return {
+            bucket: Math.floor(Date.now() / STATUSPAGE_ROTATION_MS),
+            phaseIndex: phases.indexOf(forcedPhase),
+            phase: forcedPhase
+        };
+    }
+
+    const bucket = Math.floor(Date.now() / STATUSPAGE_ROTATION_MS);
+    const phaseIndex = bucket % phases.length;
+
+    return {
+        bucket,
+        phaseIndex,
+        phase: phases[phaseIndex]
+    };
+}
+
+function buildStatuspageIncident(req) {
+    const { bucket, phaseIndex, phase } = getRotatingPhase(req, INCIDENT_PHASES);
+    const updatedAtMs = bucket * STATUSPAGE_ROTATION_MS;
+
+    if (phase.key === "none") {
+        return {
+            updatedAt: toStatuspageTimestamp(updatedAtMs),
+            phase,
+            incident: null
+        };
+    }
+
+    const component = STATUSPAGE_COMPONENTS[bucket % STATUSPAGE_COMPONENTS.length];
+    const incidentNumber = Math.floor(bucket / INCIDENT_PHASES.length) + 1;
+    const startBucket = bucket - phaseIndex + 1;
+    const startedAt = toStatuspageTimestamp(startBucket * STATUSPAGE_ROTATION_MS);
+    const updatedAt = toStatuspageTimestamp(updatedAtMs);
+
+    return {
+        updatedAt,
+        phase,
+        incident: {
+            id: `vstgm-incident-${incidentNumber}`,
+            name: `VSTGM Demo Incident ${incidentNumber}`,
+            status: phase.key,
+            impact: phase.impact,
+            shortlink: `${STATUSPAGE_DEMO_URL}/api/v2/incidents/unresolved.json`,
+            started_at: startedAt,
+            created_at: startedAt,
+            updated_at: updatedAt,
+            monitoring_at: phase.key === "monitoring" ? updatedAt : null,
+            resolved_at: null,
+            page_id: "vstgm-status",
+            incident_updates: [
+                {
+                    id: `vstgm-update-${incidentNumber}-${phase.key}`,
+                    incident_id: `vstgm-incident-${incidentNumber}`,
+                    status: phase.key,
+                    body: phase.body,
+                    created_at: updatedAt,
+                    updated_at: updatedAt,
+                    display_at: updatedAt,
+                    affected_components: [
+                        {
+                            code: component.id,
+                            name: component.name,
+                            old_status: "operational",
+                            new_status: phase.componentStatus
+                        }
+                    ]
+                }
+            ],
+            components: [
+                {
+                    id: component.id,
+                    name: component.name,
+                    status: phase.componentStatus
+                }
+            ]
+        }
+    };
+}
+
+function buildStatuspageMaintenance(req) {
+    const { bucket, phaseIndex, phase } = getRotatingPhase(req, MAINTENANCE_PHASES);
+    const updatedAtMs = bucket * STATUSPAGE_ROTATION_MS;
+    const updatedAt = toStatuspageTimestamp(updatedAtMs);
+
+    if (phase.key === "none") {
+        return {
+            updatedAt,
+            maintenances: []
+        };
+    }
+
+    const maintenanceNumber = Math.floor(bucket / MAINTENANCE_PHASES.length) + 1;
+    const startBucket = bucket - phaseIndex + 1;
+    const scheduledFor = toStatuspageTimestamp(startBucket * STATUSPAGE_ROTATION_MS);
+    const scheduledUntil = toStatuspageTimestamp((startBucket + 3) * STATUSPAGE_ROTATION_MS);
+
+    return {
+        updatedAt,
+        maintenances: [
+            {
+                id: `vstgm-maintenance-${maintenanceNumber}`,
+                name: `VSTGM Demo Maintenance ${maintenanceNumber}`,
+                status: phase.status,
+                impact: phase.impact,
+                scheduled_for: scheduledFor,
+                scheduled_until: scheduledUntil,
+                created_at: toStatuspageTimestamp((startBucket - 1) * STATUSPAGE_ROTATION_MS),
+                updated_at: updatedAt,
+                monitoring_at: phase.key === "verifying" ? updatedAt : null,
+                resolved_at: null,
+                incident_updates: [
+                    {
+                        id: `vstgm-maintenance-update-${maintenanceNumber}-${phase.key}`,
+                        status: phase.status,
+                        body: phase.body,
+                        created_at: updatedAt,
+                        updated_at: updatedAt
+                    }
+                ],
+                components: [
+                    {
+                        id: "component-maintenance",
+                        name: "VSTGM Demo Maintenance Window",
+                        status: phase.key === "scheduled" ? "operational" : "under_maintenance"
+                    }
+                ]
+            }
+        ]
+    };
+}
+
+function sendStatuspageJson(res, payload) {
+    res.setHeader("Cache-Control", "no-store");
+    res.json(payload);
+}
+
+app.get("/api/v2/status.json", (req, res) => {
+    const incidentState = buildStatuspageIncident(req);
+
+    sendStatuspageJson(res, {
+        page: getStatuspagePage(incidentState.updatedAt),
+        status: {
+            indicator: incidentState.phase.indicator,
+            description: incidentState.phase.description
+        }
+    });
+});
+
+app.get("/api/v2/incidents/unresolved.json", (req, res) => {
+    const incidentState = buildStatuspageIncident(req);
+
+    sendStatuspageJson(res, {
+        page: getStatuspagePage(incidentState.updatedAt),
+        incidents: incidentState.incident ? [incidentState.incident] : []
+    });
+});
+
+app.get("/api/v2/scheduled-maintenances/active.json", (req, res) => {
+    const maintenanceState = buildStatuspageMaintenance(req);
+
+    sendStatuspageJson(res, {
+        page: getStatuspagePage(maintenanceState.updatedAt),
+        scheduled_maintenances: maintenanceState.maintenances
+    });
+});
+
 // Optional backwards compatibility: if anything still requests /views/<file>,
 // serve that file from /public.
 app.use("/views", express.static(PUBLIC_DIR));
