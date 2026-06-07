@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script defer src="https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <link rel="shortcut icon" href="/logo.ico" type="image/x-icon">
+  <title>Pouch ID Card Generator</title>
+  <style>
+    :root {
+      --ink: #071c63;
+      --ink-soft: #0d2c8d;
+      --green: #087a1d;
+      --red: #f00606;
+      --paper: #ffffff;
+      --page: #eef3fb;
+      --panel: #ffffff;
+      --text: #1d2a3a;
+      --muted: #667085;
+      --line: #d9e1ee;
+      --shadow: 0 18px 50px rgba(10, 31, 68, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(13, 44, 141, 0.12), transparent 28rem),
+        radial-gradient(circle at 90% 15%, rgba(8, 122, 29, 0.10), transparent 24rem),
+        linear-gradient(135deg, #f9fbff 0%, var(--page) 100%);
+      font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .site-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .brand-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+    }
+
+    .brand-link img {
+      width: 42px;
+      height: 42px;
+    }
+
+    .home-link {
+      border: 1px solid rgba(7, 28, 99, 0.18);
+      border-radius: 999px;
+      padding: 10px 16px;
+      text-decoration: none;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 8px 24px rgba(10, 31, 68, 0.08);
+    }
+
+    .hero {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(34px, 6vw, 68px);
+      line-height: 0.95;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(217, 225, 238, 0.9);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      backdrop-filter: blur(12px);
+    }
+
+    .panel h2 {
+      margin: 0 0 18px;
+      color: var(--ink);
+      font-size: 20px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 16px;
+    }
+
+    label,
+    legend {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 13px;
+      color: var(--text);
+      background: #fbfdff;
+      font: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--ink-soft);
+      box-shadow: 0 0 0 4px rgba(13, 44, 141, 0.12);
+    }
+
+    input:disabled {
+      color: #9aa4b2;
+      background: #f3f6fb;
+      cursor: not-allowed;
+    }
+
+    fieldset {
+      border: 0;
+      margin: 0 0 16px;
+      padding: 0;
+    }
+
+    .choice-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .choice {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fbfdff;
+      color: var(--ink);
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .choice input {
+      position: absolute;
+      opacity: 0;
+      inset: 0;
+      cursor: pointer;
+    }
+
+    .choice:has(input:checked) {
+      color: #ffffff;
+      border-color: var(--ink);
+      background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%);
+      transform: translateY(-1px);
+    }
+
+    .hint {
+      margin: -8px 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .button {
+      border: 0;
+      border-radius: 16px;
+      padding: 13px 16px;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(7, 28, 99, 0.22);
+    }
+
+    .button.secondary {
+      color: var(--ink);
+      background: #eef4ff;
+      box-shadow: none;
+    }
+
+    .split-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .status {
+      min-height: 20px;
+      margin: 10px 0 0;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .preview-panel {
+      overflow-x: auto;
+    }
+
+    .download-sheet {
+      display: inline-grid;
+      gap: 14px;
+      min-width: 760px;
+      padding: 18px;
+      background: var(--paper);
+      border-radius: 26px;
+      box-shadow: inset 0 0 0 1px rgba(7, 28, 99, 0.08);
+    }
+
+    .sheet-title {
+      display: inline-grid;
+      justify-self: center;
+      justify-items: center;
+      color: var(--ink);
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .sheet-title::after {
+      content: "";
+      width: 320px;
+      height: 4px;
+      margin-top: 8px;
+      background: linear-gradient(90deg, var(--ink), var(--ink-soft));
+      border-radius: 999px;
+      box-shadow:
+        -164px 0 0 -1px var(--ink),
+        164px 0 0 -1px var(--ink);
+    }
+
+    .pouch-cards {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .side-wrap {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+    }
+
+    .side-label {
+      min-width: 176px;
+      border-radius: 10px;
+      padding: 9px 18px;
+      color: #ffffff;
+      text-align: center;
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 8px 18px rgba(10, 31, 68, 0.18);
+    }
+
+    .side-label.front {
+      background: linear-gradient(135deg, var(--ink), var(--ink-soft));
+    }
+
+    .side-label.back {
+      background: linear-gradient(135deg, #066d18, #0c8f28);
+    }
+
+    .pouch-card {
+      width: 350px;
+      height: 200px;
+      background: var(--paper);
+      border-radius: 22px;
+      padding: 15px 17px;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      align-content: start;
+      font-family: "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+    }
+
+    .front-card {
+      border: 4px solid var(--ink);
+      color: var(--ink);
+    }
+
+    .back-card {
+      border: 4px solid var(--green);
+      color: var(--ink);
+      padding: 12px 15px;
+    }
+
+    .school-name {
+      text-align: center;
+      color: var(--ink);
+      font-size: 23px;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      line-height: 1;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .front-logo {
+      display: none;
+      position: absolute;
+      top: 16px;
+      left: 18px;
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+    }
+
+    .front-card.has-logo .front-logo {
+      display: block;
+    }
+
+    .front-card.has-logo .school-name {
+      width: 252px;
+      margin-left: 54px;
+      text-align: left;
+      font-size: 18px;
+      line-height: 1.1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .board-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin: 7px 0 9px;
+      color: var(--red);
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    .board-row::before,
+    .board-row::after {
+      content: "";
+      width: 42px;
+      height: 3px;
+      background: var(--ink);
+      border-radius: 999px;
+    }
+
+    .card-label {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .student-line {
+      height: 30px;
+      border-bottom: 3px solid #111111;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0 6px 5px;
+      color: var(--red);
+      font-family: "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+      font-size: 21px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .class-title {
+      margin-top: 7px;
+    }
+
+    .class-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      align-items: center;
+      margin-top: 5px;
+      color: #111111;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .class-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    .class-item span:last-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tick-box {
+      width: 20px;
+      height: 20px;
+      border: 3px solid #111111;
+      background: #ffffff;
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .tick-box.is-checked::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 0;
+      width: 7px;
+      height: 13px;
+      border: solid var(--red);
+      border-width: 0 3px 3px 0;
+      transform: rotate(45deg);
+    }
+
+    .dispersal-title {
+      display: grid;
+      justify-items: center;
+      gap: 5px;
+      color: var(--green);
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.13em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .dispersal-title::after {
+      content: "";
+      width: 190px;
+      height: 3px;
+      background: var(--green);
+      border-radius: 999px;
+      box-shadow:
+        -105px 0 0 -1px var(--green),
+        105px 0 0 -1px var(--green);
+    }
+
+    .pickup-title {
+      margin-top: 10px;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .pickup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 8px 0 10px;
+      align-items: center;
+    }
+
+    .pickup-option {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--red);
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .route-title {
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .route-line {
+      min-height: 24px;
+      margin-top: 2px;
+      border-bottom: 3px solid #111111;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 3px;
+      color: #111111;
+      font-family: "Marker Felt", "Comic Sans MS", cursive;
+      font-size: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .school-use {
+      margin-top: 4px;
+      color: var(--green);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 900px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .download-sheet {
+        min-width: 390px;
+      }
+
+      .pouch-cards {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .sheet-title {
+        font-size: 32px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .page-shell {
+        width: min(100% - 20px, 1180px);
+      }
+
+      .site-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .download-sheet {
+        min-width: 0;
+        width: 100%;
+        padding: 12px;
+      }
+
+      .pouch-card {
+        transform: scale(0.86);
+        transform-origin: top center;
+        margin-bottom: -28px;
+      }
+
+      .sheet-title {
+        font-size: 26px;
+      }
+
+      .sheet-title::after {
+        width: 210px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page-shell">
+    <header class="site-header">
+      <a class="brand-link" href="/">
+        <img src="/logo.svg" alt="API Testbed Logo">
+        <span>Developer API Testbed</span>
+      </a>
+      <a class="home-link" href="/">Back to all paths</a>
+    </header>
+
+    <section class="hero" aria-labelledby="pageTitle">
+      <p class="eyebrow">Student utility</p>
+      <h1 id="pageTitle">Pouch ID Card</h1>
+      <p>Enter the student details once and preview both sides of the pouch card. Each side keeps the same 350 x 200 card size used by the existing ID card page.</p>
+    </section>
+
+    <section class="workspace">
+      <form class="panel" id="pouchForm">
+        <h2>Card Details</h2>
+
+        <div class="field">
+          <label for="studentName">Student Name</label>
+          <input id="studentName" type="text" maxlength="34" placeholder="A Ryan Sharma" autocomplete="name">
+        </div>
+
+        <div class="field">
+          <label for="logoUpload">School Logo</label>
+          <input id="logoUpload" type="file" accept="image/*">
+        </div>
+
+        <div class="field">
+          <label for="grade">Grade</label>
+          <select id="grade">
+            <option value="NUR">NUR</option>
+            <option value="PG">PG</option>
+            <option value="LKG" selected>LKG</option>
+            <option value="UKG">UKG</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="section">Section</label>
+          <input id="section" type="text" maxlength="3" placeholder="A">
+        </div>
+
+        <fieldset>
+          <legend>Dispersal Type</legend>
+          <div class="choice-group">
+            <label class="choice">
+              <input type="radio" name="dispersalType" value="parent" checked>
+              Parent Pickup
+            </label>
+            <label class="choice">
+              <input type="radio" name="dispersalType" value="bus">
+              School Bus
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="routeNumber">Transport Route Number</label>
+          <input id="routeNumber" type="text" maxlength="22" placeholder="For school bus students">
+        </div>
+        <p class="hint">Route number is shown on the back side when School Bus is selected. Parent Pickup marks the Yes box and leaves the route line blank.</p>
+
+        <div class="actions">
+          <button class="button" type="button" id="downloadSheet">Download Complete JPEG</button>
+          <div class="split-actions">
+            <button class="button secondary" type="button" id="downloadFront">Front JPEG</button>
+            <button class="button secondary" type="button" id="downloadBack">Back JPEG</button>
+          </div>
+        </div>
+        <p class="status" id="statusText" aria-live="polite"></p>
+      </form>
+
+      <section class="panel preview-panel" aria-labelledby="previewTitle">
+        <h2 id="previewTitle">Live Preview</h2>
+        <div class="download-sheet" id="pouchDownloadSheet">
+          <div class="sheet-title">Pouch ID Card</div>
+          <div class="pouch-cards">
+            <div class="side-wrap">
+              <div class="side-label front">Front Side</div>
+              <article class="pouch-card front-card" id="frontCard" aria-label="Pouch ID front side">
+                <img class="front-logo" id="frontLogo" alt="School Logo">
+                <div class="school-name">PNC Cognitio School</div>
+                <div class="board-row">ICSE</div>
+                <div class="card-label">Student Name</div>
+                <div class="student-line" id="previewName">Student Name</div>
+                <div class="card-label class-title">Class (Tick One)</div>
+                <div class="class-grid" aria-label="Selected class">
+                  <div class="class-item"><span class="tick-box" data-grade-box="NUR"></span><span data-grade-label="NUR">NUR</span></div>
+                  <div class="class-item"><span class="tick-box" data-grade-box="PG"></span><span data-grade-label="PG">PG</span></div>
+                  <div class="class-item"><span class="tick-box" data-grade-box="LKG"></span><span data-grade-label="LKG">LKG</span></div>
+                  <div class="class-item"><span class="tick-box" data-grade-box="UKG"></span><span data-grade-label="UKG">UKG</span></div>
+                </div>
+              </article>
+            </div>
+
+            <div class="side-wrap">
+              <div class="side-label back">Back Side</div>
+              <article class="pouch-card back-card" id="backCard" aria-label="Pouch ID back side">
+                <div class="dispersal-title">Dispersal Details</div>
+                <div class="pickup-title">Parent Pick-Up</div>
+                <div class="pickup-grid">
+                  <div class="pickup-option"><span class="tick-box" id="parentYes"></span><span>Yes</span></div>
+                  <div class="pickup-option"><span class="tick-box" id="parentNo"></span><span>No</span></div>
+                </div>
+                <div class="route-title">Transport Route Number</div>
+                <div class="route-line" id="previewRoute"></div>
+                <div class="school-use">(For School Use)</div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    function initVstgmRProfiler() {
+      if (!window.RProfiler) {
+        return;
+      }
+
+      var locales = ["in", "us", "gb", "sg", "au", "ae"];
+      var locale = locales[Math.floor(Math.random() * locales.length)];
+      var randNum = (Math.floor(Math.random() * 22) - 1) * 10;
+
+      window.RProfiler.addInfo("tracepoint", "locale", locale);
+      window.RProfiler.addInfo("indicator", "randnum", randNum);
+    }
+
+    window.RProfiler ? initVstgmRProfiler() : window.addEventListener("GlimpseLoaded", initVstgmRProfiler);
+
+    const studentName = document.getElementById("studentName");
+    const logoUpload = document.getElementById("logoUpload");
+    const grade = document.getElementById("grade");
+    const section = document.getElementById("section");
+    const routeNumber = document.getElementById("routeNumber");
+    const statusText = document.getElementById("statusText");
+    const frontCard = document.getElementById("frontCard");
+    const frontLogo = document.getElementById("frontLogo");
+    const previewName = document.getElementById("previewName");
+    const previewRoute = document.getElementById("previewRoute");
+    const parentYes = document.getElementById("parentYes");
+    const parentNo = document.getElementById("parentNo");
+    const gradeBoxes = Array.from(document.querySelectorAll("[data-grade-box]"));
+    const gradeLabels = Array.from(document.querySelectorAll("[data-grade-label]"));
+    const dispersalInputs = Array.from(document.querySelectorAll("input[name='dispersalType']"));
+    let uploadedLogoImage = null;
+
+    function getDispersalType() {
+      const checked = dispersalInputs.find((input) => input.checked);
+      return checked ? checked.value : "parent";
+    }
+
+    function getFilePrefix() {
+      const normalizedName = studentName.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      return normalizedName ? `pouch-id-${normalizedName}` : "pouch-id-card";
+    }
+
+    function getSectionValue() {
+      return section.value.trim().toUpperCase();
+    }
+
+    function getClassLabel(gradeValue) {
+      const sectionValue = getSectionValue();
+      return sectionValue ? `${gradeValue} - ${sectionValue}` : gradeValue;
+    }
+
+    function updatePouchCard() {
+      const selectedGrade = grade.value;
+      const dispersalType = getDispersalType();
+      const isBus = dispersalType === "bus";
+
+      previewName.textContent = studentName.value.trim() || "Student Name";
+      routeNumber.disabled = !isBus;
+      previewRoute.textContent = isBus ? routeNumber.value.trim() : "";
+
+      gradeBoxes.forEach((box) => {
+        box.classList.toggle("is-checked", box.dataset.gradeBox === selectedGrade);
+      });
+
+      gradeLabels.forEach((label) => {
+        label.textContent = label.dataset.gradeLabel === selectedGrade
+          ? getClassLabel(selectedGrade)
+          : label.dataset.gradeLabel;
+      });
+
+      parentYes.classList.toggle("is-checked", dispersalType === "parent");
+      parentNo.classList.toggle("is-checked", isBus);
+    }
+
+    function clearLogo() {
+      uploadedLogoImage = null;
+      frontLogo.removeAttribute("src");
+      frontCard.classList.remove("has-logo");
+    }
+
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+
+      if (!file) {
+        clearLogo();
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const image = new Image();
+
+        image.onload = () => {
+          uploadedLogoImage = image;
+          frontLogo.src = image.src;
+          frontCard.classList.add("has-logo");
+          setStatus("Logo added to front side.");
+        };
+
+        image.onerror = () => {
+          clearLogo();
+          setStatus("Could not read that logo image.");
+        };
+
+        image.src = reader.result;
+      };
+
+      reader.onerror = () => {
+        clearLogo();
+        setStatus("Could not read that logo image.");
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    function setStatus(message) {
+      statusText.textContent = message;
+      window.clearTimeout(setStatus.timer);
+      setStatus.timer = window.setTimeout(() => {
+        statusText.textContent = "";
+      }, 2800);
+    }
+
+    function createCanvas(width, height) {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      return canvas;
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+      const nextRadius = Math.min(radius, width / 2, height / 2);
+
+      ctx.beginPath();
+      ctx.moveTo(x + nextRadius, y);
+      ctx.lineTo(x + width - nextRadius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + nextRadius);
+      ctx.lineTo(x + width, y + height - nextRadius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - nextRadius, y + height);
+      ctx.lineTo(x + nextRadius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - nextRadius);
+      ctx.lineTo(x, y + nextRadius);
+      ctx.quadraticCurveTo(x, y, x + nextRadius, y);
+      ctx.closePath();
+    }
+
+    function strokeRoundedCard(ctx, color) {
+      ctx.fillStyle = "#ffffff";
+      roundRect(ctx, 2, 2, 346, 196, 22);
+      ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 4;
+      ctx.stroke();
+    }
+
+    function drawFittedText(ctx, text, x, y, maxWidth, fontSize, fontFamily, color, weight = "900", align = "center") {
+      let nextSize = fontSize;
+      ctx.textAlign = align;
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = color;
+
+      do {
+        ctx.font = `${weight} ${nextSize}px ${fontFamily}`;
+        if (ctx.measureText(text).width <= maxWidth || nextSize <= 10) {
+          break;
+        }
+
+        nextSize -= 1;
+      } while (nextSize > 10);
+
+      ctx.fillText(text, x, y);
+    }
+
+    function drawLine(ctx, x1, y1, x2, y2, color = "#111111", width = 3) {
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineCap = "round";
+      ctx.stroke();
+    }
+
+    function drawTickBox(ctx, x, y, checked, color = "#f00606") {
+      ctx.strokeStyle = "#111111";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x, y, 20, 20);
+
+      if (!checked) {
+        return;
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(x + 5, y + 10);
+      ctx.lineTo(x + 9, y + 15);
+      ctx.lineTo(x + 16, y + 4);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.stroke();
+    }
+
+    function drawImageContain(ctx, image, x, y, width, height) {
+      const imageWidth = image.naturalWidth || image.width;
+      const imageHeight = image.naturalHeight || image.height;
+
+      if (!imageWidth || !imageHeight) {
+        return;
+      }
+
+      const scale = Math.min(width / imageWidth, height / imageHeight);
+      const drawWidth = imageWidth * scale;
+      const drawHeight = imageHeight * scale;
+      const drawX = x + (width - drawWidth) / 2;
+      const drawY = y + (height - drawHeight) / 2;
+
+      ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+    }
+
+    function drawFrontCard(ctx) {
+      const selectedGrade = grade.value;
+      const name = studentName.value.trim() || "Student Name";
+      const grades = ["NUR", "PG", "LKG", "UKG"];
+      const positions = [22, 102, 182, 262];
+
+      strokeRoundedCard(ctx, "#071c63");
+
+      if (uploadedLogoImage && uploadedLogoImage.complete) {
+        drawImageContain(ctx, uploadedLogoImage, 18, 16, 42, 42);
+        drawFittedText(ctx, "PNC COGNITIO SCHOOL", 68, 32, 252, 18, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#071c63", "900", "left");
+      } else {
+        drawFittedText(ctx, "PNC COGNITIO SCHOOL", 175, 32, 306, 23, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#071c63");
+      }
+
+      drawLine(ctx, 101, 62, 141, 62, "#071c63", 3);
+      drawFittedText(ctx, "ICSE", 175, 62, 86, 25, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#f00606");
+      drawLine(ctx, 209, 62, 249, 62, "#071c63", 3);
+
+      drawFittedText(ctx, "STUDENT NAME", 22, 94, 130, 13, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#071c63", "900", "left");
+      drawFittedText(ctx, name, 175, 119, 286, 21, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#f00606", "900");
+      drawLine(ctx, 22, 132, 328, 132, "#111111", 3);
+
+      drawFittedText(ctx, "CLASS (TICK ONE)", 22, 153, 160, 13, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#071c63", "900", "left");
+
+      positions.forEach((x, index) => {
+        const currentGrade = grades[index];
+        const classLabel = currentGrade === selectedGrade ? getClassLabel(currentGrade) : currentGrade;
+        drawTickBox(ctx, x, 169, currentGrade === selectedGrade);
+        drawFittedText(ctx, classLabel, x + 26, 180, 58, 13, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#111111", "900", "left");
+      });
+    }
+
+    function drawBackCard(ctx) {
+      const isBus = getDispersalType() === "bus";
+      const route = isBus ? routeNumber.value.trim() : "";
+
+      strokeRoundedCard(ctx, "#087a1d");
+
+      drawFittedText(ctx, "DISPERSAL DETAILS", 175, 31, 254, 18, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#087a1d");
+      drawLine(ctx, 80, 50, 270, 50, "#087a1d", 3);
+
+      drawFittedText(ctx, "PARENT PICK-UP", 22, 76, 160, 17, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#071c63", "900", "left");
+      drawTickBox(ctx, 22, 93, !isBus);
+      drawFittedText(ctx, "YES", 52, 104, 54, 17, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#f00606", "900", "left");
+      drawTickBox(ctx, 181, 93, isBus);
+      drawFittedText(ctx, "NO", 211, 104, 42, 17, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#f00606", "900", "left");
+
+      drawFittedText(ctx, "TRANSPORT ROUTE NUMBER", 22, 135, 250, 15, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#071c63", "900", "left");
+      drawFittedText(ctx, route, 175, 158, 270, 16, "\"Marker Felt\", \"Comic Sans MS\", cursive", "#111111", "700");
+      drawLine(ctx, 22, 168, 328, 168, "#111111", 3);
+      drawFittedText(ctx, "(For School Use)", 175, 187, 150, 13, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#087a1d");
+    }
+
+    function renderCardCanvas(side) {
+      const canvas = createCanvas(350, 200);
+      const ctx = canvas.getContext("2d");
+
+      if (side === "front") {
+        drawFrontCard(ctx);
+      } else {
+        drawBackCard(ctx);
+      }
+
+      return canvas;
+    }
+
+    function drawSideLabel(ctx, text, x, y, width, color) {
+      ctx.save();
+      ctx.fillStyle = color;
+      roundRect(ctx, x, y, width, 42, 10);
+      ctx.fill();
+      drawFittedText(ctx, text, x + width / 2, y + 22, width - 28, 19, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#ffffff");
+      ctx.restore();
+    }
+
+    function renderCompleteCanvas() {
+      const canvas = createCanvas(760, 390);
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawFittedText(ctx, "POUCH ID CARD", 380, 50, 460, 42, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#071c63");
+      drawLine(ctx, 220, 84, 540, 84, "#071c63", 4);
+
+      drawSideLabel(ctx, "FRONT SIDE", 117, 112, 176, "#071c63");
+      drawSideLabel(ctx, "BACK SIDE", 467, 112, 176, "#087a1d");
+
+      ctx.drawImage(renderCardCanvas("front"), 30, 166);
+      ctx.drawImage(renderCardCanvas("back"), 380, 166);
+
+      return canvas;
+    }
+
+    function downloadCanvas(canvas, fileName) {
+      const link = document.createElement("a");
+      link.download = fileName;
+
+      try {
+        link.href = canvas.toDataURL("image/jpeg", 0.95);
+        link.click();
+        setStatus("JPEG download started.");
+      } catch (error) {
+        setStatus("Could not export this logo. Please try a PNG or JPEG logo.");
+      }
+    }
+
+    studentName.addEventListener("input", updatePouchCard);
+    logoUpload.addEventListener("change", handleLogoUpload);
+    grade.addEventListener("change", updatePouchCard);
+    section.addEventListener("input", updatePouchCard);
+    routeNumber.addEventListener("input", updatePouchCard);
+    dispersalInputs.forEach((input) => input.addEventListener("change", updatePouchCard));
+
+    document.getElementById("downloadSheet").addEventListener("click", () => {
+      downloadCanvas(renderCompleteCanvas(), `${getFilePrefix()}-complete.jpeg`);
+    });
+
+    document.getElementById("downloadFront").addEventListener("click", () => {
+      downloadCanvas(renderCardCanvas("front"), `${getFilePrefix()}-front-350x200.jpeg`);
+    });
+
+    document.getElementById("downloadBack").addEventListener("click", () => {
+      downloadCanvas(renderCardCanvas("back"), `${getFilePrefix()}-back-350x200.jpeg`);
+    });
+
+    updatePouchCard();
+  </script>
+</body>
+
+</html>

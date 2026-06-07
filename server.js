@@ -514,6 +514,10 @@ app.get("/idcard", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "id_card.html"));
 });
 
+app.get("/pouchid", (req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, "pouch_id.html"));
+});
+
 app.get("/errorsim", (req, res) => {
     const message = errorMessages[Math.floor(Math.random() * errorMessages.length)];
 
