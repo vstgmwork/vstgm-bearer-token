@@ -302,6 +302,16 @@
       font-family: "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
     }
 
+    .id-card.is-portrait {
+      width: 200px;
+      height: 350px;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      gap: 9px;
+      justify-items: center;
+      padding: 13px;
+    }
+
     .photo-box {
       display: grid;
       place-items: center;
@@ -317,6 +327,13 @@
       font-weight: 900;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+    }
+
+    .id-card.is-portrait .photo-box {
+      width: 74px;
+      height: 88px;
+      margin-top: 0;
+      border-radius: 13px;
     }
 
     .photo-box img {
@@ -336,6 +353,7 @@
 
     .card-main {
       min-width: 0;
+      width: 100%;
       display: grid;
       align-content: start;
       gap: 5px;
@@ -347,6 +365,11 @@
       gap: 8px;
       align-items: start;
       min-height: 42px;
+    }
+
+    .id-card.is-portrait .card-top {
+      min-height: 48px;
+      text-align: center;
     }
 
     .school-name {
@@ -362,11 +385,22 @@
       overflow-wrap: anywhere;
     }
 
+    .id-card.is-portrait .school-name {
+      font-size: 15px;
+      max-height: 48px;
+      text-align: center;
+    }
+
     .logo-box {
       display: none;
       width: 38px;
       height: 38px;
       object-fit: contain;
+    }
+
+    .id-card.is-portrait .logo-box {
+      width: 30px;
+      height: 30px;
     }
 
     .logo-box.has-logo {
@@ -384,6 +418,11 @@
       text-overflow: ellipsis;
     }
 
+    .id-card.is-portrait .student-name {
+      font-size: 17px;
+      text-align: center;
+    }
+
     .detail-grid {
       display: grid;
       gap: 2px;
@@ -391,11 +430,21 @@
       line-height: 1.1;
     }
 
+    .id-card.is-portrait .detail-grid {
+      gap: 4px;
+      font-size: 9.5px;
+    }
+
     .detail-row {
       display: grid;
       grid-template-columns: 52px 1fr;
       gap: 5px;
       min-width: 0;
+    }
+
+    .id-card.is-portrait .detail-row {
+      grid-template-columns: 48px 1fr;
+      gap: 4px;
     }
 
     .detail-row strong {
@@ -416,6 +465,12 @@
       -webkit-box-orient: vertical;
       min-height: 32px;
       max-height: 36px;
+    }
+
+    .id-card.is-portrait .address-row span {
+      min-height: 45px;
+      max-height: 48px;
+      -webkit-line-clamp: 4;
     }
 
     @media (max-width: 900px) {
@@ -545,6 +600,20 @@
         </div>
         <p class="hint">Bus route is enabled only when School Bus is selected. Parent Pickup is shown on the ID card by default.</p>
 
+        <fieldset>
+          <legend>Card Layout</legend>
+          <div class="choice-group">
+            <label class="choice">
+              <input type="radio" name="cardLayout" value="landscape" checked>
+              Landscape
+            </label>
+            <label class="choice">
+              <input type="radio" name="cardLayout" value="portrait">
+              Portrait
+            </label>
+          </div>
+        </fieldset>
+
         <button class="button" type="button" id="downloadId">Download ID as JPEG</button>
         <p class="status" id="statusText" aria-live="polite"></p>
       </form>
@@ -605,8 +674,11 @@
     const busRoute = document.getElementById("busRoute");
     const bloodGroup = document.getElementById("bloodGroup");
     const dispersalInputs = Array.from(document.querySelectorAll("input[name='dispersalType']"));
+    const layoutInputs = Array.from(document.querySelectorAll("input[name='cardLayout']"));
     const addressCounter = document.getElementById("addressCounter");
     const statusText = document.getElementById("statusText");
+    const idCard = document.getElementById("idCard");
+    const downloadIdButton = document.getElementById("downloadId");
     const logoPreview = document.getElementById("logoPreview");
     const photoPreview = document.getElementById("photoPreview");
     const photoBox = document.getElementById("photoBox");
@@ -650,6 +722,11 @@
       return checked ? checked.value : "parent";
     }
 
+    function getCardLayout() {
+      const checked = layoutInputs.find((input) => input.checked);
+      return checked ? checked.value : "landscape";
+    }
+
     function fitTextToBox(element, maxSize, minSize) {
       element.style.fontSize = `${maxSize}px`;
 
@@ -673,6 +750,7 @@
 
     function updateIdCard() {
       const isBus = getDispersalType() === "bus";
+      const isPortrait = getCardLayout() === "portrait";
 
       previewSchool.textContent = schoolName.value.trim() || "School Name";
       previewName.textContent = studentName.value.trim() || "Student Name";
@@ -684,14 +762,18 @@
       previewBlood.textContent = bloodGroup.value.trim() || "Blood Group";
       addressCounter.textContent = `${address.value.length} / 70 characters`;
       busRoute.disabled = !isBus;
+      idCard.classList.toggle("is-portrait", isPortrait);
+      downloadIdButton.textContent = isPortrait
+        ? "Download Portrait ID as JPEG"
+        : "Download Landscape ID as JPEG";
 
       if (!isBus) {
         busRoute.value = "";
       }
 
       window.requestAnimationFrame(() => {
-        fitTextToBox(previewSchool, 17, 11);
-        fitTextToBox(previewAddress, 10.5, 8);
+        fitTextToBox(previewSchool, isPortrait ? 15 : 17, isPortrait ? 9 : 11);
+        fitTextToBox(previewAddress, isPortrait ? 9.5 : 10.5, 7.5);
       });
     }
 
@@ -922,7 +1004,7 @@
       ctx.restore();
     }
 
-    function renderIdCanvas() {
+    function renderLandscapeIdCanvas() {
       const canvas = createCanvas(350, 200);
       const ctx = canvas.getContext("2d");
       const schoolText = schoolName.value.trim() || "School Name";
@@ -993,10 +1075,91 @@
       return canvas;
     }
 
+    function renderPortraitIdCanvas() {
+      const canvas = createCanvas(200, 350);
+      const ctx = canvas.getContext("2d");
+      const schoolText = schoolName.value.trim() || "School Name";
+      const nameText = studentName.value.trim() || "Student Name";
+      const isBus = getDispersalType() === "bus";
+      const dispersalLabel = isBus ? "BUS" : "PICKUP";
+      const dispersalValue = isBus ? (busRoute.value.trim() || "Route Number") : "Parent Pickup";
+
+      ctx.fillStyle = "#ffffff";
+      roundRect(ctx, 2, 2, 196, 346, 22);
+      ctx.fill();
+      ctx.strokeStyle = "#071c63";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      if (uploadedLogoImage && uploadedLogoImage.complete) {
+        drawImageContain(ctx, uploadedLogoImage, 154, 16, 30, 30);
+      }
+
+      drawFittedWrappedText(
+        ctx,
+        schoolText.toUpperCase(),
+        16,
+        16,
+        uploadedLogoImage ? 132 : 168,
+        16,
+        3,
+        15,
+        "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif",
+        "#071c63"
+      );
+
+      ctx.fillStyle = "#eef4ff";
+      roundRect(ctx, 63, 70, 74, 88, 13);
+      ctx.fill();
+      ctx.strokeStyle = "#071c63";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      if (uploadedPhotoImage && uploadedPhotoImage.complete) {
+        drawImageCover(ctx, uploadedPhotoImage, 63, 70, 74, 88);
+      } else {
+        drawFittedText(ctx, "PHOTO", 100, 114, 54, 12, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#071c63", "900", "center");
+      }
+
+      drawFittedText(ctx, nameText, 100, 178, 166, 17, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#f00606", "900", "center");
+
+      const details = [
+        ["CLASS", getClassLabel()],
+        ["ADDRESS", address.value.trim() || "Home Address"],
+        ["CONTACT", contact.value.trim() || "Contact Number"],
+        [dispersalLabel, dispersalValue],
+        ["BLOOD", bloodGroup.value.trim() || "Blood Group"]
+      ];
+
+      let y = 201;
+      details.forEach(([label, value], index) => {
+        drawFittedText(ctx, label, 16, y + 7, 44, 9.5, "\"Arial Rounded MT Bold\", \"Trebuchet MS\", sans-serif", "#071c63");
+
+        if (index === 1) {
+          drawFittedWrappedText(ctx, value, 68, y + 1, 114, 10.5, 4, 9.5, "\"Avenir Next\", \"Trebuchet MS\", sans-serif", "#1d2a3a", "700");
+          y += 46;
+        } else {
+          drawFittedText(ctx, value, 68, y + 7, 114, 10, "\"Avenir Next\", \"Trebuchet MS\", sans-serif", "#1d2a3a", "700");
+          y += 21;
+        }
+      });
+
+      return canvas;
+    }
+
+    function renderIdCanvas() {
+      return getCardLayout() === "portrait"
+        ? renderPortraitIdCanvas()
+        : renderLandscapeIdCanvas();
+    }
+
     function downloadId() {
       const canvas = renderIdCanvas();
       const link = document.createElement("a");
-      link.download = `${getFilePrefix()}-350x200.jpeg`;
+      const isPortrait = getCardLayout() === "portrait";
+      link.download = isPortrait
+        ? `${getFilePrefix()}-portrait-200x350.jpeg`
+        : `${getFilePrefix()}-landscape-350x200.jpeg`;
 
       try {
         link.href = canvas.toDataURL("image/jpeg", 0.95);
@@ -1019,6 +1182,7 @@
     ].forEach((input) => input.addEventListener("input", updateIdCard));
 
     dispersalInputs.forEach((input) => input.addEventListener("change", updateIdCard));
+    layoutInputs.forEach((input) => input.addEventListener("change", updateIdCard));
     logoUpload.addEventListener("change", handleLogoUpload);
     photoUpload.addEventListener("change", handlePhotoUpload);
     document.getElementById("downloadId").addEventListener("click", downloadId);
