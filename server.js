@@ -216,6 +216,8 @@ app.get(["/", "/index.html"], (req, res) => {
 const STATUSPAGE_DEMO_URL = "https://www.vstgm.co.in";
 const STATUSPAGE_TIME_ZONE = "Asia/Kolkata";
 const STATUSPAGE_ROTATION_MS = 2 * 60 * 1000;
+const STATUSPAGE_MIN_RECORDS = 3;
+const STATUSPAGE_MAX_RECORDS = 5;
 
 const STATUSPAGE_COMPONENTS = [
     { id: "component-api", name: "VSTGM Demo API" },
@@ -298,6 +300,10 @@ function getStatuspagePage(updatedAt) {
     };
 }
 
+function getRotatingRecordCount(bucket) {
+    return STATUSPAGE_MIN_RECORDS + (bucket % (STATUSPAGE_MAX_RECORDS - STATUSPAGE_MIN_RECORDS + 1));
+}
+
 function getRotatingPhase(req, phases) {
     const requestedState = String(req.query.state || "").trim().toLowerCase();
     const forcedPhase = phases.find((phase) => phase.key === requestedState);
@@ -327,46 +333,51 @@ function buildStatuspageIncident(req) {
         return {
             updatedAt: toStatuspageTimestamp(updatedAtMs),
             phase,
-            incident: null
+            incidents: []
         };
     }
 
-    const component = STATUSPAGE_COMPONENTS[bucket % STATUSPAGE_COMPONENTS.length];
-    const incidentNumber = Math.floor(bucket / INCIDENT_PHASES.length) + 1;
+    const activeIncidentPhases = INCIDENT_PHASES.filter((incidentPhase) => incidentPhase.key !== "none");
+    const incidentCount = getRotatingRecordCount(bucket);
+    const baseIncidentNumber = Math.floor(bucket / INCIDENT_PHASES.length) * 10;
     const startBucket = bucket - phaseIndex + 1;
-    const startedAt = toStatuspageTimestamp(startBucket * STATUSPAGE_ROTATION_MS);
     const updatedAt = toStatuspageTimestamp(updatedAtMs);
+    const incidents = Array.from({ length: incidentCount }, (_, index) => {
+        const incidentPhase = index === 0 ? phase : activeIncidentPhases[(bucket + index) % activeIncidentPhases.length];
+        const component = STATUSPAGE_COMPONENTS[(bucket + index) % STATUSPAGE_COMPONENTS.length];
+        const incidentNumber = baseIncidentNumber + index + 1;
+        const incidentBucket = Math.max(0, startBucket - index);
+        const incidentUpdatedBucket = Math.max(0, bucket - index);
+        const startedAt = toStatuspageTimestamp(incidentBucket * STATUSPAGE_ROTATION_MS);
+        const incidentUpdatedAt = toStatuspageTimestamp(incidentUpdatedBucket * STATUSPAGE_ROTATION_MS);
 
-    return {
-        updatedAt,
-        phase,
-        incident: {
+        return {
             id: `vstgm-incident-${incidentNumber}`,
             name: `VSTGM Demo Incident ${incidentNumber}`,
-            status: phase.key,
-            impact: phase.impact,
+            status: incidentPhase.key,
+            impact: incidentPhase.impact,
             shortlink: `${STATUSPAGE_DEMO_URL}/api/v2/incidents/unresolved.json`,
             started_at: startedAt,
             created_at: startedAt,
-            updated_at: updatedAt,
-            monitoring_at: phase.key === "monitoring" ? updatedAt : null,
+            updated_at: incidentUpdatedAt,
+            monitoring_at: incidentPhase.key === "monitoring" ? incidentUpdatedAt : null,
             resolved_at: null,
             page_id: "vstgm-status",
             incident_updates: [
                 {
-                    id: `vstgm-update-${incidentNumber}-${phase.key}`,
+                    id: `vstgm-update-${incidentNumber}-${incidentPhase.key}`,
                     incident_id: `vstgm-incident-${incidentNumber}`,
-                    status: phase.key,
-                    body: phase.body,
-                    created_at: updatedAt,
-                    updated_at: updatedAt,
-                    display_at: updatedAt,
+                    status: incidentPhase.key,
+                    body: incidentPhase.body,
+                    created_at: incidentUpdatedAt,
+                    updated_at: incidentUpdatedAt,
+                    display_at: incidentUpdatedAt,
                     affected_components: [
                         {
                             code: component.id,
                             name: component.name,
                             old_status: "operational",
-                            new_status: phase.componentStatus
+                            new_status: incidentPhase.componentStatus
                         }
                     ]
                 }
@@ -375,10 +386,16 @@ function buildStatuspageIncident(req) {
                 {
                     id: component.id,
                     name: component.name,
-                    status: phase.componentStatus
+                    status: incidentPhase.componentStatus
                 }
             ]
-        }
+        };
+    });
+
+    return {
+        updatedAt,
+        phase,
+        incidents
     };
 }
 
@@ -394,43 +411,52 @@ function buildStatuspageMaintenance(req) {
         };
     }
 
-    const maintenanceNumber = Math.floor(bucket / MAINTENANCE_PHASES.length) + 1;
+    const activeMaintenancePhases = MAINTENANCE_PHASES.filter((maintenancePhase) => maintenancePhase.key !== "none");
+    const maintenanceCount = getRotatingRecordCount(bucket);
+    const baseMaintenanceNumber = Math.floor(bucket / MAINTENANCE_PHASES.length) * 10;
     const startBucket = bucket - phaseIndex + 1;
-    const scheduledFor = toStatuspageTimestamp(startBucket * STATUSPAGE_ROTATION_MS);
-    const scheduledUntil = toStatuspageTimestamp((startBucket + 3) * STATUSPAGE_ROTATION_MS);
+    const maintenances = Array.from({ length: maintenanceCount }, (_, index) => {
+        const maintenancePhase = index === 0 ? phase : activeMaintenancePhases[(bucket + index) % activeMaintenancePhases.length];
+        const component = STATUSPAGE_COMPONENTS[(bucket + index) % STATUSPAGE_COMPONENTS.length];
+        const maintenanceNumber = baseMaintenanceNumber + index + 1;
+        const maintenanceStartBucket = Math.max(0, startBucket + index);
+        const scheduledFor = toStatuspageTimestamp(maintenanceStartBucket * STATUSPAGE_ROTATION_MS);
+        const scheduledUntil = toStatuspageTimestamp((maintenanceStartBucket + 3) * STATUSPAGE_ROTATION_MS);
+        const createdAt = toStatuspageTimestamp(Math.max(0, maintenanceStartBucket - 1) * STATUSPAGE_ROTATION_MS);
+
+        return {
+            id: `vstgm-maintenance-${maintenanceNumber}`,
+            name: `VSTGM Demo Maintenance ${maintenanceNumber}`,
+            status: maintenancePhase.status,
+            impact: maintenancePhase.impact,
+            scheduled_for: scheduledFor,
+            scheduled_until: scheduledUntil,
+            created_at: createdAt,
+            updated_at: updatedAt,
+            monitoring_at: maintenancePhase.key === "verifying" ? updatedAt : null,
+            resolved_at: null,
+            incident_updates: [
+                {
+                    id: `vstgm-maintenance-update-${maintenanceNumber}-${maintenancePhase.key}`,
+                    status: maintenancePhase.status,
+                    body: maintenancePhase.body,
+                    created_at: updatedAt,
+                    updated_at: updatedAt
+                }
+            ],
+            components: [
+                {
+                    id: component.id,
+                    name: component.name,
+                    status: maintenancePhase.key === "scheduled" ? "operational" : "under_maintenance"
+                }
+            ]
+        };
+    });
 
     return {
         updatedAt,
-        maintenances: [
-            {
-                id: `vstgm-maintenance-${maintenanceNumber}`,
-                name: `VSTGM Demo Maintenance ${maintenanceNumber}`,
-                status: phase.status,
-                impact: phase.impact,
-                scheduled_for: scheduledFor,
-                scheduled_until: scheduledUntil,
-                created_at: toStatuspageTimestamp((startBucket - 1) * STATUSPAGE_ROTATION_MS),
-                updated_at: updatedAt,
-                monitoring_at: phase.key === "verifying" ? updatedAt : null,
-                resolved_at: null,
-                incident_updates: [
-                    {
-                        id: `vstgm-maintenance-update-${maintenanceNumber}-${phase.key}`,
-                        status: phase.status,
-                        body: phase.body,
-                        created_at: updatedAt,
-                        updated_at: updatedAt
-                    }
-                ],
-                components: [
-                    {
-                        id: "component-maintenance",
-                        name: "VSTGM Demo Maintenance Window",
-                        status: phase.key === "scheduled" ? "operational" : "under_maintenance"
-                    }
-                ]
-            }
-        ]
+        maintenances
     };
 }
 
@@ -456,7 +482,7 @@ app.get("/api/v2/incidents/unresolved.json", (req, res) => {
 
     sendStatuspageJson(res, {
         page: getStatuspagePage(incidentState.updatedAt),
-        incidents: incidentState.incident ? [incidentState.incident] : []
+        incidents: incidentState.incidents
     });
 });
 
