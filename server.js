@@ -216,7 +216,7 @@ app.get(["/", "/index.html"], (req, res) => {
 const STATUSPAGE_DEMO_URL = "https://www.vstgm.co.in";
 const STATUSPAGE_TIME_ZONE = "Asia/Kolkata";
 const STATUSPAGE_ROTATION_MS = 2 * 60 * 1000;
-const STATUSPAGE_MIN_RECORDS = 3;
+const STATUSPAGE_MIN_RECORDS = 2;
 const STATUSPAGE_MAX_RECORDS = 5;
 
 const STATUSPAGE_COMPONENTS = [
@@ -304,38 +304,36 @@ function getRotatingRecordCount(bucket) {
     return STATUSPAGE_MIN_RECORDS + (bucket % (STATUSPAGE_MAX_RECORDS - STATUSPAGE_MIN_RECORDS + 1));
 }
 
-function getRotatingPhase(req, phases) {
+function getRotatingPhase(req, phases, options = {}) {
+    const phasePool = options.requireActive
+        ? phases.filter((phase) => phase.key !== "none")
+        : phases;
     const requestedState = String(req.query.state || "").trim().toLowerCase();
-    const forcedPhase = phases.find((phase) => phase.key === requestedState);
+    const forcedPhase = phasePool.find((phase) => phase.key === requestedState);
     if (forcedPhase) {
         return {
             bucket: Math.floor(Date.now() / STATUSPAGE_ROTATION_MS),
-            phaseIndex: phases.indexOf(forcedPhase),
+            phaseIndex: phasePool.indexOf(forcedPhase),
             phase: forcedPhase
         };
     }
 
     const bucket = Math.floor(Date.now() / STATUSPAGE_ROTATION_MS);
-    const phaseIndex = bucket % phases.length;
+    const rotatingPhases = options.skipNoneByDefault || options.requireActive
+        ? phasePool
+        : phases;
+    const phaseIndex = bucket % rotatingPhases.length;
 
     return {
         bucket,
         phaseIndex,
-        phase: phases[phaseIndex]
+        phase: rotatingPhases[phaseIndex]
     };
 }
 
 function buildStatuspageIncident(req) {
-    const { bucket, phaseIndex, phase } = getRotatingPhase(req, INCIDENT_PHASES);
+    const { bucket, phaseIndex, phase } = getRotatingPhase(req, INCIDENT_PHASES, { requireActive: true });
     const updatedAtMs = bucket * STATUSPAGE_ROTATION_MS;
-
-    if (phase.key === "none") {
-        return {
-            updatedAt: toStatuspageTimestamp(updatedAtMs),
-            phase,
-            incidents: []
-        };
-    }
 
     const activeIncidentPhases = INCIDENT_PHASES.filter((incidentPhase) => incidentPhase.key !== "none");
     const incidentCount = getRotatingRecordCount(bucket);
@@ -400,16 +398,9 @@ function buildStatuspageIncident(req) {
 }
 
 function buildStatuspageMaintenance(req) {
-    const { bucket, phaseIndex, phase } = getRotatingPhase(req, MAINTENANCE_PHASES);
+    const { bucket, phaseIndex, phase } = getRotatingPhase(req, MAINTENANCE_PHASES, { requireActive: true });
     const updatedAtMs = bucket * STATUSPAGE_ROTATION_MS;
     const updatedAt = toStatuspageTimestamp(updatedAtMs);
-
-    if (phase.key === "none") {
-        return {
-            updatedAt,
-            maintenances: []
-        };
-    }
 
     const activeMaintenancePhases = MAINTENANCE_PHASES.filter((maintenancePhase) => maintenancePhase.key !== "none");
     const maintenanceCount = getRotatingRecordCount(bucket);
