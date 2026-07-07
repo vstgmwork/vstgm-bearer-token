@@ -1540,22 +1540,41 @@ app.get("/sso-sim/logout", (req, res) => {
     res.redirect("/sso-sim");
 });
 
-// Route that responds with a random 4xx or 5xx error code.
+// Route that responds with a random 2xx, 4xx or 5xx error code.
 app.all("/randresp", (req, res) => {
     let randomCode;
-    const isClientError = Math.random() > 0.5; // 50% chance for 4xx vs 5xx
+    const rand = Math.random();
 
-    if (isClientError) {
-        // Generate a random code from 400 to 499
+    if (rand < 0.7) {
+        // 70% chance → 2xx (200–299)
+        randomCode = Math.floor(Math.random() * 100) + 200;
+    } else if (rand < 0.9) {
+        // 20% chance → 4xx (400–499)
         randomCode = Math.floor(Math.random() * 100) + 400;
     } else {
-        // Generate a random code from 500 to 511 (common server errors)
+        // 10% chance → 5xx (500–511)
         randomCode = Math.floor(Math.random() * 12) + 500;
     }
 
     const htmlContent = generateHtmlForCode(randomCode);
     res.status(randomCode).send(htmlContent);
 });
+
+// app.all("/randresp", (req, res) => {
+//     let randomCode;
+//     const isClientError = Math.random() > 0.5; // 50% chance for 4xx vs 5xx
+
+//     if (isClientError) {
+//         // Generate a random code from 400 to 499
+//         randomCode = Math.floor(Math.random() * 100) + 400;
+//     } else {
+//         // Generate a random code from 500 to 511 (common server errors)
+//         randomCode = Math.floor(Math.random() * 12) + 500;
+//     }
+
+//     const htmlContent = generateHtmlForCode(randomCode);
+//     res.status(randomCode).send(htmlContent);
+// });
 
 // ----------------------------------------
 // Dynamic download endpoint: /download/10k | /download/10m | /download/10g
