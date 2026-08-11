@@ -583,6 +583,46 @@ app.get("/authpage", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "auth_form.html"));
 });
 
+const BASIC_AUTH_USERNAME = "admin";
+const BASIC_AUTH_PASSWORD = "Germinfi432#1";
+const BASIC_AUTH_REALM = "VSTGM Secure Demo";
+
+function sendBasicAuthChallenge(res, message) {
+    res.set("WWW-Authenticate", `Basic realm="${BASIC_AUTH_REALM}", charset="UTF-8"`);
+    res.set("Cache-Control", "no-store");
+    return res.status(401).type("text/plain").send(message);
+}
+
+function requireBasicAuth(req, res, next) {
+    const authorization = String(req.get("authorization") || "");
+    const basicPrefix = "Basic ";
+
+    if (!authorization.startsWith(basicPrefix)) {
+        return sendBasicAuthChallenge(res, "Unauthorized");
+    }
+
+    const encodedCredentials = authorization.slice(basicPrefix.length).trim();
+    const decodedCredentials = Buffer.from(encodedCredentials, "base64").toString("utf8");
+    const separatorIndex = decodedCredentials.indexOf(":");
+
+    if (separatorIndex < 0) {
+        return sendBasicAuthChallenge(res, "Unauthorized");
+    }
+
+    const username = decodedCredentials.slice(0, separatorIndex);
+    const password = decodedCredentials.slice(separatorIndex + 1);
+
+    if (username !== BASIC_AUTH_USERNAME || password !== BASIC_AUTH_PASSWORD) {
+        return sendBasicAuthChallenge(res, "Unauthorized");
+    }
+
+    next();
+}
+
+app.get(["/basic-auth", "/basic-auth/"], requireBasicAuth, (req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, "basic_auth.html"));
+});
+
 app.get("/simulatedl", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "simulateDL.html"));
 });
