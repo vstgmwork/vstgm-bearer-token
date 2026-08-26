@@ -829,6 +829,10 @@ app.get("/gif", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "thankyou.gif"));
 });
 
+app.get("/file-downloads", (req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, "file_downloads.html"));
+});
+
 app.get("/sitemap.xml", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "sitemap.xml"));
 });
