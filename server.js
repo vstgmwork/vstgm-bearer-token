@@ -833,6 +833,17 @@ app.get("/file-downloads", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "file_downloads.html"));
 });
 
+app.get("/auto-download", (req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, "auto_download.html"));
+});
+
+app.get("/auto-download/file.txt", (req, res) => {
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="auto-download.txt"');
+    res.setHeader("Cache-Control", "no-store");
+    res.send("VSTGM automatic download test file.\n");
+});
+
 app.get("/sitemap.xml", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "sitemap.xml"));
 });
