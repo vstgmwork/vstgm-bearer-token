@@ -844,6 +844,16 @@ app.get("/auto-download/file.txt", (req, res) => {
     res.send("VSTGM automatic download test file.\n");
 });
 
+// ThingWorx-style image request that redirects through an intermediate URL
+// before landing on the existing authentication page.
+app.get("/Thingworx/images/ThingworxLogo.png", (req, res) => {
+    res.redirect(302, "/thingworx-sim/redirect");
+});
+
+app.get("/thingworx-sim/redirect", (req, res) => {
+    res.redirect(302, "/authpage");
+});
+
 app.get("/sitemap.xml", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "sitemap.xml"));
 });
