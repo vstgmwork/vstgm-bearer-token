@@ -850,8 +850,24 @@ app.get("/Thingworx/images/ThingworxLogo.png", (req, res) => {
     res.redirect(302, "/thingworx-sim/redirect");
 });
 
+let thingworxRedirectVisitCount = 0;
+const THINGWORX_AUTH_REDIRECTS_PER_CYCLE = 3;
+const THINGWORX_FAILURES_PER_CYCLE = 10;
+const THINGWORX_CYCLE_LENGTH =
+    THINGWORX_AUTH_REDIRECTS_PER_CYCLE + THINGWORX_FAILURES_PER_CYCLE;
+
 app.get("/thingworx-sim/redirect", (req, res) => {
-    res.redirect(302, "/authpage");
+    thingworxRedirectVisitCount += 1;
+    const cyclePosition =
+        ((thingworxRedirectVisitCount - 1) % THINGWORX_CYCLE_LENGTH) + 1;
+
+    if (cyclePosition <= THINGWORX_AUTH_REDIRECTS_PER_CYCLE) {
+        return res.redirect(302, "/authpage");
+    }
+
+    return res.status(503).type("text/plain").send(
+        "ThingWorx authentication service unavailable (simulated)"
+    );
 });
 
 app.get("/sitemap.xml", (req, res) => {
