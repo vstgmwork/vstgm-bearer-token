@@ -870,6 +870,35 @@ app.get("/thingworx-sim/redirect", (req, res) => {
     );
 });
 
+app.get("/prefetch-sim", (req, res) => {
+    res.set("Cache-Control", "no-store");
+    res.sendFile(path.join(PUBLIC_DIR, "prefetch_sim.html"));
+});
+
+app.get(["/prefetch-sim/speculation-rules/", "/prefetch-sim/speculation-rules.json"], (req, res) => {
+    res.set("Cache-Control", "no-store");
+    res.type("application/speculationrules+json").send({
+        prefetch: [{ urls: ["/prefetch-sim/smartphones/"] }]
+    });
+});
+
+app.get("/prefetch-sim/smartphones/", (req, res) => {
+    res.set("Cache-Control", "no-store");
+    res.set("X-VSTGM-Prefetch-Target", "smartphones");
+    const requestPurpose = String(
+        req.get("sec-purpose") || req.get("purpose") || "navigation"
+    ).toLowerCase();
+    const observedPurpose = requestPurpose.includes("prefetch")
+        ? "prefetch"
+        : "navigation";
+
+    res.set("X-VSTGM-Request-Purpose", observedPurpose);
+    const targetHtml = fs
+        .readFileSync(path.join(PUBLIC_DIR, "prefetch_smartphones.html"), "utf8")
+        .replace("__VSTGM_REQUEST_PURPOSE__", observedPurpose);
+    res.type("html").send(targetHtml);
+});
+
 app.get("/sitemap.xml", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "sitemap.xml"));
 });

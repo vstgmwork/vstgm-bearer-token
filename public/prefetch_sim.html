@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script defer src="https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js"></script>
+    <script type="speculationrules">
+    {
+        "prefetch": [
+            { "urls": ["/prefetch-sim/smartphones/"] }
+        ]
+    }
+    </script>
+    <title>Speculation Rules | VSTGM Testbed</title>
+    <style>
+        :root { color-scheme: dark; --bg: #07101e; --panel: #102039; --panel-soft: #162b4a; --text: #f3f7ff; --muted: #a4b7d2; --accent: #ef3340; --line: #2c4870; }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; color: var(--text); background: radial-gradient(circle at 85% 0%, rgba(239, 51, 64, .18), transparent 30rem), radial-gradient(circle at 0% 100%, rgba(41, 117, 255, .2), transparent 34rem), var(--bg); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px clamp(20px, 6vw, 88px); border-bottom: 1px solid rgba(164, 183, 210, .2); }
+        .brand { color: var(--text); font-weight: 850; letter-spacing: .04em; text-decoration: none; }
+        .brand span { color: var(--accent); }
+        nav { display: flex; gap: 20px; color: var(--muted); font-size: .92rem; }
+        nav a { color: inherit; text-decoration: none; }
+        nav a:hover, nav a:focus-visible { color: var(--text); }
+        main { width: min(980px, calc(100% - 40px)); margin: 0 auto; padding: clamp(52px, 10vw, 110px) 0; }
+        .eyebrow { margin: 0 0 14px; color: #ff8790; font-size: .76rem; font-weight: 850; letter-spacing: .16em; text-transform: uppercase; }
+        h1 { max-width: 760px; margin: 0; font-size: clamp(2.8rem, 8vw, 7.4rem); line-height: .92; letter-spacing: -.06em; }
+        .lead { max-width: 660px; margin: 28px 0 42px; color: var(--muted); font-size: clamp(1rem, 2vw, 1.18rem); line-height: 1.7; }
+        .fixture { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: center; padding: 24px; border: 1px solid var(--line); border-radius: 22px; background: rgba(16, 32, 57, .88); box-shadow: 0 20px 65px rgba(0, 0, 0, .2); }
+        .crumb { margin: 0 0 10px; color: var(--muted); font-size: .86rem; }
+        .crumb strong { color: var(--text); }
+        .fixture h2 { margin: 0; font-size: clamp(1.5rem, 3vw, 2.3rem); }
+        .fixture p:not(.crumb) { margin: 10px 0 0; color: var(--muted); line-height: 1.55; }
+        .open-link { display: inline-block; padding: 14px 20px; border-radius: 999px; color: #fff; background: var(--accent); font-weight: 850; text-decoration: none; white-space: nowrap; }
+        .open-link:hover, .open-link:focus-visible { background: #ff5963; outline: 3px solid rgba(239, 51, 64, .28); outline-offset: 3px; }
+        .status { margin-top: 18px; padding: 14px 16px; border-left: 3px solid #74c0fc; color: #c8d8ed; background: rgba(116, 192, 252, .08); font-size: .9rem; }
+        code { color: var(--text); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+        @media (max-width: 620px) { header { align-items: flex-start; flex-direction: column; } nav { gap: 14px; } .fixture { grid-template-columns: 1fr; } .open-link { width: 100%; text-align: center; } }
+    </style>
+</head>
+<body>
+    <header>
+        <a class="brand" href="/">VSTGM <span>LAB</span></a>
+        <nav aria-label="Primary navigation">
+            <a href="/">Home</a>
+            <a href="/file-downloads">Fixtures</a>
+            <a href="/sso-sim">Authentication</a>
+        </nav>
+    </header>
+
+    <main>
+        <p class="eyebrow">Speculation Rules API fixture</p>
+        <h1>Make the next page arrive early.</h1>
+        <p class="lead">
+            This page advertises the Smartphones document through an external Speculation Rules JSON resource.
+            In a compatible Chrome browser, the document can be prefetched before the link is selected.
+        </p>
+
+        <section class="fixture" aria-labelledby="smartphones-title">
+            <div>
+                <p class="crumb">Mobile <span aria-hidden="true">/</span> <strong>Smartphones</strong></p>
+                <h2 id="smartphones-title">Browse Smartphones</h2>
+                <p>Open the same-origin target after giving the browser an opportunity to prefetch it.</p>
+            </div>
+            <a class="open-link" href="/prefetch-sim/smartphones/">Open Smartphones</a>
+        </section>
+
+        <div class="status" id="rulesStatus" role="status">
+            Rules resource: <code>/prefetch-sim/speculation-rules/</code><br>
+            Target document: <code>/prefetch-sim/smartphones/</code>
+        </div>
+    </main>
+    <script>
+        // Load the same rules endpoint used by the customer flow for a visible
+        // network entry while the initial HTML rule starts the prefetch early.
+        fetch("/prefetch-sim/speculation-rules/")
+            .then(function (response) {
+                if (!response.ok) throw new Error("Rules request returned " + response.status);
+                return response.json();
+            })
+            .then(function (rules) {
+                document.getElementById("rulesStatus").insertAdjacentHTML(
+                    "beforeend",
+                    "<br>Loaded rules: <code>" + JSON.stringify(rules) + "</code>"
+                );
+            })
+            .catch(function (error) {
+                document.getElementById("rulesStatus").insertAdjacentHTML(
+                    "beforeend",
+                    "<br>Rules error: <code>" + error.message + "</code>"
+                );
+            });
+    </script>
+</body>
+</html>
