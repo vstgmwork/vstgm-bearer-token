@@ -871,19 +871,20 @@ app.get("/thingworx-sim/redirect", (req, res) => {
 });
 
 app.get("/prefetch-sim", (req, res) => {
-    res.set("Cache-Control", "no-store");
+    res.set("Cache-Control", "public, max-age=60");
+    res.set("Speculation-Rules", '"/prefetch-sim/speculation-rules/"');
     res.sendFile(path.join(PUBLIC_DIR, "prefetch_sim.html"));
 });
 
 app.get(["/prefetch-sim/speculation-rules/", "/prefetch-sim/speculation-rules.json"], (req, res) => {
-    res.set("Cache-Control", "no-store");
+    res.set("Cache-Control", "public, max-age=60");
     res.type("application/speculationrules+json").send({
         prefetch: [{ urls: ["/prefetch-sim/smartphones/"] }]
     });
 });
 
 app.get("/prefetch-sim/smartphones/", (req, res) => {
-    res.set("Cache-Control", "no-store");
+    res.set("Cache-Control", "public, max-age=60");
     res.set("X-VSTGM-Prefetch-Target", "smartphones");
     const requestPurpose = String(
         req.get("sec-purpose") || req.get("purpose") || "navigation"

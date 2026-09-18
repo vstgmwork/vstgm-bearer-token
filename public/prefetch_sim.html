@@ -4,13 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script defer src="https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js"></script>
-    <script type="speculationrules">
-    {
-        "prefetch": [
-            { "urls": ["/prefetch-sim/smartphones/"] }
-        ]
-    }
-    </script>
     <title>Speculation Rules | VSTGM Testbed</title>
     <style>
         :root { color-scheme: dark; --bg: #07101e; --panel: #102039; --panel-soft: #162b4a; --text: #f3f7ff; --muted: #a4b7d2; --accent: #ef3340; --line: #2c4870; }
@@ -67,29 +60,9 @@
 
         <div class="status" id="rulesStatus" role="status">
             Rules resource: <code>/prefetch-sim/speculation-rules/</code><br>
-            Target document: <code>/prefetch-sim/smartphones/</code>
+            Target document: <code>/prefetch-sim/smartphones/</code><br>
+            Rules are advertised through the <code>Speculation-Rules</code> response header.
         </div>
     </main>
-    <script>
-        // Load the same rules endpoint used by the customer flow for a visible
-        // network entry while the initial HTML rule starts the prefetch early.
-        fetch("/prefetch-sim/speculation-rules/")
-            .then(function (response) {
-                if (!response.ok) throw new Error("Rules request returned " + response.status);
-                return response.json();
-            })
-            .then(function (rules) {
-                document.getElementById("rulesStatus").insertAdjacentHTML(
-                    "beforeend",
-                    "<br>Loaded rules: <code>" + JSON.stringify(rules) + "</code>"
-                );
-            })
-            .catch(function (error) {
-                document.getElementById("rulesStatus").insertAdjacentHTML(
-                    "beforeend",
-                    "<br>Rules error: <code>" + error.message + "</code>"
-                );
-            });
-    </script>
 </body>
 </html>
