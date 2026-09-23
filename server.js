@@ -8,6 +8,64 @@ const app = express();
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: false }));
 
+const NEL_REPORT_PATH = "/reports/network-errors";
+const NEL_REPORT_GROUP = "vstgm-network-errors";
+const NEL_MAX_AGE_SECONDS = 86400;
+
+const getForwardedValue = (value) => {
+    if (typeof value !== "string") {
+        return "";
+    }
+
+    return value.split(",")[0].trim();
+};
+
+const getPublicOrigin = (req) => {
+    const protocol =
+        getForwardedValue(req.get("x-forwarded-proto")) ||
+        req.protocol ||
+        "http";
+    const host =
+        getForwardedValue(req.get("x-forwarded-host")) ||
+        req.get("host");
+
+    if (!host) {
+        return null;
+    }
+
+    return `${protocol}://${host}`;
+};
+
+const applyNetworkErrorLoggingHeaders = (req, res, next) => {
+    const publicOrigin = getPublicOrigin(req);
+
+    if (publicOrigin) {
+        const reportEndpoint = new URL(NEL_REPORT_PATH, publicOrigin).toString();
+
+        // Send both header formats for Chromium compatibility. NEL applies to
+        // the complete origin, not just the route that returned these headers.
+        res.set({
+            "Reporting-Endpoints": `${NEL_REPORT_GROUP}="${reportEndpoint}"`,
+            "Report-To": JSON.stringify({
+                group: NEL_REPORT_GROUP,
+                max_age: NEL_MAX_AGE_SECONDS,
+                endpoints: [{ url: reportEndpoint }]
+            }),
+            NEL: JSON.stringify({
+                report_to: NEL_REPORT_GROUP,
+                max_age: NEL_MAX_AGE_SECONDS,
+                include_subdomains: false,
+                failure_fraction: 1.0,
+                success_fraction: 0.0
+            })
+        });
+    }
+
+    next();
+};
+
+app.use(applyNetworkErrorLoggingHeaders);
+
 // -----------------------------------------------------------------------------
 // Static files
 // -----------------------------------------------------------------------------
@@ -484,6 +542,19 @@ app.get("/api/v2/scheduled-maintenances/active.json", (req, res) => {
         page: getStatuspagePage(maintenanceState.updatedAt),
         scheduled_maintenances: maintenanceState.maintenances
     });
+});
+
+// Browsers post Network Error Logging reports here. Keep the response empty;
+// the report details remain in the browser's reporting pipeline and logs.
+app.post(NEL_REPORT_PATH, (req, res) => {
+    const reportCount = Array.isArray(req.body)
+        ? req.body.length
+        : req.body && typeof req.body === "object"
+            ? 1
+            : 0;
+
+    console.log(`[NEL] received ${reportCount} network error report(s)`);
+    res.status(204).end();
 });
 
 // Optional backwards compatibility: if anything still requests /views/<file>,
