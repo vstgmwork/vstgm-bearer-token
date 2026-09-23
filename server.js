@@ -9,57 +9,28 @@ app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: false }));
 
 const NEL_REPORT_PATH = "/reports/network-errors";
-const NEL_REPORT_GROUP = "vstgm-network-errors";
-const NEL_MAX_AGE_SECONDS = 86400;
-
-const getForwardedValue = (value) => {
-    if (typeof value !== "string") {
-        return "";
-    }
-
-    return value.split(",")[0].trim();
-};
-
-const getPublicOrigin = (req) => {
-    const protocol =
-        getForwardedValue(req.get("x-forwarded-proto")) ||
-        req.protocol ||
-        "http";
-    const host =
-        getForwardedValue(req.get("x-forwarded-host")) ||
-        req.get("host");
-
-    if (!host) {
-        return null;
-    }
-
-    return `${protocol}://${host}`;
-};
+const NEL_REPORT_GROUP = "browser-reports";
+const NEL_MAX_AGE_SECONDS = 2592000;
+const NEL_REPORT_ENDPOINT = "https://rqa.3genlabs.net/hawklogserver/351496/re.p";
 
 const applyNetworkErrorLoggingHeaders = (req, res, next) => {
-    const publicOrigin = getPublicOrigin(req);
-
-    if (publicOrigin) {
-        const reportEndpoint = new URL(NEL_REPORT_PATH, publicOrigin).toString();
-
-        // Send both header formats for Chromium compatibility. NEL applies to
-        // the complete origin, not just the route that returned these headers.
-        res.set({
-            "Reporting-Endpoints": `${NEL_REPORT_GROUP}="${reportEndpoint}"`,
-            "Report-To": JSON.stringify({
-                group: NEL_REPORT_GROUP,
-                max_age: NEL_MAX_AGE_SECONDS,
-                endpoints: [{ url: reportEndpoint }]
-            }),
-            NEL: JSON.stringify({
-                report_to: NEL_REPORT_GROUP,
-                max_age: NEL_MAX_AGE_SECONDS,
-                include_subdomains: false,
-                failure_fraction: 1.0,
-                success_fraction: 0.0
-            })
-        });
-    }
+    // Send both header formats for Chromium compatibility. NEL applies to
+    // the complete origin, not just the route that returned these headers.
+    res.set({
+        "Reporting-Endpoints": `${NEL_REPORT_GROUP}="${NEL_REPORT_ENDPOINT}"`,
+        "Report-To": JSON.stringify({
+            group: NEL_REPORT_GROUP,
+            max_age: NEL_MAX_AGE_SECONDS,
+            endpoints: [{ url: NEL_REPORT_ENDPOINT }]
+        }),
+        NEL: JSON.stringify({
+            report_to: NEL_REPORT_GROUP,
+            max_age: NEL_MAX_AGE_SECONDS,
+            success_fraction: 0,
+            failure_fraction: 1.0,
+            include_subdomains: true
+        })
+    });
 
     next();
 };
