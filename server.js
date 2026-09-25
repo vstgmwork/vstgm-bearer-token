@@ -1100,7 +1100,22 @@ app.get('/redirect/:count', (req, res) => {
 
 // Lightweight one-hop redirect fixture: the first request returns 302 and
 // the same route returns the final 200 page after the query marker is present.
+const createSyntheticXInfoHeader = () => {
+    const requestId = crypto.randomInt(100000000, 999999999);
+    const completionId = requestId + crypto.randomInt(10, 100);
+    const connectionTime = () => crypto.randomInt(1, 400);
+    const requestTime = Date.now();
+
+    return `${crypto.randomInt(10, 100)}-${requestId}-${completionId} NNNN ` +
+        `CT(${connectionTime()} ${connectionTime()} 0) ` +
+        `RT(${requestTime} ${crypto.randomInt(10, 250)}) ` +
+        `q(0 0 ${crypto.randomInt(1, 10)} 0) ` +
+        `r(${crypto.randomInt(1, 12)} ${crypto.randomInt(1, 12)}) U6`;
+};
+
 app.get("/redirect-same-page", (req, res) => {
+    res.set("X-Iinfo", createSyntheticXInfoHeader());
+
     if (req.query.final !== "1") {
         return res.redirect(302, "/redirect-same-page?final=1");
     }
