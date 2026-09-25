@@ -1098,6 +1098,38 @@ app.get('/redirect/:count', (req, res) => {
     }, 1000); // 1-second delay before redirecting
 });
 
+// Lightweight one-hop redirect fixture: the first request returns 302 and
+// the same route returns the final 200 page after the query marker is present.
+app.get("/redirect-same-page", (req, res) => {
+    if (req.query.final !== "1") {
+        return res.redirect(302, "/redirect-same-page?final=1");
+    }
+
+    return res.status(200).type("html").send(`
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script defer src="https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js"></script>
+  <title>VSTGM Redirect Landing Page</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #eef4fb; color: #122033; font-family: system-ui, sans-serif; }
+    main { max-width: 560px; margin: 24px; padding: 40px; border: 1px solid #cbd8e8; border-radius: 20px; background: #fff; box-shadow: 0 16px 40px rgba(18, 32, 51, .12); }
+    h1 { margin-top: 0; color: #0b4ed1; }
+    code { padding: 3px 7px; border-radius: 6px; background: #edf3ff; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Redirect completed</h1>
+    <p>This lightweight page was reached after one <code>302</code> redirect and returned <code>200 OK</code>.</p>
+  </main>
+</body>
+</html>
+`);
+});
+
 const sendGeneratedTokenResponse = (req, res, expiresIn, durationMs) => {
     const requestContext = getResolvedRequestContext(req);
     const token = jwt.sign({}, SECRET_KEY, { expiresIn });
