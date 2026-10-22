@@ -93,6 +93,8 @@
         button:disabled { cursor: wait; opacity: .65; }
 
         .status { min-height: 22px; margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+        .status.passed { color: var(--green); font-weight: 800; }
+        .status.failed { color: var(--red); font-weight: 800; }
         .callout { border-left: 3px solid var(--blue); padding: 2px 0 2px 13px; color: var(--muted); font-size: 13px; line-height: 1.6; }
         .callout + .callout { margin-top: 16px; }
         .host { display: block; margin-top: 7px; color: var(--ink); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
@@ -175,6 +177,7 @@
 
         async function runScenario() {
             runButton.disabled = true;
+            runStatus.className = "status";
             runStatus.textContent = "Sending requests and checking what the server received…";
             rowIds.forEach((id) => setBadge(id, "pending", "Waiting"));
 
@@ -193,21 +196,33 @@
             ];
 
             let completed = 0;
+            let failed = false;
             for (const request of requests) {
                 try {
                     const response = await fetch(request.path, request);
                     const receipt = await response.json();
                     const hasCookie = receipt.cookiePresent === true;
-                    setBadge(request.id, hasCookie ? "present" : "missing", hasCookie ? "Present" : "Missing");
+                    const accepted = response.ok && hasCookie;
+                    const state = accepted ? "present" : "missing";
+                    const label = `${hasCookie ? "Present" : "Missing"} · HTTP ${response.status}`;
+                    setBadge(request.id, state, label);
+                    failed = failed || !accepted;
                     completed += 1;
                 } catch (error) {
                     setBadge(request.id, "error", "Request failed");
+                    failed = true;
                 }
             }
 
-            runStatus.textContent = completed === requests.length
-                ? "Scenario complete. Compare the final POST with the three control requests."
-                : `Scenario finished with ${requests.length - completed} request error(s).`;
+            if (failed || completed !== requests.length) {
+                runStatus.className = "status failed";
+                runStatus.textContent = "Scenario FAILED. A request did not receive the required cookie; missing-cookie requests are rejected with HTTP 403.";
+                document.body.dataset.scenarioStatus = "failed";
+            } else {
+                runStatus.className = "status passed";
+                runStatus.textContent = "Scenario passed. All four requests received the required cookie and returned HTTP 200.";
+                document.body.dataset.scenarioStatus = "passed";
+            }
             runButton.disabled = false;
         }
 

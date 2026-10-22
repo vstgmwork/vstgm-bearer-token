@@ -1058,13 +1058,19 @@ const sendArkoseCookieSimReceipt = (req, res) => {
         .split(";")
         .some((part) => part.trim().split("=", 1)[0] === ARKOSE_COOKIE_SIM_COOKIE);
 
-    res.json({
+    const receipt = {
         method: req.method,
         path: req.path,
         cookieName: ARKOSE_COOKIE_SIM_COOKIE,
         cookiePresent,
         receivedAt: new Date().toISOString()
-    });
+    };
+
+    if (!cookiePresent) {
+        receipt.error = `Required cookie ${ARKOSE_COOKIE_SIM_COOKIE} was not received`;
+    }
+
+    return res.status(cookiePresent ? 200 : 403).json(receipt);
 };
 
 app.get(ARKOSE_COOKIE_SIM_PATH, (req, res) => {
