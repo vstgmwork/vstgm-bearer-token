@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <script defer src="https://qaportal.catchpoint.com/jp/351496/latest/InitialLoadScript.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Arkose Cookie Delivery Lab</title>
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #132640;
+            --muted: #64748b;
+            --line: #d9e3ef;
+            --blue: #1459c7;
+            --green: #157347;
+            --red: #b42318;
+            --surface: #ffffff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: clamp(20px, 4vw, 52px);
+            background: radial-gradient(circle at 12% 4%, #dceaff 0, transparent 28rem), #f3f6fa;
+            color: var(--ink);
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        main { max-width: 1050px; margin: 0 auto; }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            color: var(--blue);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+        }
+
+        h1 { margin: 0; font-size: clamp(30px, 5vw, 48px); letter-spacing: -.04em; }
+        .intro { max-width: 760px; margin: 12px 0 24px; color: var(--muted); line-height: 1.65; }
+
+        .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(260px, .8fr); gap: 18px; }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: var(--surface);
+            box-shadow: 0 16px 38px rgba(28, 53, 87, .08);
+            padding: 22px;
+        }
+
+        h2 { margin: 0 0 16px; font-size: 18px; }
+
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 13px 10px; border-bottom: 1px solid #e8eef5; vertical-align: top; }
+        th { color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+        td { font-size: 13px; }
+        td code { color: #334b6a; overflow-wrap: anywhere; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 26px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .pending { background: #eef2f7; color: #64748b; }
+        .present { background: #e8f5ee; color: var(--green); }
+        .missing { background: #fff0ed; color: var(--red); }
+        .error { background: #fff0ed; color: var(--red); }
+
+        button {
+            border: 0;
+            border-radius: 10px;
+            background: var(--blue);
+            color: white;
+            padding: 11px 15px;
+            font: inherit;
+            font-weight: 750;
+            cursor: pointer;
+        }
+
+        button:hover { background: #0d47a1; }
+        button:disabled { cursor: wait; opacity: .65; }
+
+        .status { min-height: 22px; margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+        .callout { border-left: 3px solid var(--blue); padding: 2px 0 2px 13px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+        .callout + .callout { margin-top: 16px; }
+        .host { display: block; margin-top: 7px; color: var(--ink); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+        .small { margin: 15px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+        .footer { margin-top: 18px; font-size: 12px; }
+        .footer a { color: var(--blue); font-weight: 700; text-decoration: none; }
+
+        @media (max-width: 760px) {
+            .grid { grid-template-columns: 1fr; }
+            .panel { padding: 17px; }
+            th, td { padding: 11px 7px; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <p class="eyebrow">Request header fixture</p>
+        <h1>Arkose Cookie Delivery Lab</h1>
+        <p class="intro">
+            This lightweight page compares normal cookie-bearing control requests with a public-key-style POST
+            made using <code>credentials: "omit"</code>. The server reports only whether the synthetic
+            <code>dem-request-id</code> cookie arrived; it never displays or records its value.
+        </p>
+
+        <div class="grid">
+            <section class="panel" aria-labelledby="requests-title">
+                <h2 id="requests-title">Observed requests</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Request</th><th>Mode</th><th>Server received cookie</th></tr>
+                        </thead>
+                        <tbody id="requestRows">
+                            <tr data-request="api"><td><code>GET /api.js</code></td><td>include</td><td><span class="badge pending">Waiting</span></td></tr>
+                            <tr data-request="settings"><td><code>GET /settings</code></td><td>include</td><td><span class="badge pending">Waiting</span></td></tr>
+                            <tr data-request="fc-a"><td><code>GET /fc/a/</code></td><td>include</td><td><span class="badge pending">Waiting</span></td></tr>
+                            <tr data-request="public-key"><td><code>POST /fc/gt2/public_key/demo-key</code></td><td>omit</td><td><span class="badge pending">Waiting</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button id="runButton" type="button">Run scenario again</button>
+                <p class="status" id="runStatus" role="status">Starting the four requests…</p>
+            </section>
+
+            <aside class="panel" aria-labelledby="setup-title">
+                <h2 id="setup-title">Catchpoint setup</h2>
+                <p class="callout">
+                    For this fixture, set the Request Settings Cookie override for the current host below, using
+                    the cookie name <code>dem-request-id</code> and a synthetic value.
+                    <span class="host" id="fixtureHost"></span>
+                </p>
+                <p class="callout">
+                    The three controls use normal credential inclusion. The final POST opts out of browser-managed
+                    credentials. Check the server response for whether the Catchpoint override still reached it.
+                </p>
+                <p class="small">
+                    This exercises cookie delivery on a local same-origin fixture; it does not emulate the Arkose
+                    service, its cross-origin policies, or prove the cause of Chrome 151 behavior. Do not use a
+                    production allowlist cookie here.
+                </p>
+            </aside>
+        </div>
+
+        <p class="footer"><a href="/">Back to the VSTGM testbed</a></p>
+    </main>
+
+    <script>
+        const basePath = "/arkose-cookie-sim";
+        const rowIds = ["api", "settings", "fc-a", "public-key"];
+        const runButton = document.getElementById("runButton");
+        const runStatus = document.getElementById("runStatus");
+
+        document.getElementById("fixtureHost").textContent = window.location.hostname;
+
+        function setBadge(id, state, text) {
+            const badge = document.querySelector(`[data-request="${id}"] .badge`);
+            badge.className = `badge ${state}`;
+            badge.textContent = text;
+        }
+
+        async function runScenario() {
+            runButton.disabled = true;
+            runStatus.textContent = "Sending requests and checking what the server received…";
+            rowIds.forEach((id) => setBadge(id, "pending", "Waiting"));
+
+            const requests = [
+                { id: "api", path: `${basePath}/api.js`, method: "GET", credentials: "include" },
+                { id: "settings", path: `${basePath}/settings`, method: "GET", credentials: "include" },
+                { id: "fc-a", path: `${basePath}/fc/a/`, method: "GET", credentials: "include" },
+                {
+                    id: "public-key",
+                    path: `${basePath}/fc/gt2/public_key/demo-key`,
+                    method: "POST",
+                    credentials: "omit",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ fixture: true })
+                }
+            ];
+
+            let completed = 0;
+            for (const request of requests) {
+                try {
+                    const response = await fetch(request.path, request);
+                    const receipt = await response.json();
+                    const hasCookie = receipt.cookiePresent === true;
+                    setBadge(request.id, hasCookie ? "present" : "missing", hasCookie ? "Present" : "Missing");
+                    completed += 1;
+                } catch (error) {
+                    setBadge(request.id, "error", "Request failed");
+                }
+            }
+
+            runStatus.textContent = completed === requests.length
+                ? "Scenario complete. Compare the final POST with the three control requests."
+                : `Scenario finished with ${requests.length - completed} request error(s).`;
+            runButton.disabled = false;
+        }
+
+        runButton.addEventListener("click", runScenario);
+        runScenario();
+    </script>
+</body>
+</html>

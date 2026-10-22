@@ -1049,6 +1049,47 @@ app.get("/cookie-download", (req, res) => {
     res.redirect("/cookie-download/folder/0");
 });
 
+const ARKOSE_COOKIE_SIM_PATH = "/arkose-cookie-sim";
+const ARKOSE_COOKIE_SIM_COOKIE = "dem-request-id";
+
+const sendArkoseCookieSimReceipt = (req, res) => {
+    const cookieHeader = req.get("cookie") || "";
+    const cookiePresent = cookieHeader
+        .split(";")
+        .some((part) => part.trim().split("=", 1)[0] === ARKOSE_COOKIE_SIM_COOKIE);
+
+    res.json({
+        method: req.method,
+        path: req.path,
+        cookieName: ARKOSE_COOKIE_SIM_COOKIE,
+        cookiePresent,
+        receivedAt: new Date().toISOString()
+    });
+};
+
+app.get(ARKOSE_COOKIE_SIM_PATH, (req, res) => {
+    const forwardedProtocol = String(req.get("x-forwarded-proto") || "")
+        .split(",")[0]
+        .trim()
+        .toLowerCase();
+    const isSecureRequest = req.secure || forwardedProtocol === "https";
+
+    res.set("Cache-Control", "no-store");
+    res.cookie(ARKOSE_COOKIE_SIM_COOKIE, `fixture-${crypto.randomBytes(8).toString("hex")}`, {
+        httpOnly: true,
+        maxAge: 10 * 60 * 1000,
+        path: ARKOSE_COOKIE_SIM_PATH,
+        sameSite: isSecureRequest ? "none" : "lax",
+        secure: isSecureRequest
+    });
+    res.sendFile(path.join(PUBLIC_DIR, "arkose_cookie_sim.html"));
+});
+
+app.get(`${ARKOSE_COOKIE_SIM_PATH}/api.js`, sendArkoseCookieSimReceipt);
+app.get(`${ARKOSE_COOKIE_SIM_PATH}/settings`, sendArkoseCookieSimReceipt);
+app.get(`${ARKOSE_COOKIE_SIM_PATH}/fc/a/`, sendArkoseCookieSimReceipt);
+app.post(`${ARKOSE_COOKIE_SIM_PATH}/fc/gt2/public_key/:publicKey`, sendArkoseCookieSimReceipt);
+
 app.get("/cookie-download/folder/0", (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "cookie_download.html"));
 });
